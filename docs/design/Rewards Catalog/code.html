@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Beer House - Rewards Catalog</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-container": "#6c5000",
+              "on-error-container": "#93000a",
+              "primary-container": "#1278c3",
+              "on-secondary-fixed": "#261a00",
+              "on-primary-fixed-variant": "#00497b",
+              "error-container": "#ffdad6",
+              "inverse-primary": "#9dcaff",
+              "surface-variant": "#e2e2e5",
+              "surface-container-high": "#e8e8eb",
+              "surface-container": "#edeef1",
+              "on-error": "#ffffff",
+              "on-secondary-fixed-variant": "#5b4300",
+              "background": "#f9f9fc",
+              "on-tertiary-container": "#f7fff2",
+              "on-secondary": "#ffffff",
+              "on-primary-container": "#fdfcff",
+              "secondary-fixed-dim": "#fabd00",
+              "on-background": "#1a1c1e",
+              "on-tertiary": "#ffffff",
+              "surface-container-low": "#f3f3f6",
+              "outline": "#707882",
+              "surface-tint": "#0062a1",
+              "primary": "#005f9e",
+              "secondary-container": "#fdc003",
+              "secondary": "#785900",
+              "primary-fixed": "#d1e4ff",
+              "on-primary-fixed": "#001d35",
+              "surface-bright": "#f9f9fc",
+              "on-surface": "#1a1c1e",
+              "on-surface-variant": "#404751",
+              "inverse-surface": "#2f3133",
+              "surface-container-highest": "#e2e2e5",
+              "secondary-fixed": "#ffdf9e",
+              "error": "#ba1a1a",
+              "on-tertiary-fixed": "#002108",
+              "tertiary": "#006b29",
+              "surface": "#f9f9fc",
+              "primary-fixed-dim": "#9dcaff",
+              "on-tertiary-fixed-variant": "#00531e",
+              "outline-variant": "#c0c7d3",
+              "tertiary-container": "#008735",
+              "tertiary-fixed": "#69ff87",
+              "surface-container-lowest": "#ffffff",
+              "inverse-on-surface": "#f0f0f3",
+              "surface-dim": "#d9dadd",
+              "on-primary": "#ffffff",
+              "tertiary-fixed-dim": "#3ce36a"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Be Vietnam Pro"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+      }
+      .premium-gradient {
+        background: linear-gradient(135deg, #005f9e 0%, #1278c3 100%);
+      }
+      body {
+        font-family: 'Be Vietnam Pro', sans-serif;
+        background-color: #f9f9fc;
+        color: #1a1c1e;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl flex items-center justify-between w-full px-6 py-4">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-blue-600" data-icon="menu">menu</span>
+<h1 class="font-headline font-extrabold tracking-widest text-lg text-slate-900 uppercase">BEER HOUSE</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Professional portrait of a middle-aged man with a friendly expression, soft studio lighting, clean minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH5jUT69tOBvNxNKKcuTiv8IKC7hv2Qvaq2x6JYVTgw36QQl-_OjobGvSPCv0_xiWd6ddjp6t4QChuRhLus5ur_TtzHHxvkl6n8MeUWAFCCvb1Hk3-Dl9-OAQJk-2O74MvG6dcJL2OXEuOjTwSEeLwr9lEBG4hAKPR3I97O-I-eDAjsYy5PC6q2zbTPRp3QxJRGMEMMkjoTFCP0XwD5rUE5vBegThhdft_G3BHV83ZGEWHM9WBlcXX-XONY4LzH0WBK8WDituDUg"/>
+</div>
+</header>
+<main class="max-w-md mx-auto px-6 pt-8">
+<!-- Points Hero Section -->
+<section class="mb-10 relative overflow-hidden rounded-xl premium-gradient p-8 text-white shadow-lg">
+<div class="relative z-10 flex flex-col gap-1">
+<span class="font-label text-xs font-semibold uppercase tracking-[0.2em] opacity-80">Available Balance</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-5xl font-extrabold tracking-tight">920</span>
+<span class="font-body text-lg opacity-90">PTS</span>
+</div>
+</div>
+<!-- Decorative shape -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute top-4 right-6">
+<span class="material-symbols-outlined text-4xl opacity-20" data-icon="redeem" style="font-variation-settings: 'FILL' 1;">redeem</span>
+</div>
+</section>
+<!-- Catalog Header -->
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline text-2xl font-bold tracking-tight text-on-background">Rewards Catalog</h2>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="filter_list">filter_list</span>
+</div>
+</div>
+<!-- Rewards Grid -->
+<div class="grid grid-cols-1 gap-6">
+<!-- Item 1: Free Pint (Redeemable) -->
+<div class="bg-surface-container-lowest rounded-lg p-5 flex flex-col gap-4 shadow-sm border border-outline-variant/10">
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0">
+<img alt="Free Pint" class="w-full h-full object-cover" data-alt="Close-up of a perfectly poured pint of golden craft beer with frothy head on a rustic wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBehuBI8V13gF9qjNezRnSm9N6zhvpX9iztapy51UFueYaMrGasbegtP3Z_oJZoZMA82iQr8QhgnBmtAhVG_M5e0lIm9JUGzFK1-vF9l5eGkUl9Ww226Wc3-LF3rhE_ZrMdLGwwCRC4_HP2V_Ty7318PoHCh41F0xoZm1sx2nFX1CGcXpbZ3hoxjgFeDowAi1h-L4Qkjx5ZYxO0sc8Sl-sfeCLp_sqH1E3vNaN6l_KUI9NJRhheEpp9k-jiwe_ZfH_Y9v16uMHXow"/>
+</div>
+<div class="flex flex-col justify-between">
+<div>
+<h3 class="font-headline text-lg font-bold text-on-background leading-tight">Free Pint</h3>
+<p class="font-body text-sm text-on-surface-variant mt-1">Choose any flagship brew from our draft list.</p>
+</div>
+<div class="font-label text-xs font-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+                            500 PTS
+                        </div>
+</div>
+</div>
+<button class="w-full py-3 premium-gradient text-white font-headline font-bold rounded-md active:scale-95 transition-transform">
+                    Redeem
+                </button>
+</div>
+<!-- Item 2: Half Off Burger (Redeemable) -->
+<div class="bg-surface-container-lowest rounded-lg p-5 flex flex-col gap-4 shadow-sm border border-outline-variant/10">
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0">
+<img alt="Half Off Burger" class="w-full h-full object-cover" data-alt="Gourmet double cheeseburger with melting cheese and fresh greens on a toasted brioche bun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz8RrePkEdRDOoPmbwtHvf5ey96XLBc5PJEzVT_SPTJxPpvUbL-a7whkHc_jrgNMBFYDYWTakEq0fhYx7Mzl8u9saE1E8BdEnYY1UR6UVPg71oZypHEzKkDmr80LR9T8BlunFZxgRaQRl2ExVlRGRj0zEErpZU5DLBIv3nKHZviXG_kuGE-ge09M_K1DUBisQ3fTAa71K2UVaPpOLytNZgkAW9ocU9Xw_dPPYlbpXe59BX1K7j3-E-CvH36tf35HKxPrkt2ND0dg"/>
+</div>
+<div class="flex flex-col justify-between">
+<div>
+<h3 class="font-headline text-lg font-bold text-on-background leading-tight">Half Off Burger</h3>
+<p class="font-body text-sm text-on-surface-variant mt-1">Get 50% off any signature burger on the menu.</p>
+</div>
+<div class="font-label text-xs font-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+                            800 PTS
+                        </div>
+</div>
+</div>
+<button class="w-full py-3 premium-gradient text-white font-headline font-bold rounded-md active:scale-95 transition-transform">
+                    Redeem
+                </button>
+</div>
+<!-- Item 3: Appetizer Platter (Locked) -->
+<div class="bg-surface-container-low rounded-lg p-5 flex flex-col gap-4 opacity-75 grayscale-[0.5]">
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 relative">
+<img alt="Appetizer Platter" class="w-full h-full object-cover" data-alt="A shared platter featuring wings, nachos, and dipping sauces on a dark slate background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP_kp1d24469R0JwVXzmyoJawjtG0lxGNOTn8jgijSReXLNTcX1reiHCqGEF2LI82yexv_VErsbhUwIAxyQS166YuGQWbPWBmdUdX_XpgnimOkaLtnZQSEXSnlekHpzk6Qx1JK2M3OSZovxZL4f7zqpcsXjn-lKix8FOdXsN3ijb9zMlR6PbYcyLOwqvsBTBHZW4DIiX5TVSwtzsEYyUo2YoKOEDRECj4dzzVeWfaNO--BOGZO6GU9o3Rd7ggj9w-W9NPcGXDjBg"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="lock">lock</span>
+</div>
+</div>
+<div class="flex flex-col justify-between">
+<div>
+<h3 class="font-headline text-lg font-bold text-on-background leading-tight">Appetizer Platter</h3>
+<p class="font-body text-sm text-on-surface-variant mt-1">A massive selection of our top-rated starters.</p>
+</div>
+<div class="font-label text-xs font-bold text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+                            1,200 PTS
+                        </div>
+</div>
+</div>
+<button class="w-full py-3 bg-surface-container-highest text-on-surface-variant font-headline font-bold rounded-md cursor-not-allowed" disabled="">
+                    Need 280 more pts
+                </button>
+</div>
+<!-- Item 4: Beer Flight (Locked) -->
+<div class="bg-surface-container-low rounded-lg p-5 flex flex-col gap-4 opacity-75 grayscale-[0.5]">
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 relative">
+<img alt="Beer Flight" class="w-full h-full object-cover" data-alt="A flight of four different colored craft beers in small glasses on a custom wooden flight paddle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvI75Z78M1vNkBrMtN67uWxNkIlsvoQDqaqRaAh9v_VTi4TvWTbD0qqhydS9xKXslijouIw0QefFW7IZdKSwhWvpg2tv0NPDKXT8YEjcRri1nRsDcq2RuGNqjvckyofnyOCE48vpQVzvWvc8J4lNuRgWprMxVzC764XMiLc8D5PyZ58CsZCpVL7GxsuUdKOhGusLZz17EGE_gb1Mf_UmT-bjLTYmao11Vqy2LAB7tG-TS6jA4mAMilsEAb4FvW5gxGXlKFU99Oww"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="lock">lock</span>
+</div>
+</div>
+<div class="flex flex-col justify-between">
+<div>
+<h3 class="font-headline text-lg font-bold text-on-background leading-tight">Beer Flight</h3>
+<p class="font-body text-sm text-on-surface-variant mt-1">Sampler of 4 seasonal rotating brews.</p>
+</div>
+<div class="font-label text-xs font-bold text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+                            1,500 PTS
+                        </div>
+</div>
+</div>
+<button class="w-full py-3 bg-surface-container-highest text-on-surface-variant font-headline font-bold rounded-md cursor-not-allowed" disabled="">
+                    Need 580 more pts
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-[3rem]">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-blue-500 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-plus-jakarta-sans text-[10px] font-semibold uppercase tracking-wider mt-1">Home</span>
+</a>
+<!-- Rewards (Active) -->
+<a class="flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full px-5 py-2 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="redeem" style="font-variation-settings: 'FILL' 1;">redeem</span>
+<span class="font-plus-jakarta-sans text-[10px] font-semibold uppercase tracking-wider mt-1">Rewards</span>
+</a>
+<!-- History -->
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-blue-500 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-plus-jakarta-sans text-[10px] font-semibold uppercase tracking-wider mt-1">History</span>
+</a>
+</nav>
+</body></html>
