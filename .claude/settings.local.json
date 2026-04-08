@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"process.stdout.write\\(JSON.stringify\\({tool_name:'Write',tool_input:{file_path:'/Users/stepansmbatyan/Projects/stepan/loyalty-app/frontend/src/features/discussions/components/test.tsx',content:\\\\\"import { useUser } from '@/features/auth/lib/auth';\\\\\\\\n\\\\\\\\nexport function DiscussionList\\(\\) { return null; }\\\\\"}}\\)\\);\")",
+      "Bash(node .claude/hooks/validate_architecture.cjs)",
+      "Bash(echo \"Test 1 \\(cross-feature, expect exit 2\\): $?\")",
+      "Bash(node -e \"process.stdout.write\\(JSON.stringify\\({tool_name:'Write',tool_input:{file_path:'/Users/stepansmbatyan/Projects/stepan/loyalty-app/frontend/src/features/discussions/api/get-discussions.ts',content:\\\\\"import { api } from '@/lib/api-client';\\\\\\\\nexport const getDiscussions = \\(\\) => api.get\\('/discussions'\\);\\\\\"}}\\)\\);\")",
+      "Bash(echo \"Test 2 \\(valid feature api, expect exit 0\\): $?\")",
+      "Bash(node -e \"process.stdout.write\\(JSON.stringify\\({tool_name:'Write',tool_input:{file_path:'/Users/stepansmbatyan/Projects/stepan/loyalty-app/frontend/src/features/loyalty-cards/api/get-cards.ts',content:\\\\\"export const getCards = \\(\\) => fetch\\('/api/cards'\\).then\\(r => r.json\\(\\)\\);\\\\\"}}\\)\\);\")",
+      "Bash(echo \"Test 3 \\(raw fetch, expect exit 2\\): $?\")",
+      "Bash(node -e \"process.stdout.write\\(JSON.stringify\\({tool_name:'Write',tool_input:{file_path:'/Users/stepansmbatyan/Projects/stepan/loyalty-app/frontend/src/components/ui/badge.tsx',content:\\\\\"import { useLoyaltyCards } from '@/features/loyalty-cards/api/get-cards';\\\\\\\\nexport function Badge\\(\\) { return null; }\\\\\"}}\\)\\);\")",
+      "Bash(echo \"Test 4 \\(shared component imports feature, expect exit 2\\): $?\")",
+      "Bash(node -e \"process.stdout.write\\(JSON.stringify\\({tool_name:'Write',tool_input:{file_path:'/Users/stepansmbatyan/Projects/stepan/loyalty-app/frontend/next.config.mjs',content:\\\\\"export default {};\\\\\"}}\\)\\);\")",
+      "Bash(echo \"Test 5 \\(non-src file, expect exit 0\\): $?\")"
+    ]
+  }
+}
