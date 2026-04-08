@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npx *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git status*)",
+      "Bash(git show *)",
+      "Bash(git stash*)",
+      "Bash(docker compose *)",
+      "Bash(docker-compose *)",
+      "Edit(/.claude/skills/nestjs-boilerplate/**)",
+      "Bash(node .claude/hooks/validate_architecture.js)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node .claude/hooks/validate_architecture.js echo \"exit code: $?\")",
+      "Bash(node -e \":*)",
+      "Bash(printf '{\"\"\"\"tool_name\"\"\"\":\"\"\"\"Write\"\"\"\",\"\"\"\"tool_input\"\"\"\":{\"\"\"\"file_path\"\"\"\":\"\"\"\"/Users/proj/src/users/users.service.ts\"\"\"\",\"\"\"\"content\"\"\"\":\"\"\"\"import { InjectRepository } from \\\\\"\"\"\"@nestjs/typeorm\\\\\"\"\"\"; @InjectRepository\\(UserEntity\\) private repo;\"\"\"\"}}')",
+      "Bash(node .claude/hooks/validate_architecture.js echo \"exit: $?\")"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Bash(git push --force*)",
+      "Bash(rm -rf *)",
+      "Bash(curl * | bash*)",
+      "Read(.env)",
+      "Read(.env.*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/validate_architecture.js"
+          }
+        ]
+      }
+    ]
+  }
+}
