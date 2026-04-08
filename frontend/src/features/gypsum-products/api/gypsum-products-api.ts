@@ -10,10 +10,12 @@ export const gypsumProductsApi = createApi({
   }),
   tagTypes: ['GypsumProduct'],
   endpoints: (builder) => ({
-    getGypsumProducts: builder.query<GypsumProductsResponse, { page?: number }>({
-      query: ({ page = 1 }) => `/gypsum-products?page=${page}`,
-      providesTags: ['GypsumProduct'],
-    }),
+    getGypsumProducts: builder.query<GypsumProductsResponse, { page?: number }>(
+      {
+        query: ({ page = 1 }) => `/gypsum-products?page=${page}`,
+        providesTags: ['GypsumProduct'],
+      },
+    ),
     getGypsumProduct: builder.query<GypsumProduct, string>({
       query: (id) => `/gypsum-products/${id}`,
       providesTags: (_result, _err, id) => [{ type: 'GypsumProduct', id }],

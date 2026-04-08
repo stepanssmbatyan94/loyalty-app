@@ -40,7 +40,9 @@ export const GypsumProductsList = ({
             </p>
             <p
               className={
-                product.inStock ? 'text-sm text-green-600' : 'text-sm text-red-500'
+                product.inStock
+                  ? 'text-sm text-green-600'
+                  : 'text-sm text-red-500'
               }
             >
               {product.inStock ? inStockText : outOfStockText}

@@ -4,7 +4,7 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 
-import { Discussion } from '@/app/app/discussions/[discussionId]/_components/discussion';
+import { Discussion } from '@/app/(app)/discussions/[discussionId]/_components/discussion';
 import { getInfiniteCommentsQueryOptions } from '@/features/comments/api/get-comments';
 import {
   getDiscussion,
