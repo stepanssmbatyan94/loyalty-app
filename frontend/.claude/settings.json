@@ -1,7 +1,36 @@
 {
   "permissions": {
     "allow": [
-      "Bash(yarn add:*)"
+      "Bash(yarn *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git status*)",
+      "Bash(git show *)",
+      "Bash(git stash*)",
+      "Edit(.claude/skills/next-loyalty-app/**)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(rm -rf *)",
+      "Bash(curl * | bash*)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(.env.local)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/validate_architecture.cjs"
+          }
+        ]
+      }
     ]
   }
 }

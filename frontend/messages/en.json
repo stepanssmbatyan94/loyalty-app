@@ -14,8 +14,22 @@
     "email": "Email Address",
     "password": "Password"
   },
+  "homePage": {
+    "title": "Bulletproof React",
+    "subtitle": "Showcasing Best Practices For Building React Applications",
+    "getStarted": "Get started",
+    "githubRepo": "Github Repo"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back"
+  },
   "gypsumProducts": {
     "title": "Gypsum Products",
-    "empty": "No products found."
+    "subtitle": "Browse our product catalog",
+    "empty": "No products found.",
+    "loading": "Loading products…",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock"
   }
 }

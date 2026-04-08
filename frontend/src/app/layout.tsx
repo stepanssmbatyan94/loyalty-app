@@ -3,6 +3,8 @@ import {
   HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query';
+import { getLocale, getMessages } from 'next-intl/server';
+import { NextIntlClientProvider } from 'next-intl';
 import { ReactNode } from 'react';
 
 import { AppProvider } from '@/app/provider';
@@ -16,6 +18,9 @@ export const metadata = {
 };
 
 const RootLayout = async ({ children }: { children: ReactNode }) => {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery(getUserQueryOptions());
@@ -23,13 +28,15 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
   const dehydratedState = dehydrate(queryClient);
 
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body>
-        <AppProvider>
-          <HydrationBoundary state={dehydratedState}>
-            {children}
-          </HydrationBoundary>
-        </AppProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <AppProvider>
+            <HydrationBoundary state={dehydratedState}>
+              {children}
+            </HydrationBoundary>
+          </AppProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

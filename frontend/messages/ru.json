@@ -14,8 +14,22 @@
     "email": "Электронная почта",
     "password": "Пароль"
   },
+  "homePage": {
+    "title": "Bulletproof React",
+    "subtitle": "Демонстрация лучших практик разработки React-приложений",
+    "getStarted": "Начать",
+    "githubRepo": "Github репозиторий"
+  },
+  "dashboard": {
+    "title": "Дашборд",
+    "welcome": "С возвращением"
+  },
   "gypsumProducts": {
     "title": "Гипсовые продукты",
-    "empty": "Продукты не найдены."
+    "subtitle": "Просматривайте наш каталог продуктов",
+    "empty": "Продукты не найдены.",
+    "loading": "Загрузка продуктов…",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии"
   }
 }

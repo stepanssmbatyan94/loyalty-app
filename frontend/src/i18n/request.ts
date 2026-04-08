@@ -2,13 +2,10 @@ import { getRequestConfig } from 'next-intl/server';
 
 import { routing } from './routing';
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale;
-
-  // Fall back to defaultLocale before [locale] route segments are added
-  if (!locale || !(routing.locales as string[]).includes(locale)) {
-    locale = routing.defaultLocale;
-  }
+export default getRequestConfig(async () => {
+  // No middleware yet — always use the default locale until [locale] route
+  // segments are added and the middleware is re-enabled.
+  const locale = routing.defaultLocale;
 
   return {
     locale,

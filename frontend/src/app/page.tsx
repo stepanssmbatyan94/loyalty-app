@@ -1,19 +1,22 @@
+import { getTranslations } from 'next-intl/server';
+
 import { Button } from '@/components/ui/button';
 import { Link } from '@/components/ui/link';
 import { paths } from '@/config/paths';
 import { checkLoggedIn } from '@/utils/auth';
 
-const HomePage = () => {
+const HomePage = async () => {
+  const t = await getTranslations('homePage');
   const isLoggedIn = checkLoggedIn();
 
   return (
     <div className="flex h-screen items-center bg-white">
       <div className="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 lg:px-8 lg:py-16">
         <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-          <span className="block">Bulletproof React</span>
+          <span className="block">{t('title')}</span>
         </h2>
         <img src="/logo.svg" alt="react" />
-        <p>Showcasing Best Practices For Building React Applications</p>
+        <p>{t('subtitle')}</p>
         <div className="mt-8 flex justify-center">
           <div className="inline-flex rounded-md shadow">
             <Link
@@ -41,7 +44,7 @@ const HomePage = () => {
                   </svg>
                 }
               >
-                Get started
+                {t('getStarted')}
               </Button>
             </Link>
           </div>
@@ -67,7 +70,7 @@ const HomePage = () => {
                   </svg>
                 }
               >
-                Github Repo
+                {t('githubRepo')}
               </Button>
             </a>
           </div>
