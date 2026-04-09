@@ -18,12 +18,11 @@ export function CustomerLayout({ children }: { children: React.ReactNode }) {
   const showBottomNav = !ROUTES_WITHOUT_BOTTOM_NAV.some((route) =>
     pathname.startsWith(route),
   );
-  const variant =
-    pathname.startsWith('/redemption')
-      ? 'redemption'
-      : pathname.startsWith('/rewards')
-        ? 'catalog'
-        : 'home';
+  const variant = pathname.startsWith('/redemption')
+    ? 'redemption'
+    : pathname.startsWith('/rewards')
+      ? 'catalog'
+      : 'home';
 
   return (
     <div className="relative min-h-screen bg-background">

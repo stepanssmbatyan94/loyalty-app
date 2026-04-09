@@ -12,8 +12,9 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
+import { AuthTelegramLoginDto } from './dto/auth-telegram-login.dto';
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
 import { AuthConfirmEmailDto } from './dto/auth-confirm-email.dto';
 import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
@@ -32,6 +33,17 @@ import { RefreshResponseDto } from './dto/refresh-response.dto';
 })
 export class AuthController {
   constructor(private readonly service: AuthService) {}
+
+  @Post('telegram')
+  @ApiCreatedResponse({
+    description: 'Authenticates a Telegram Mini App user via initData HMAC validation',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  public loginTelegram(
+    @Body() dto: AuthTelegramLoginDto,
+  ): Promise<LoginResponseDto & { isNew: boolean }> {
+    return this.service.loginWithTelegram(dto.initData);
+  }
 
   @SerializeOptions({
     groups: ['me'],

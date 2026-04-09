@@ -40,13 +40,13 @@ export function TopAppBar({
             menu
           </button>
         ) : (
-          <div className="bg-primary-container/10 rounded-lg p-2">
-            <span className="material-symbols-outlined text-primary text-xl">
+          <div className="rounded-lg bg-primary-container/10 p-2">
+            <span className="material-symbols-outlined text-xl text-primary">
               sports_bar
             </span>
           </div>
         )}
-        <span className="font-headline text-on-surface text-lg font-extrabold tracking-widest">
+        <span className="font-headline text-lg font-extrabold tracking-widest text-on-surface">
           {t('appName')}
         </span>
       </div>
@@ -70,7 +70,7 @@ export function TopAppBar({
 function Avatar({ url }: { url?: string | null }) {
   if (url) {
     return (
-      <div className="border-primary-container/20 size-10 overflow-hidden rounded-full border-2">
+      <div className="size-10 overflow-hidden rounded-full border-2 border-primary-container/20">
         <img src={url} alt="" className="size-full object-cover" />
       </div>
     );
@@ -80,10 +80,10 @@ function Avatar({ url }: { url?: string | null }) {
     <div
       className={cn(
         'w-10 h-10 rounded-full border-2 border-primary-container/20',
-        'bg-surface-container-high flex items-center justify-center',
+        'flex items-center justify-center bg-surface-container-high',
       )}
     >
-      <span className="material-symbols-outlined text-on-surface-variant text-xl">
+      <span className="material-symbols-outlined text-xl text-on-surface-variant">
         person
       </span>
     </div>

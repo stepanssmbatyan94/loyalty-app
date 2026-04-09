@@ -17,7 +17,7 @@ export function BottomNavBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-white/90 backdrop-blur-2xl rounded-t-[3rem] shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-around rounded-t-xl bg-white/90 px-4 pb-8 pt-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] backdrop-blur-2xl">
       {TABS.map(({ key, icon, href }) => {
         const isActive = pathname === href;
         return (
@@ -34,14 +34,12 @@ export function BottomNavBar() {
             <span
               className="material-symbols-outlined text-2xl"
               style={
-                isActive
-                  ? { fontVariationSettings: "'FILL' 1" }
-                  : undefined
+                isActive ? { fontVariationSettings: "'FILL' 1" } : undefined
               }
             >
               {icon}
             </span>
-            <span className="font-headline text-[10px] font-semibold uppercase tracking-wider mt-1">
+            <span className="mt-1 font-headline text-[10px] font-semibold uppercase tracking-wider">
               {t(`nav.${key}`)}
             </span>
           </Link>

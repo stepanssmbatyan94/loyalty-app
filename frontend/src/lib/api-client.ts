@@ -1,5 +1,6 @@
 import { useNotifications } from '@/components/ui/notifications';
 import { env } from '@/config/env';
+import { useAuthStore } from '@/stores/auth-store';
 
 type RequestOptions = {
   method?: string;
@@ -69,12 +70,17 @@ async function fetchApi<T>(
 
   const fullUrl = buildUrlWithParams(`${env.API_URL}${url}`, params);
 
+  // Attach Bearer token from Zustand store when available (Telegram Mini App auth)
+  const token =
+    typeof window !== 'undefined' ? useAuthStore.getState().token : null;
+
   const response = await fetch(fullUrl, {
     method,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
       ...headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(cookieHeader ? { Cookie: cookieHeader } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,

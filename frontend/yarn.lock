@@ -3080,6 +3080,18 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/quickjs-emscripten/-/quickjs-emscripten-0.23.0.tgz#db4ecfd499a9765ab24002c3b696d02e6d32a12c"
   integrity sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==
 
+"@twa-dev/sdk@^8.0.2":
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@twa-dev/sdk/-/sdk-8.0.2.tgz#72efd41b5b5878b5e9cd8896673b8708a045d2f5"
+  integrity sha512-Pp5GxnxP2blboVZFiM9aWjs4cb8IpW3x2jP3kLOMvIqy0jzNUTuFHkwHtx+zEvh/UcF2F+wmS8G6ebIA0XPXcg==
+  dependencies:
+    "@twa-dev/types" "^8.0.1"
+
+"@twa-dev/types@^8.0.1":
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@twa-dev/types/-/types-8.0.2.tgz#118620c1ff8724de82063b1318a8749bd40b0d8b"
+  integrity sha512-ICQ6n4NaUPPzV3/GzflVQS6Nnu5QX2vr9OlOG8ZkFf3rSJXzRKazrLAbZlVhCPPWkIW3MMuELPsE6tByrA49qA==
+
 "@types/aria-query@^5.0.1":
   version "5.0.4"
   resolved "https://registry.yarnpkg.com/@types/aria-query/-/aria-query-5.0.4.tgz#1a31c3d378850d2778dabb6374d036dcba4ba708"

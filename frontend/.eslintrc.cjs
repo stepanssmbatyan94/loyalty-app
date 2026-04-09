@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   root: true,
   env: {
@@ -18,7 +20,12 @@ module.exports = {
       settings: {
         react: { version: 'detect' },
         'import/resolver': {
-          typescript: {},
+          typescript: {
+            project: path.join(__dirname, 'tsconfig.json'),
+          },
+        },
+        tailwindcss: {
+          config: path.join(__dirname, 'tailwind.config.cjs'),
         },
       },
       env: {
@@ -131,6 +138,17 @@ module.exports = {
         '@typescript-eslint/no-empty-function': ['off'],
         '@typescript-eslint/no-explicit-any': ['off'],
         'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+        'tailwindcss/no-custom-classname': [
+          'warn',
+          {
+            whitelist: [
+              'material\\-symbols\\-outlined',
+              'text\\-on\\-primary\\-container',
+              'text\\-primary\\-foreground',
+              'text\\-secondary\\-foreground',
+            ],
+          },
+        ],
       },
     },
     {

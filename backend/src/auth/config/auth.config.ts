@@ -44,5 +44,6 @@ export default registerAs<AuthConfig>('auth', () => {
     confirmEmailSecret: process.env.AUTH_CONFIRM_EMAIL_SECRET,
     confirmEmailExpires: process.env
       .AUTH_CONFIRM_EMAIL_TOKEN_EXPIRES_IN as ms.StringValue,
+    telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
   };
 });

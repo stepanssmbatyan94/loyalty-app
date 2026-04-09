@@ -10,15 +10,15 @@ const RewardsPage = async () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Balance hero placeholder */}
-      <section className="glass-card rounded-xl p-6 flex items-center justify-between text-white">
+      <section className="glass-card flex items-center justify-between rounded-xl p-6 text-white">
         <div>
           <p className="font-label text-xs uppercase tracking-widest opacity-80">
             {t('yourBalance')}
           </p>
-          <p className="font-headline font-extrabold text-5xl tracking-tighter mt-1">
+          <p className="mt-1 font-headline text-5xl font-extrabold tracking-tighter">
             2,450
           </p>
-          <p className="font-label text-sm opacity-80 mt-1">{t('points')}</p>
+          <p className="mt-1 font-label text-sm opacity-80">{t('points')}</p>
         </div>
         <span
           className="material-symbols-outlined text-6xl opacity-20"
@@ -29,7 +29,7 @@ const RewardsPage = async () => {
       </section>
 
       {/* Rewards list placeholder */}
-      <h2 className="font-headline font-bold text-xl tracking-tight">
+      <h2 className="font-headline text-xl font-bold tracking-tight">
         {t('catalogTitle')}
       </h2>
       <div className="space-y-4">
@@ -40,10 +40,10 @@ const RewardsPage = async () => {
         ].map((reward) => (
           <div
             key={reward.name}
-            className="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4 shadow-sm"
+            className="flex items-center gap-4 rounded-xl bg-surface-container-lowest p-4 shadow-sm"
           >
             <div
-              className={`w-14 h-14 rounded-lg flex items-center justify-center shrink-0 ${
+              className={`flex size-14 shrink-0 items-center justify-center rounded-lg ${
                 reward.unlocked ? 'bg-primary/10' : 'bg-surface-container-high'
               }`}
             >
@@ -61,13 +61,13 @@ const RewardsPage = async () => {
               </span>
             </div>
             <div className="flex-1">
-              <p className="font-headline font-bold text-sm">{reward.name}</p>
-              <p className="font-label text-xs text-on-surface-variant mt-0.5">
+              <p className="font-headline text-sm font-bold">{reward.name}</p>
+              <p className="mt-0.5 font-label text-xs text-on-surface-variant">
                 {reward.cost} pts
               </p>
             </div>
             {reward.unlocked && (
-              <button className="bg-primary text-white font-label text-xs font-bold px-4 py-2 rounded-full">
+              <button className="rounded-full bg-primary px-4 py-2 font-label text-xs font-bold text-white">
                 {t('redeemButton')}
               </button>
             )}

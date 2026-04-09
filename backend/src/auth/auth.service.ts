@@ -29,6 +29,13 @@ import { SessionService } from '../session/session.service';
 import { StatusEnum } from '../statuses/statuses.enum';
 import { User } from '../users/domain/user';
 
+type TelegramUserPayload = {
+  id: number;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -531,6 +538,48 @@ export class AuthService {
     };
   }
 
+  async loginWithTelegram(
+    initData: string,
+  ): Promise<LoginResponseDto & { isNew: boolean }> {
+    const params = new URLSearchParams(initData);
+    const hash = params.get('hash');
+
+    if (!hash) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { initData: 'invalidOrExpired' },
+      });
+    }
+
+    this.verifyTelegramHmac(params, hash);
+    this.validateTelegramAuthDate(params);
+    const tgUser = this.parseTelegramUser(params);
+    const { user, isNew } = await this.findOrCreateTelegramUser(tgUser);
+
+    const businessId = params.get('start_param') ?? undefined;
+
+    const sessionHash = crypto
+      .createHash('sha256')
+      .update(randomStringGenerator())
+      .digest('hex');
+
+    const session = await this.sessionService.create({
+      user,
+      hash: sessionHash,
+    });
+
+    const { token, refreshToken, tokenExpires } = await this.getTokensData({
+      id: user.id,
+      role: user.role,
+      sessionId: session.id,
+      hash: sessionHash,
+      telegramId: tgUser.id,
+      businessId,
+    });
+
+    return { refreshToken, token, tokenExpires, user, isNew };
+  }
+
   async softDelete(user: User): Promise<void> {
     await this.usersService.remove(user.id);
   }
@@ -539,11 +588,128 @@ export class AuthService {
     return this.sessionService.deleteById(data.sessionId);
   }
 
+  // ── Private helpers ──────────────────────────────────────────────────────────
+
+  /**
+   * Verifies the Telegram HMAC signature of the initData params.
+   * Mutates `params` by removing the `hash` key before computing the check string.
+   */
+  private verifyTelegramHmac(params: URLSearchParams, hash: string): void {
+    const botToken = this.configService.get('auth.telegramBotToken', {
+      infer: true,
+    });
+    if (!botToken) return;
+
+    params.delete('hash');
+    const dataCheckString = [...params.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => `${k}=${v}`)
+      .join('\n');
+
+    const secretKey = crypto
+      .createHmac('sha256', 'WebAppData')
+      .update(botToken)
+      .digest();
+    const computedHash = crypto
+      .createHmac('sha256', secretKey)
+      .update(dataCheckString)
+      .digest('hex');
+
+    if (computedHash !== hash) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { initData: 'invalidOrExpired' },
+      });
+    }
+  }
+
+  /**
+   * Rejects initData that is older than 5 minutes.
+   * Telegram's `auth_date` is Unix seconds; no-ops when the field is absent.
+   */
+  private validateTelegramAuthDate(params: URLSearchParams): void {
+    const authDateRaw = params.get('auth_date');
+    if (!authDateRaw) return;
+
+    const authDate = parseInt(authDateRaw, 10);
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (nowSeconds - authDate > 300) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { initData: 'invalidOrExpired' },
+      });
+    }
+  }
+
+  /**
+   * Extracts and JSON-parses the `user` field from Telegram initData params.
+   */
+  private parseTelegramUser(params: URLSearchParams): TelegramUserPayload {
+    const userRaw = params.get('user');
+    if (!userRaw) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { initData: 'invalidOrExpired' },
+      });
+    }
+
+    try {
+      return JSON.parse(userRaw) as TelegramUserPayload;
+    } catch {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { initData: 'invalidOrExpired' },
+      });
+    }
+  }
+
+  /**
+   * Looks up the user by Telegram ID; creates a new customer account on first login.
+   * Returns the resolved User and whether the account was just created.
+   */
+  private async findOrCreateTelegramUser(
+    tgUser: TelegramUserPayload,
+  ): Promise<{ user: User; isNew: boolean }> {
+    const telegramIdStr = tgUser.id.toString();
+
+    let user = await this.usersService.findBySocialIdAndProvider({
+      socialId: telegramIdStr,
+      provider: 'telegram',
+    });
+
+    if (user) {
+      return { user, isNew: false };
+    }
+
+    user = await this.usersService.create({
+      email: null,
+      firstName: tgUser.first_name ?? null,
+      lastName: tgUser.last_name ?? null,
+      socialId: telegramIdStr,
+      provider: 'telegram',
+      role: { id: RoleEnum.user },
+      status: { id: StatusEnum.active },
+    });
+    user = await this.usersService.findById(user.id);
+
+    if (!user) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { user: 'userNotFound' },
+      });
+    }
+
+    return { user, isNew: true };
+  }
+
   private async getTokensData(data: {
     id: User['id'];
     role: User['role'];
     sessionId: Session['id'];
     hash: Session['hash'];
+    telegramId?: number;
+    businessId?: string;
+    cardId?: string;
   }) {
     const tokenExpiresIn = this.configService.getOrThrow('auth.expires', {
       infer: true,
@@ -557,6 +723,9 @@ export class AuthService {
           id: data.id,
           role: data.role,
           sessionId: data.sessionId,
+          ...(data.telegramId !== undefined && { telegramId: data.telegramId }),
+          ...(data.businessId !== undefined && { businessId: data.businessId }),
+          ...(data.cardId !== undefined && { cardId: data.cardId }),
         },
         {
           secret: this.configService.getOrThrow('auth.secret', { infer: true }),
