@@ -5,7 +5,13 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "appName": "BEER HOUSE",
+    "nav": {
+      "home": "Home",
+      "rewards": "Rewards",
+      "history": "History"
+    }
   },
   "auth": {
     "login": "Log in",
@@ -23,6 +29,47 @@
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome back"
+  },
+  "loyaltyCards": {
+    "memberBadge": "Premium Member",
+    "totalPoints": "Total Points",
+    "nextReward": "Next Reward",
+    "ptsAway": "{count} pts away",
+    "dailyCheckin": "Daily\nCheck-in",
+    "dailyCheckinPts": "+10 pts today",
+    "happyHour": "Happy\nHour",
+    "happyHourMultiplier": "2x Points now",
+    "recentActivity": "Recent Activity",
+    "seeAll": "See all",
+    "sampleEarnTitle": "Craft IPA Purchase",
+    "sampleEarnDate": "Today, 2:45 PM",
+    "sampleRedeemTitle": "Redeemed: Snack Platter",
+    "sampleRedeemDate": "Yesterday, 8:12 PM"
+  },
+  "rewards": {
+    "yourBalance": "Your Balance",
+    "points": "points",
+    "catalogTitle": "Rewards Catalog",
+    "sampleReward1": "Free Pint",
+    "sampleReward2": "Snack Platter",
+    "sampleReward3": "VIP Table",
+    "redeemButton": "Redeem"
+  },
+  "pointTransactions": {
+    "historyTitle": "Transaction History",
+    "filter": {
+      "all": "All",
+      "earn": "Earned",
+      "redeem": "Redeemed"
+    },
+    "sampleEarn1": "Craft IPA Purchase",
+    "sampleDate1": "Today, 2:45 PM",
+    "sampleRedeem1": "Redeemed: Snack Platter",
+    "sampleDate2": "Yesterday, 8:12 PM",
+    "sampleEarn2": "Beer Flight",
+    "sampleDate3": "Mon, 7:30 PM",
+    "sampleEarn3": "Happy Hour Special",
+    "sampleDate4": "Sun, 6:00 PM"
   },
   "gypsumProducts": {
     "title": "Gypsum Products",

@@ -29,6 +29,14 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
 
   return (
     <html lang={locale}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AppProvider>

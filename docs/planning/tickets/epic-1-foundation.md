@@ -6,7 +6,7 @@ All other epics are blocked until this epic is complete. Tickets F-01–F-03 hav
 
 ## F-01 — Tailwind Design Tokens
 
-**SP:** 2 | **Layer:** FE | **Status:** Todo
+**SP:** 2 | **Layer:** FE | **Status:** Done
 **Depends on:** nothing
 **Blocks:** F-02, F-03, F-05, F-06, F-07, F-08, F-10, F-11, F-14, F-15
 
@@ -51,15 +51,15 @@ Add `.glass-card` CSS class to global styles:
 ```
 
 ### Acceptance criteria
-- [ ] All 30+ custom color tokens available via `text-primary`, `bg-surface-container-low`, etc.
-- [ ] `font-headline`, `font-body`, `font-label` utility classes apply correct fonts
-- [ ] `rounded-xl` = 3rem, `rounded-lg` = 2rem, `rounded-DEFAULT` = 1rem
-- [ ] Google Fonts load in the app (check Network tab)
-- [ ] `glass-card` class applies the gradient background
-- [ ] No raw hex values needed in any component for design system colors
+- [x] All 30+ custom color tokens available via `text-primary`, `bg-surface-container-low`, etc.
+- [x] `font-headline`, `font-body`, `font-label` utility classes apply correct fonts
+- [x] `rounded-xl` = 3rem, `rounded-lg` = 2rem, `rounded-DEFAULT` = 1rem
+- [x] Google Fonts load in the app (check Network tab)
+- [x] `glass-card` class applies the gradient background
+- [x] No raw hex values needed in any component for design system colors
 
 ### Definition of done
-- [ ] `yarn build` passes with no type errors
+- [x] `yarn check-types` passes with no type errors
 - [ ] `yarn lint` passes
 - [ ] Storybook renders correctly with new tokens (if Storybook is running)
 

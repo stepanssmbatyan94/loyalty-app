@@ -5,7 +5,13 @@
     "save": "Сохранить",
     "cancel": "Отмена",
     "delete": "Удалить",
-    "confirm": "Подтвердить"
+    "confirm": "Подтвердить",
+    "appName": "BEER HOUSE",
+    "nav": {
+      "home": "Главная",
+      "rewards": "Награды",
+      "history": "История"
+    }
   },
   "auth": {
     "login": "Войти",
@@ -23,6 +29,47 @@
   "dashboard": {
     "title": "Дашборд",
     "welcome": "С возвращением"
+  },
+  "loyaltyCards": {
+    "memberBadge": "Премиум участник",
+    "totalPoints": "Всего баллов",
+    "nextReward": "Следующая награда",
+    "ptsAway": "Осталось {count} бал.",
+    "dailyCheckin": "Ежедневный\nвход",
+    "dailyCheckinPts": "+10 бал. сегодня",
+    "happyHour": "Счастливый\nчас",
+    "happyHourMultiplier": "2x баллов сейчас",
+    "recentActivity": "Последние операции",
+    "seeAll": "Все",
+    "sampleEarnTitle": "Покупка крафтового IPA",
+    "sampleEarnDate": "Сегодня, 14:45",
+    "sampleRedeemTitle": "Погашено: закуска",
+    "sampleRedeemDate": "Вчера, 20:12"
+  },
+  "rewards": {
+    "yourBalance": "Ваш баланс",
+    "points": "баллов",
+    "catalogTitle": "Каталог наград",
+    "sampleReward1": "Бесплатное пиво",
+    "sampleReward2": "Закусочная тарелка",
+    "sampleReward3": "VIP стол",
+    "redeemButton": "Погасить"
+  },
+  "pointTransactions": {
+    "historyTitle": "История операций",
+    "filter": {
+      "all": "Все",
+      "earn": "Начисления",
+      "redeem": "Списания"
+    },
+    "sampleEarn1": "Покупка крафтового IPA",
+    "sampleDate1": "Сегодня, 14:45",
+    "sampleRedeem1": "Погашено: закуска",
+    "sampleDate2": "Вчера, 20:12",
+    "sampleEarn2": "Пивное ассорти",
+    "sampleDate3": "Пн, 19:30",
+    "sampleEarn3": "Специальный счастливый час",
+    "sampleDate4": "Вс, 18:00"
   },
   "gypsumProducts": {
     "title": "Гипсовые продукты",

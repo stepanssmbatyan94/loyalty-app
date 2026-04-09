@@ -1,14 +1,14 @@
 import { ReactNode } from 'react';
 
-import { DashboardLayout } from './_components/dashboard-layout';
+import { CustomerLayout } from './_components/customer-layout';
 
 export const metadata = {
-  title: 'Dashboard',
-  description: 'Dashboard',
+  title: 'Beer House',
+  description: 'Your loyalty card',
 };
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <CustomerLayout>{children}</CustomerLayout>;
 };
 
 export default AppLayout;
