@@ -12,7 +12,12 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthTelegramLoginDto } from './dto/auth-telegram-login.dto';
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
@@ -36,7 +41,8 @@ export class AuthController {
 
   @Post('telegram')
   @ApiCreatedResponse({
-    description: 'Authenticates a Telegram Mini App user via initData HMAC validation',
+    description:
+      'Authenticates a Telegram Mini App user via initData HMAC validation',
   })
   @HttpCode(HttpStatus.CREATED)
   public loginTelegram(
