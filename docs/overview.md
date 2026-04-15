@@ -6,7 +6,7 @@
 
 ## What It Is
 
-Beer House Loyalty App is a multi-tenant loyalty points platform built around **Telegram** as the delivery channel. Customers earn points after each purchase and redeem them for rewards, all without leaving Telegram. Cashiers manage the earn/redeem workflow through a dedicated **Telegram Bot** in the staff group. Business owners manage rewards and view analytics via a **web admin panel**.
+Beer House Loyalty App is a **multi-tenant** loyalty points platform built around **Telegram** as the delivery channel. Any business (café, restaurant, gym, barbershop) can onboard to the platform, create their own Telegram bot via BotFather, and immediately start running a digital loyalty program. Customers earn points after each purchase and redeem them for rewards, all without leaving Telegram. Cashiers manage the earn/redeem workflow through a dedicated **Telegram Bot** in the staff group. Business owners manage rewards, translations, and analytics via a **web admin panel**.
 
 The pilot business is **Beer House**, a premium bar/restaurant in Armenia. The MVP targets 50 registered customers and 200 transactions in the first 30 days.
 
@@ -33,20 +33,36 @@ The system has **four roles**, each with a dedicated interface:
 | **Customer** | Telegram Mini App | View loyalty card & balance, browse rewards, redeem |
 | **Cashier** | Telegram Bot (staff group) | Add points after purchases, validate redemption codes |
 | **Business Owner** | Web admin panel (Next.js) | Manage rewards, configure earn rate, view analytics, manage cashiers |
-| **Super Admin** | Separate React app (Vite) | Provision new businesses, manage bot configuration |
+| **Super Admin** | Separate React app (Vite) | Provision new businesses, create owner accounts |
 
 ---
 
 ## Core User Flows
 
+### 0. Business Onboarding (Owner)
+```
+Super Admin creates shell business via admin panel
+  → Owner receives invite email with login link
+  → Owner logs in to admin panel
+  → Owner goes to Bot Settings → enters token from BotFather
+  → Backend validates token via getMe, registers webhook, activates business
+  → Owner adds supported languages (e.g. en, ru, hy) + sets default
+  → Owner fills in translatable texts per locale (business name, welcome message, points label)
+  → Owner creates rewards with translations
+  → Business is live — customers can now /start the bot
+```
+
 ### 1. First-Time Customer Registration
 ```
-Customer scans QR code at venue
-  → Telegram opens Mini App
-  → App requests contact (one tap — name + phone)
+Customer opens the business's bot and sends /start
+  → Bot looks up business by botUsername in DB
+  → Bot shows supported languages keyboard (dynamic per business)
+  → Customer picks their language
+  → Backend finds or creates User record with language preference
+  → Bot sends translated welcome message from business_translation table
+  → Customer opens Mini App → app requests contact (one tap — name + phone)
   → Backend creates LoyaltyCard with 0 points
-  → Customer sees their card + welcome message
-  → Bot sends "Welcome to Beer House Loyalty 🍺"
+  → Customer sees their card
 ```
 
 ### 2. Earning Points (Returning Customer)
@@ -133,9 +149,12 @@ The platform consists of **four deployable applications** backed by a single Nes
 │ Owner Admin      │    │ Super Admin Panel                      │
 │ (Next.js, /owner)│    │ (Vite + React, Port 3001)              │
 │ • Manage rewards │    │ • Provision businesses                 │
-│ • Earn rate      │    │ • Register bot webhooks                │
-│ • Analytics      │    │ • Manage owner accounts                │
-│ • Manage cashiers│    └────────────────────────────────────────┘
+│ • Bot settings   │    │ • Create owner accounts                │
+│ • Languages      │    │ • Activate / deactivate businesses     │
+│ • Translations   │    └────────────────────────────────────────┘
+│ • Earn rate      │
+│ • Analytics      │
+│ • Manage cashiers│
 └──────────────────┘
 ```
 
@@ -290,6 +309,37 @@ Redemption
 
 ---
 
+## Multi-Tenant Architecture
+
+Each business on the platform is fully isolated:
+
+| Concern | How it's isolated |
+|---|---|
+| Bot | Each business has its own Telegram bot (token stored in DB per Business row) |
+| Webhook | All bots share one webhook controller (`POST /api/v1/telegram/:businessId/webhook`); routing by `businessId` in URL |
+| Languages | Each business defines `supportedLocales` (e.g. `['en', 'ru', 'hy']`) and `defaultLocale` |
+| Translations | Stored in `business_translation` and `reward_translation` tables — per business, per locale |
+| Data | All domain entities (LoyaltyCard, Reward, Transaction, Redemption) are scoped to `businessId` |
+
+### Bot Registry
+
+The `BotRegistry` service (in `src/telegram/`) maintains a `Map<businessId, Bot>` in memory:
+- On app startup: loads all active businesses from DB, creates a grammy `Bot` per business (webhook mode)
+- When owner saves a new bot token: backend calls `getMe` to validate, then `setWebhook` to register, then adds to registry
+- All bots share the same webhook controller — routing by `businessId` URL param + secret header validation
+
+### Translation Lookup
+
+```
+customer's language → business.supportedLocales → found? use it
+                                               → not found? use business.defaultLocale
+                                               → fallback: raw base field value
+```
+
+API responses return already-translated strings based on the `Accept-Language` request header. Frontend never picks translations — the backend resolves them.
+
+---
+
 ## Authentication Model
 
 | Role | Auth Method | JWT payload |
@@ -374,4 +424,4 @@ npm run typecheck  # TypeScript check
 | [`docs/planning/telegram-bot-flows.md`](planning/telegram-bot-flows.md) | Bot interaction sequence diagrams |
 | [`docs/planning/tickets/`](planning/tickets/) | Detailed implementation specs per epic |
 
-**Total scope:** 237 story points across 10 epics (89 FE · 132 BE/BOT · 16 Admin)
+**Total scope:** 247 story points across 11 epics (91 FE · 140 BE/BOT · 16 Admin)

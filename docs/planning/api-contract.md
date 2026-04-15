@@ -276,6 +276,50 @@ Soft-delete a reward (sets `deletedAt`). Owner only.
 
 ---
 
+### GET /api/v1/rewards/:id/translations — 🔧 To build (Epic 8, B-27e)
+Returns all translations for a specific reward.
+
+**Auth:** Owner JWT required
+
+**Response 200**
+```json
+{
+  "translations": [
+    { "locale": "en", "field": "name", "value": "Free Pint" },
+    { "locale": "en", "field": "description", "value": "Choose any flagship brew." },
+    { "locale": "hy", "field": "name", "value": "Անվճար կուժ" },
+    { "locale": "hy", "field": "description", "value": "Ընտրեք ցանկացած գարեջուր." }
+  ]
+}
+```
+
+---
+
+### PUT /api/v1/rewards/:id/translations — 🔧 To build (Epic 8, B-27e)
+Upsert translations for a reward.
+
+**Auth:** Owner JWT required
+
+**Request**
+```json
+{
+  "translations": [
+    { "locale": "ru", "field": "name", "value": "Бесплатная кружка" },
+    { "locale": "ru", "field": "description", "value": "Выберите любое пиво из нашего меню." }
+  ]
+}
+```
+
+**Response 200**
+```json
+{ "updated": 2 }
+```
+
+**Notes:**
+- Customer-facing `GET /api/v1/rewards` returns pre-translated `name` and `description` based on the request `Accept-Language` header — customers never call translation endpoints directly
+
+---
+
 ## Redemptions
 
 ### POST /api/v1/redemptions
@@ -526,10 +570,19 @@ Returns the authenticated owner's business profile.
   "logoUrl": "https://...",
   "earnRateMode": "per_amd_spent",
   "earnRateValue": 100,
+  "botUsername": "beer_house_bot",
   "telegramGroupChatId": "-1001234567890",
+  "webhookActive": true,
+  "supportedLocales": ["en", "ru", "hy"],
+  "defaultLocale": "hy",
+  "isActive": true,
   "createdAt": "2023-10-01T00:00:00.000Z"
 }
 ```
+
+**Notes:**
+- `botToken` is never returned in any API response
+- `webhookActive` reflects whether Telegram has acknowledged the webhook registration
 
 ---
 
@@ -547,6 +600,120 @@ Update earn rate or other business settings. Owner only.
 ```
 
 **Response 200** — updated business object
+
+---
+
+### PATCH /api/v1/businesses/me/bot-settings — 🔧 To build (Epic 8, B-27b)
+Owner sets or updates the business's Telegram bot configuration. Triggers automatic webhook registration.
+
+**Auth:** Owner JWT required
+
+**Request**
+```json
+{
+  "botToken": "8474558824:AAFORh2Jt9KtT2...",
+  "botUsername": "beer_house_bot",
+  "telegramGroupChatId": "-1001234567890"
+}
+```
+
+**Response 200**
+```json
+{
+  "webhookRegistered": true,
+  "botUsername": "beer_house_bot",
+  "isActive": true
+}
+```
+
+**Side effects:**
+1. Calls Telegram `getMe` to validate the token
+2. Generates a random `webhookSecret`
+3. Calls Telegram `setWebhook` with `https://<backendDomain>/api/v1/telegram/<businessId>/webhook` and `secret_token`
+4. Stores `botToken` (encrypted), `botUsername`, `webhookSecret` on the Business record
+5. Sets `Business.isActive = true`
+6. Registers the bot in the in-memory `BotRegistry`
+
+**Errors**
+- `422` — `{ errors: { botToken: "invalidToken" } }` — Telegram rejected the token
+
+---
+
+### GET /api/v1/businesses/me/languages — 🔧 To build (Epic 8, B-27c)
+Returns the business's configured language settings.
+
+**Auth:** Owner JWT required
+
+**Response 200**
+```json
+{
+  "supportedLocales": ["en", "ru", "hy"],
+  "defaultLocale": "hy"
+}
+```
+
+---
+
+### PATCH /api/v1/businesses/me/languages — 🔧 To build (Epic 8, B-27c)
+Update which locales the business supports and which is the default.
+
+**Auth:** Owner JWT required
+
+**Request**
+```json
+{
+  "supportedLocales": ["en", "ru", "hy"],
+  "defaultLocale": "hy"
+}
+```
+
+**Response 200** — updated business object (same shape as GET /businesses/me)
+
+**Notes:**
+- `defaultLocale` must be present in `supportedLocales`
+- The bot's `/start` language keyboard will show only `supportedLocales`
+
+---
+
+### GET /api/v1/businesses/me/translations — 🔧 To build (Epic 8, B-27d)
+Returns all translations for this business.
+
+**Auth:** Owner JWT required
+
+**Response 200**
+```json
+{
+  "translations": [
+    { "locale": "en", "field": "name", "value": "Beer House" },
+    { "locale": "en", "field": "welcomeMessage", "value": "Welcome to Beer House Loyalty! 🍺" },
+    { "locale": "en", "field": "pointsLabel", "value": "points" },
+    { "locale": "hy", "field": "name", "value": "Բիր Հաուս" },
+    { "locale": "hy", "field": "welcomeMessage", "value": "Բարի գալուստ Beer House Loyalty!" },
+    { "locale": "hy", "field": "pointsLabel", "value": "կետեր" }
+  ]
+}
+```
+
+---
+
+### PUT /api/v1/businesses/me/translations — 🔧 To build (Epic 8, B-27d)
+Upsert translations for this business. Replaces values for provided locale+field pairs.
+
+**Auth:** Owner JWT required
+
+**Request**
+```json
+{
+  "translations": [
+    { "locale": "ru", "field": "welcomeMessage", "value": "Добро пожаловать в Beer House!" },
+    { "locale": "ru", "field": "pointsLabel", "value": "баллы" }
+  ]
+}
+```
+
+**Response 200**
+```json
+{ "updated": 2 }
 
 ---
 
@@ -643,7 +810,7 @@ List all businesses on the platform.
 ---
 
 ### POST /api/v1/admin/businesses
-Super admin creates a new business + owner account.
+Super admin creates a new business shell + owner account. Bot configuration is done by the owner after first login.
 
 **Auth:** Super Admin JWT required
 
@@ -653,9 +820,7 @@ Super admin creates a new business + owner account.
   "businessName": "Beer House",
   "ownerEmail": "owner@beerhouse.am",
   "ownerFirstName": "Gevorg",
-  "ownerLastName": "Mkrtchyan",
-  "botToken": "123456:ABC-DEF...",
-  "telegramGroupChatId": "-1001234567890"
+  "ownerLastName": "Mkrtchyan"
 }
 ```
 
@@ -670,8 +835,9 @@ Super admin creates a new business + owner account.
 ```
 
 **Notes:**
-- Backend registers the bot webhook automatically upon creation
-- Owner receives a welcome email with login URL + temporary password
+- Creates `Business` with `isActive: false` — becomes active after owner saves their bot token
+- Creates `User` with role `owner` + sends invite email with login URL + temporary password
+- Bot token, webhook, and language setup are done by the owner in the admin panel (`PATCH /businesses/me/bot-settings`)
 
 ---
 

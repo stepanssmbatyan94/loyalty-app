@@ -17,7 +17,11 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 - Business Owner auth: email + password on web admin panel
 - Super Admin panel: separate React app (no Next.js)
 - Invite Friends card: static placeholder ("Coming Soon")
-- One bot per business (bot token + group chat ID set by super admin)
+- **Multi-tenant:** One bot per business; owner self-configures bot token via admin panel (not super admin)
+- **Webhook-based bots:** All business bots use `POST /api/v1/telegram/:businessId/webhook`; `BotRegistry` holds one grammy `Bot` instance per business
+- **i18n storage:** Translations in `business_translation` + `reward_translation` DB tables; locale fallback chain: customer lang → business defaultLocale → base field
+- **Translatable fields:** business name, welcome message, points label, reward name + description
+- **Provisioning flow:** Super admin creates shell → owner completes bot/language/translation setup
 
 ---
 
@@ -44,15 +48,18 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| B-03 | `Business` module — domain, repo, service, controller | BE | 5 | Todo | Fields: id, name, ownerId, logoUrl, earnRateMode (`per_amd_spent`), earnRateValue (100), botToken, telegramGroupChatId |
+| B-03 | `Business` module — domain, repo, service, controller | BE | 5 | Todo | Fields: id, name, ownerId, logoUrl, earnRateMode, earnRateValue, botToken (encrypted), botUsername, webhookSecret, telegramGroupChatId, supportedLocales, defaultLocale, isActive |
+| B-03b | `BusinessTranslation` module — domain, repo, service | BE | 3 | Todo | Translates: name, welcomeMessage, pointsLabel. Unique on (businessId, locale, field). Locale fallback in service. |
 | B-04 | `LoyaltyCard` module — domain, repo, service, controller | BE | 8 | Todo | Fields: id, customerId, businessId, points, totalPointsEarned, createdAt. QR generated as signed URL. |
 | B-05 | `Reward` module — domain, repo, service, controller | BE | 5 | Todo | Fields: id, businessId, name, description, pointsCost, isActive, imageUrl, stock (nullable). Soft-delete. |
+| B-05b | `RewardTranslation` module — domain, repo, service | BE | 3 | Todo | Translates: name, description. Unique on (rewardId, locale, field). Same fallback pattern as BusinessTranslation. |
 | B-06 | `Transaction` module — domain, repo, service, controller | BE | 8 | Todo | Fields: id, cardId, type (earn/redeem), points, cashierTelegramId?, rewardId?, note, createdAt. Immutable. |
 | B-07 | `Redemption` module — domain, repo, service, controller | BE | 5 | Todo | Fields: id, cardId, rewardId, code (6-digit), qrData, status (pending/confirmed/expired/cancelled), expiresAt. Auto-refund on expiry via cron job. |
-| B-08 | DB migrations — create all 5 tables | BE | 3 | Todo | Tables: businesses, loyalty_cards, rewards, transactions, redemptions. Add FK indexes. |
-| B-09 | Seeds — Beer House business + 4 sample rewards + superadmin account | BE | 2 | Todo | Free Pint (500pts), Half Off Burger (800pts), Appetizer Platter (1200pts), Beer Flight (1500pts) |
+| B-08 | DB migrations — create all 5 core tables | BE | 3 | Todo | Tables: businesses, loyalty_cards, rewards, transactions, redemptions. Add FK indexes. |
+| B-08b | DB migrations — business_translation + reward_translation tables | BE | 2 | Todo | Unique constraint on (businessId/rewardId, locale, field). FK indexes. |
+| B-09 | Seeds — Beer House business + 4 sample rewards + superadmin account | BE | 2 | Todo | Free Pint (500pts), Half Off Burger (800pts), Appetizer Platter (1200pts), Beer Flight (1500pts). Include EN/RU/HY translations. |
 
-**Epic 2 Total: FE 0 SP | BE 36 SP | Total 36 SP**
+**Epic 2 Total: FE 0 SP | BE 44 SP | Total 44 SP**
 
 ---
 
@@ -135,7 +142,9 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| B-18 | Telegram Bot webhook handler — `POST /api/v1/telegram/webhook/:businessId` | BE | 5 | Todo | Routes to correct business by businessId in URL; validates secret header |
+| B-18 | `BotRegistry` service + webhook controller `POST /api/v1/telegram/:businessId/webhook` | BE | 8 | Todo | Replaces single-bot long-polling. Loads all active businesses on startup; creates grammy `Bot` per business in webhook mode; validates `X-Telegram-Bot-Api-Secret-Token` header. |
+| B-18b | `/start` handler — look up business by botUsername, show supportedLocales keyboard | BOT | 3 | Todo | Fetches business from DB by `ctx.me.username`; builds dynamic language keyboard from `business.supportedLocales`. |
+| B-18c | `lang:*` callback — find/create user, save language, send translated welcome from DB | BOT | 2 | Todo | Fetches welcomeMessage + pointsLabel from `business_translation`; falls back to `defaultLocale`. |
 | B-19 | Bot: handle customer QR scan event — send "Enter amount" message to group | BE | 5 | Todo | Triggered by `GET /scan/:cardId/:scanToken`; fetches customer name + balance |
 | B-20 | Bot: handle cashier amount reply — calculate pts, send confirm/cancel inline keyboard | BE | 5 | Todo | `pts = floor(amountAmd / earnRateValue)`; validates sender is registered cashier |
 | B-21 | Bot: handle "Approve" callback — calls `POST /transactions/earn` internally | BE | 3 | Todo | Edits original message to success state |
@@ -146,7 +155,7 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | B-26 | Scan token generation — create short-lived HMAC token embedded in customer QR URL | BE | 3 | Todo | 5-min expiry, single-use; stored in Redis or DB |
 | F-21 | Customer QR display — render QR code image on Home screen loyalty card | FE | 3 | Todo | QR encodes the scan URL with cardId + fresh scanToken; refresh token on each app open |
 
-**Epic 7 Total: FE 3 SP | BOT/BE 33 SP | Total 36 SP**
+**Epic 7 Total: FE 3 SP | BOT/BE 38 SP | Total 41 SP**
 
 ---
 
@@ -158,17 +167,24 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
 | B-27 | `POST/PATCH/DELETE /api/v1/rewards` — owner CRUD | BE | 3 | Todo | Owner role only; soft-delete on DELETE |
+| B-27b | `PATCH /api/v1/businesses/me/bot-settings` — save token, auto-register webhook | BE | 5 | Todo | Validates token via Telegram `getMe`; generates webhookSecret; calls `setWebhook`; registers in BotRegistry; sets `isActive: true` |
+| B-27c | `GET/PATCH /api/v1/businesses/me/languages` — manage supportedLocales + defaultLocale | BE | 2 | Todo | `defaultLocale` must be in `supportedLocales` |
+| B-27d | `GET/PUT /api/v1/businesses/me/translations` — upsert BusinessTranslation rows | BE | 3 | Todo | Fields: name, welcomeMessage, pointsLabel |
+| B-27e | `GET/PUT /api/v1/rewards/:id/translations` — upsert RewardTranslation rows | BE | 2 | Todo | Fields: name, description |
 | B-28 | `PATCH /api/v1/businesses/me/settings` — earn rate config | BE | 2 | Todo | `earnRateMode: 'per_amd_spent'`, `earnRateValue: 100` |
 | B-29 | `GET /api/v1/analytics/dashboard` — total customers, txns today, total pts issued | BE | 5 | Todo | Aggregated queries with short cache TTL |
 | B-30 | `GET /api/v1/analytics/top-customers` — paginated, sorted by totalPointsEarned DESC | BE | 2 | Todo | Returns rank, name, phone, totals |
 | B-31 | `POST/PATCH /api/v1/users` — owner creates/deactivates cashier accounts | BE | 3 | Todo | Cashier includes telegramUserId for bot auth; sends invite email |
-| F-22 | Owner: reward management UI — list, create, edit, toggle active, soft delete | FE | 8 | Todo | Image upload via `/api/v1/files/upload`; inline active toggle |
+| F-22 | Owner: reward management UI — list, create, edit, toggle active, soft delete | FE | 8 | Todo | Image upload via `/api/v1/files/upload`; inline active toggle; reward translation fields inline in create/edit form |
 | F-23 | Owner: earn rate settings UI — mode selector + value input | FE | 2 | Todo | Two modes: fixed per visit / per AMD spent |
 | F-24 | Owner: dashboard metrics page — 3 KPI cards | FE | 5 | Todo | KPIs: total customers, transactions today, pts issued all-time |
 | F-25 | Owner: top customers list — ranked table | FE | 3 | Todo | Paginated, 20/page |
 | F-26 | Owner: cashier management UI — list, create, deactivate | FE | 5 | Todo | Shows name, telegram handle, status; create form: name + email + telegramUserId |
+| F-28 | Owner: Bot Settings UI — token input, bot username, group chat ID, webhook status indicator | FE | 5 | Todo | Shows "Webhook active ✅" or "Not configured ⚠️"; save triggers `PATCH /businesses/me/bot-settings` |
+| F-29 | Owner: Language Management UI — add/remove supported locales, set default | FE | 3 | Todo | Chip list of active locales; locale picker to add new ones; default locale selector |
+| F-30 | Owner: Translation Editor UI — per locale, per field, with missing-translation highlight | FE | 8 | Todo | Tab per locale; fields: business name, welcome message, points label; missing translations shown in red |
 
-**Epic 8 Total: FE 23 SP | BE 15 SP | Total 38 SP**
+**Epic 8 Total: FE 39 SP | BE 27 SP | Total 66 SP**
 
 ---
 
@@ -198,11 +214,27 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | ADMIN-01 | React app scaffold — Vite + React + TypeScript + Tailwind + React Query | ADMIN | 3 | Todo | Separate repo or `admin/` folder in monorepo |
 | ADMIN-02 | Super admin login page — email + password | ADMIN | 2 | Todo | Uses `POST /api/v1/auth/email/login` with superadmin role check |
 | ADMIN-03 | Businesses list page — table of all businesses with status | ADMIN | 3 | Todo | `GET /api/v1/admin/businesses` |
-| ADMIN-04 | Create business form — business name, owner email, owner name, botToken, telegramGroupChatId | ADMIN | 5 | Todo | `POST /api/v1/admin/businesses`; backend registers bot webhook automatically |
+| ADMIN-04 | Create business form — business name, owner email, owner name only | ADMIN | 3 | Todo | `POST /api/v1/admin/businesses`; bot token/webhook set by owner after first login; backend creates shell Business (isActive: false) + sends invite email |
 | ADMIN-05 | Business detail page — view/edit business info, owner details | ADMIN | 3 | Todo | Activate/deactivate business |
 | B-36 | `GET/POST /api/v1/admin/businesses` — super admin business management | BE | 5 | Todo | Creates Business + Owner user + sends credentials email + registers bot webhook |
 
-**Epic 10 Total: ADMIN 16 SP | BE 5 SP | Total 21 SP**
+**Epic 10 Total: ADMIN 14 SP | BE 5 SP | Total 19 SP**
+
+---
+
+## Epic 11 — Multi-Tenant Translation Infrastructure
+
+> Foundation layer for all multi-language features. Provides the generic translation lookup service, locale resolution, API middleware, and frontend locale passing. Unblocks Epic 8 translation editor and correct locale-aware API responses.
+> **Depends on:** Epic 2 (BusinessTranslation + RewardTranslation modules)
+
+| ID | Title | Layer | SP | Status | Notes |
+|----|-------|-------|----|--------|-------|
+| B-37 | Translation service — `getTranslation(entityType, entityId, locale, field, fallbackLocale)` | BE | 3 | Todo | Generic helper reused by Business and Reward lookups. Implements locale fallback chain. |
+| B-38 | Bot locale resolution — `resolveLocale(customerLang, supportedLocales, defaultLocale)` | BOT | 2 | Todo | Customer lang → in supportedLocales? use it. Not found? use defaultLocale. Used in all bot message sends. |
+| B-39 | API locale middleware — reads `Accept-Language` header, attaches resolved locale to request context | BE | 3 | Todo | All controllers use this to return translated name/description inline. No separate translation calls from frontend. |
+| F-31 | Frontend locale passing — send `Accept-Language: <user.language>` on all Mini App API requests | FE | 2 | Todo | Set in `api-client.ts` interceptor using `user.language` from auth store. |
+
+**Epic 11 Total: FE 2 SP | BE/BOT 8 SP | Total 10 SP**
 
 ---
 
@@ -211,13 +243,14 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | # | Epic | FE | BE/BOT | ADMIN | Total |
 |---|------|----|----|-------|-------|
 | 1 | Foundation & Setup | 11 | 8 | — | 19 |
-| 2 | Core Domain | 0 | 36 | — | 36 |
+| 2 | Core Domain + Translations | 0 | 44 | — | 44 |
 | 3 | Home / My Card | 17 | 3 | — | 20 |
 | 4 | Rewards Catalog | 12 | 3 | — | 15 |
 | 5 | Redemption Flow | 12 | 18 | — | 30 |
 | 6 | Transaction History | 9 | 3 | — | 12 |
-| 7 | Telegram Bot (Cashier) | 3 | 33 | — | 36 |
-| 8 | Owner Admin Panel | 23 | 15 | — | 38 |
+| 7 | Telegram Bot (Cashier) | 3 | 38 | — | 41 |
+| 8 | Owner Admin Panel | 39 | 27 | — | 66 |
 | 9 | Notifications | 2 | 8 | — | 10 |
-| 10 | Super Admin Panel | — | 5 | 16 | 21 |
-| | **Total** | **89** | **132** | **16** | **237** |
+| 10 | Super Admin Panel | — | 5 | 14 | 19 |
+| 11 | Translation Infrastructure | 2 | 8 | — | 10 |
+| | **Total** | **107** | **165** | **14** | **286** |
