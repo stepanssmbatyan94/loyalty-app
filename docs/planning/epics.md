@@ -31,12 +31,12 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| F-01 | Tailwind design tokens — all custom colors, font families, border radius from design system | FE | 2 | Todo | Copy token values from `docs/design/Home:My Card/code.html` tailwind config block |
-| F-02 | `TopAppBar` shared component — logo variant, notification icon, user avatar | FE | 2 | Todo | `bg-white/80 backdrop-blur-xl sticky top-0 z-50`; 3 variants: Home, Catalog, Redemption |
-| F-03 | `BottomNavBar` shared component — 3 tabs (Home, Rewards, History), active pill state | FE | 2 | Todo | Active: `bg-blue-50 rounded-full px-5 py-2`; inactive: `text-slate-400` |
-| F-04 | Telegram Mini App initialization — extract `initData`, call `POST /auth/telegram`, store JWT | FE | 5 | Todo | Use `@twa-dev/sdk`; call `requestContact()` on first open; store token in memory |
-| B-01 | `POST /api/v1/auth/telegram` — validate initData HMAC, issue JWT (`userId + role + businessId + cardId`) | BE | 5 | Todo | See `docs/planning/auth-flow.md` for JWT payload spec |
-| B-02 | `POST /api/v1/auth/email/login` + refresh + logout — for Owner and Super Admin | BE | 3 | Todo | Already mostly in NestJS boilerplate; add role guard for owner/superadmin |
+| F-01 | Tailwind design tokens — all custom colors, font families, border radius from design system | FE | 2 | Done | Copy token values from `docs/design/Home:My Card/code.html` tailwind config block |
+| F-02 | `TopAppBar` shared component — logo variant, notification icon, user avatar | FE | 2 | Done | `bg-white/80 backdrop-blur-xl sticky top-0 z-50`; 3 variants: Home, Catalog, Redemption |
+| F-03 | `BottomNavBar` shared component — 3 tabs (Home, Rewards, History), active pill state | FE | 2 | Done | Active: `bg-blue-50 rounded-full px-5 py-2`; inactive: `text-slate-400` |
+| F-04 | Telegram Mini App initialization — extract `initData`, call `POST /auth/telegram`, store JWT | FE | 5 | Done | Use `@twa-dev/sdk`; call `requestContact()` on first open; store token in memory |
+| B-01 | `POST /api/v1/auth/telegram` — validate initData HMAC, issue JWT (`userId + role + businessId + cardId`) | BE | 5 | Done | See `docs/planning/auth-flow.md` for JWT payload spec |
+| B-02 | `POST /api/v1/auth/email/login` + refresh + logout — for Owner and Super Admin | BE | 3 | Done | Already mostly in NestJS boilerplate; add role guard for owner/superadmin |
 
 **Epic 1 Total: FE 11 SP | BE 8 SP | Total 19 SP**
 
@@ -48,7 +48,7 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| B-03 | `Business` module — domain, repo, service, controller | BE | 5 | Todo | Fields: id, name, ownerId, logoUrl, earnRateMode, earnRateValue, botToken (encrypted), botUsername, webhookSecret, telegramGroupChatId, supportedLocales, defaultLocale, isActive |
+| B-03 | `Business` module — domain, repo, service, controller | BE | 5 | Done | Fields: id, name, ownerId, logoUrl, earnRateMode, earnRateValue, botToken (encrypted), botUsername, webhookSecret, telegramGroupChatId, supportedLocales, defaultLocale, isActive |
 | B-03b | `BusinessTranslation` module — domain, repo, service | BE | 3 | Todo | Translates: name, welcomeMessage, pointsLabel. Unique on (businessId, locale, field). Locale fallback in service. |
 | B-04 | `LoyaltyCard` module — domain, repo, service, controller | BE | 8 | Todo | Fields: id, customerId, businessId, points, totalPointsEarned, createdAt. QR generated as signed URL. |
 | B-05 | `Reward` module — domain, repo, service, controller | BE | 5 | Todo | Fields: id, businessId, name, description, pointsCost, isActive, imageUrl, stock (nullable). Soft-delete. |

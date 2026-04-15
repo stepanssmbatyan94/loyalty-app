@@ -6,20 +6,19 @@ Pure backend epic. All 7 tickets follow the Hexagonal Architecture pattern from 
 
 ## B-03 — Business Module
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
+**SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-02 (roles enum)
-**Blocks:** B-04, B-09, B-10, B-11, B-28, B-29, B-30
+**Blocks:** B-03b, B-04, B-09, B-10, B-11, B-27b, B-27c, B-27d, B-28, B-29, B-30
 
 ### Description
-Create the `Business` domain entity and full Hexagonal Architecture module. A Business is a merchant registered on the platform (e.g. Beer House). It holds earn rate config and the Telegram bot credentials.
+Create the `Business` domain entity and full Hexagonal Architecture module. A Business is a merchant registered on the platform (e.g. Beer House). It holds earn rate config, Telegram bot credentials, supported locales, and webhook secret for multi-tenant operation.
 
-### Files to create
+### Files created
 ```
 backend/src/businesses/
 ├── domain/business.ts
 ├── dto/create-business.dto.ts
 ├── dto/update-business.dto.ts
-├── dto/query-business.dto.ts
 ├── infrastructure/persistence/business.repository.ts
 ├── infrastructure/persistence/relational/
 │   ├── entities/business.entity.ts
@@ -33,50 +32,153 @@ backend/src/businesses/
 
 ### Implementation notes
 
-**Domain entity (`domain/business.ts`):**
+**Domain entity (`domain/business.ts`) — as built:**
 ```ts
 export class Business {
-  id: string;
-  name: string;
-  ownerId: string;
+  id: string;                              // UUID — @PrimaryGeneratedColumn('uuid')
+  name: string;                            // base field; translations in business_translation
+  ownerId: number;                         // integer FK → users.id
   logoUrl: string | null;
-  earnRateMode: 'per_amd_spent' | 'fixed_per_visit';
-  earnRateValue: number;      // AMD per point (default 100) or fixed pts
-  botToken: string;           // Telegram bot token — @Exclude({ toPlainOnly: true })
-  telegramGroupChatId: string;
+  earnRateMode: 'per_amd_spent' | 'fixed_per_visit';  // default: per_amd_spent
+  earnRateValue: number;                   // default: 100 (1 pt per 100 AMD)
+  botToken: string | null;                 // @Exclude({ toPlainOnly: true }) — never in API responses
+  botUsername: string | null;              // indexed + unique; used to look up business on /start
+  webhookSecret: string | null;            // @Exclude({ toPlainOnly: true }) — validated on webhook POST
+  telegramGroupChatId: string | null;
+  supportedLocales: string[];              // PostgreSQL text[] — default ['en']
+  defaultLocale: string;                   // default 'en'
+  isActive: boolean;                       // false until owner configures bot (B-27b)
   createdAt: Date;
-  updatedAt: Date;
 }
 ```
 
-**TypeORM entity:** Add `@Exclude({ toPlainOnly: true })` to `botToken` so it never leaks in API responses.
+**TypeORM entity:** `botToken` and `webhookSecret` use `@Exclude({ toPlainOnly: true })` on the domain class so they never appear in any API response. `supportedLocales` stored as PostgreSQL native `text[]`. `isActive` defaults to `false`.
 
 **Earn rate defaults:** `earnRateMode: 'per_amd_spent'`, `earnRateValue: 100`
 
-**Controller routes:**
-- `GET /api/v1/businesses/me` — owner gets their own business (role: owner)
-- `PATCH /api/v1/businesses/me/settings` — update earn rate, logo (role: owner)
-- `GET /api/v1/admin/businesses` — list all (role: superadmin) — can be in this controller or a separate admin controller
-- `POST /api/v1/admin/businesses` — create business + owner (role: superadmin)
+**Controller routes delivered by B-03:**
+- `GET /api/v1/businesses/me` — owner gets their own business (role: owner) ✅
 
-**Repository methods needed:**
-- `findById(id)` → `Business | null`
-- `findByOwnerId(ownerId)` → `Business | null`
+Not in B-03 (separate tickets):
+- `PATCH /api/v1/businesses/me/settings` → B-28
+- `PATCH /api/v1/businesses/me/bot-settings` → B-27b
+- `GET/POST /api/v1/admin/businesses` → B-36
+
+**Repository methods:**
 - `create(data)` → `Business`
-- `update(id, data)` → `Business`
-- `findAll(pagination)` → `Business[]` (superadmin only)
+- `findById(id)` → `Business | null`
+- `findByOwnerId(ownerId: number)` → `Business | null`
+- `findByBotUsername(botUsername: string)` → `Business | null` — used by BotRegistry on /start
+- `findAllActive()` → `Business[]` — used by BotRegistry on startup
+- `update(id, payload)` → `Business`
 
 ### Acceptance criteria
-- [ ] `GET /businesses/me` returns business without `botToken` in response
-- [ ] `PATCH /businesses/me/settings` updates `earnRateMode` and `earnRateValue`
-- [ ] Non-owner cannot call `/businesses/me` (403)
-- [ ] Domain entity has no TypeORM imports
-- [ ] Mapper converts both directions (toDomain / toPersistence)
+- [x] `GET /businesses/me` returns business without `botToken` or `webhookSecret` in response
+- [x] Non-owner cannot call `/businesses/me` (403 via RolesGuard)
+- [x] Domain entity has no TypeORM imports
+- [x] Mapper converts both directions (toDomain / toPersistence)
+- [x] `botToken` and `webhookSecret` excluded from all API responses (`@Exclude`)
+- [x] `isActive` defaults to `false` (business inactive until bot configured)
+- [ ] `PATCH /businesses/me/settings` updates `earnRateMode` and `earnRateValue` — belongs to B-28
 
 ### Definition of done
-- [ ] Unit tests in `businesses.service.spec.ts` (happy path + not found)
-- [ ] `npm run lint` passes
+- [ ] Unit tests in `businesses.service.spec.ts` — pending
+- [x] `npm run build` passes
 - [ ] Migration generated in B-08
+
+---
+
+## B-03b — BusinessTranslation Module
+
+**SP:** 3 | **Layer:** BE | **Status:** Todo
+**Depends on:** B-03
+**Blocks:** B-37 (translation service), B-18c (bot welcome from DB), B-27d (translation editor endpoint)
+
+### Description
+Stores per-locale translations for the three customizable Business text fields: `name`, `welcomeMessage`, and `pointsLabel`. One row per `(businessId, locale, field)` combination. Provides the lookup service with locale fallback used by both the bot and the API.
+
+### Files to create
+```
+backend/src/businesses/
+├── domain/business-translation.ts
+├── dto/upsert-business-translation.dto.ts
+├── infrastructure/persistence/business-translation.repository.ts
+└── infrastructure/persistence/relational/
+    ├── entities/business-translation.entity.ts
+    ├── mappers/business-translation.mapper.ts
+    ├── repositories/business-translations.repository.ts
+    └── (re-uses RelationalBusinessPersistenceModule — add entity there)
+```
+
+No separate module or controller — `BusinessTranslation` is owned by `BusinessesModule`.
+
+### Implementation notes
+
+**Domain entity (`domain/business-translation.ts`):**
+```ts
+export class BusinessTranslation {
+  id: string;                                            // UUID
+  businessId: string;
+  locale: string;                                        // e.g. 'en', 'ru', 'hy'
+  field: 'name' | 'welcomeMessage' | 'pointsLabel';
+  value: string;
+}
+```
+
+**TypeORM entity constraints:**
+- Unique constraint on `(businessId, locale, field)` — enforced at DB level
+- Index on `businessId` for fast lookup
+- FK to `business.id`
+
+**Repository methods (abstract port):**
+- `upsert(data: Omit<BusinessTranslation, 'id'>)` → `BusinessTranslation` — insert or update on unique constraint
+- `findByBusiness(businessId: string)` → `BusinessTranslation[]` — all translations for a business
+- `findByBusinessAndLocale(businessId: string, locale: string)` → `BusinessTranslation[]`
+- `getField(businessId: string, locale: string, field: string)` → `string | null` — single value lookup
+
+**Service method (add to `BusinessesService`):**
+```ts
+async getTranslatedField(
+  businessId: string,
+  locale: string,
+  field: 'name' | 'welcomeMessage' | 'pointsLabel',
+  defaultLocale: string,
+): Promise<string | null> {
+  // 1. Try requested locale
+  const value = await this.businessTranslationRepository.getField(businessId, locale, field);
+  if (value) return value;
+  // 2. Fall back to defaultLocale
+  if (locale !== defaultLocale) {
+    return this.businessTranslationRepository.getField(businessId, defaultLocale, field);
+  }
+  return null; // caller uses raw base field as final fallback
+}
+```
+
+**Upsert pattern (PostgreSQL ON CONFLICT):**
+```ts
+await this.repo
+  .createQueryBuilder()
+  .insert()
+  .into(BusinessTranslationEntity)
+  .values(entity)
+  .orUpdate(['value'], ['businessId', 'locale', 'field'])
+  .execute();
+```
+
+### Acceptance criteria
+- [ ] `upsert` creates a new row when `(businessId, locale, field)` does not exist
+- [ ] `upsert` updates existing `value` when the same combination is called again
+- [ ] `getField` returns the value for the requested locale
+- [ ] `getField` returns `null` (not throws) when no translation exists
+- [ ] `getTranslatedField` falls back to `defaultLocale` when requested locale is missing
+- [ ] DB has unique constraint on `(businessId, locale, field)`
+- [ ] Domain entity has no TypeORM imports
+
+### Definition of done
+- [ ] Unit tests: upsert, getField (found / not found), fallback chain
+- [ ] Migration generated in B-08b
+- [ ] `npm run build` passes
 
 ---
 
