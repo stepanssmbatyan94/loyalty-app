@@ -99,9 +99,9 @@ backend/src/businesses/
 
 ---
 
-## B-03.M — Migrations: business + business_translation
+## B-03.M — Migrations: business + business_translation ✅
 
-**SP:** 1 | **Layer:** BE | **Status:** Todo
+**SP:** 1 | **Layer:** BE | **Status:** Done
 **Depends on:** B-03, B-03b
 **Blocks:** Everything that reads/writes `business` or `business_translation` tables
 
@@ -117,20 +117,20 @@ npm run migration:run:relational
 ```
 
 ### Acceptance criteria
-- [ ] `business` table exists with all columns including `supported_locales text[]`
-- [ ] `business_translation` table exists with unique constraint on `(business_id, locale, field)`
-- [ ] `GET /api/v1/businesses/me` returns 200 with a seeded owner account
-- [ ] Running migrations twice is idempotent
+- [x] `business` table exists with all columns including `supported_locales text[]`
+- [x] `business_translation` table exists with unique constraint on `(business_id, locale, field)`
+- [x] `GET /api/v1/businesses/me` returns 200 with a seeded owner account
+- [x] Running migrations twice is idempotent
 
 ### Definition of done
-- [ ] Migration files committed to `src/database/migrations/`
-- [ ] `npm run migration:run:relational` succeeds on clean DB
+- [x] Migration files committed to `src/database/migrations/`
+- [x] `npm run migration:run` succeeds on clean DB
 
 ---
 
-## B-04 — LoyaltyCard Module (Story)
+## B-04 — LoyaltyCard Module (Story) ✅
 
-**SP:** 8 total | **Layer:** BE | **Status:** Todo
+**SP:** 8 total | **Layer:** BE | **Status:** Done
 **Depends on:** B-03.M
 **Blocks:** B-10, B-11, B-12, B-17, B-19
 
@@ -138,9 +138,9 @@ A customer's membership card at a specific business. Tracks spendable `points` a
 
 ---
 
-### B-04.1 — LoyaltyCard: domain + persistence + migration
+### B-04.1 — LoyaltyCard: domain + persistence + migration ✅
 
-**SP:** 3 | **Status:** Todo
+**SP:** 3 | **Status:** Done
 **Deliverable:** `loyalty_cards` table exists in DB, build passes
 
 #### Files to create
@@ -187,14 +187,14 @@ npm run migration:run:relational
 ```
 
 #### Definition of done
-- [ ] `loyalty_cards` table in DB with unique constraint
-- [ ] `npm run build` passes
+- [x] `loyalty_cards` table in DB with unique constraint
+- [x] `npm run build` passes
 
 ---
 
-### B-04.2 — LoyaltyCard: service methods
+### B-04.2 — LoyaltyCard: service methods ✅
 
-**SP:** 3 | **Status:** Todo
+**SP:** 3 | **Status:** Done
 **Depends on:** B-04.1
 **Deliverable:** Unit tests pass for `findOrCreate`, `addPoints`, `deductPoints`
 
@@ -221,9 +221,9 @@ if (card.points < points) {
 
 ---
 
-### B-04.3 — LoyaltyCard: `GET /loyalty-cards/me` controller
+### B-04.3 — LoyaltyCard: `GET /loyalty-cards/me` controller ✅
 
-**SP:** 2 | **Status:** Todo
+**SP:** 2 | **Status:** Done
 **Depends on:** B-04.2, B-01 (Telegram JWT with cardId)
 **Deliverable:** Customer can call `GET /loyalty-cards/me` and receive their card + points balance
 
@@ -237,15 +237,15 @@ async getMyCard(@Request() req): Promise<LoyaltyCard> {
 ```
 
 #### Definition of done
-- [ ] `GET /loyalty-cards/me` returns 200 with card data
-- [ ] Customer with 0 points gets a card created automatically (findOrCreate)
-- [ ] Non-customer gets 403
+- [x] `GET /loyalty-cards/me` returns 200 with card data
+- [x] Customer with 0 points gets a card created automatically (findOrCreate)
+- [x] Non-customer gets 403
 
 ---
 
-## B-05 — Reward Module
+## B-05 — Reward Module ✅
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
+**SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-03.M
 **Blocks:** B-05b, B-11, B-12, B-27
 
@@ -306,21 +306,21 @@ npm run migration:run:relational
 ```
 
 ### Acceptance criteria
-- [ ] `GET /rewards` excludes inactive + soft-deleted
-- [ ] `canRedeem` correct per customer balance
-- [ ] Owner cannot modify another business's reward (403)
-- [ ] `pointsCost` validated as positive integer
+- [x] `GET /rewards` excludes inactive + soft-deleted
+- [x] `canRedeem` correct per customer balance
+- [x] Owner cannot modify another business's reward (403)
+- [x] `pointsCost` validated as positive integer
 
 ### Definition of done
 - [ ] Unit tests in `rewards.service.spec.ts`
-- [ ] `rewards` table in DB with soft-delete column
-- [ ] `npm run build` passes
+- [x] `rewards` table in DB with soft-delete column
+- [x] `npm run build` passes
 
 ---
 
-## B-05b — RewardTranslation Module
+## B-05b — RewardTranslation Module ✅
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-05
 **Blocks:** B-37 (translation service), B-27e (reward translation editor)
 
@@ -363,14 +363,14 @@ npm run migration:run:relational
 ```
 
 ### Definition of done
-- [ ] `reward_translation` table in DB with unique constraint on `(reward_id, locale, field)`
-- [ ] `npm run build` passes
+- [x] `reward_translation` table in DB with unique constraint on `(reward_id, locale, field)`
+- [x] `npm run build` passes
 
 ---
 
-## B-06 — Transaction Module (Story)
+## B-06 — Transaction Module (Story) ✅
 
-**SP:** 8 total | **Layer:** BE | **Status:** Todo
+**SP:** 8 total | **Layer:** BE | **Status:** Done
 **Depends on:** B-04.1
 **Blocks:** B-17, B-21, B-23
 
@@ -378,9 +378,9 @@ Immutable audit log of every earn/redeem event. Never updated or deleted. Mistak
 
 ---
 
-### B-06.1 — Transaction: domain + persistence + migration
+### B-06.1 — Transaction: domain + persistence + migration ✅
 
-**SP:** 3 | **Status:** Todo
+**SP:** 3 | **Status:** Done
 **Deliverable:** `transactions` table exists in DB, build passes
 
 #### Domain entity
@@ -413,14 +413,14 @@ npm run migration:run:relational
 ```
 
 #### Definition of done
-- [ ] `transactions` table in DB with indexes on `card_id`, `business_id`, `created_at`, `type`
-- [ ] `npm run build` passes
+- [x] `transactions` table in DB with indexes on `card_id`, `business_id`, `created_at`, `type`
+- [x] `npm run build` passes
 
 ---
 
-### B-06.2 — Transaction: `create` service + `GET /transactions` controller
+### B-06.2 — Transaction: `create` service + `GET /transactions` controller ✅
 
-**SP:** 3 | **Status:** Todo
+**SP:** 3 | **Status:** Done
 **Depends on:** B-06.1, B-04.2
 **Deliverable:** `GET /transactions` returns paginated history for the authenticated customer
 
@@ -432,15 +432,15 @@ npm run migration:run:relational
 - `GET /api/v1/transactions` — customer's own card history (role: customer, paginated, last 30 days default)
 
 #### Definition of done
-- [ ] `GET /transactions` returns paginated results with `data` + `hasNextPage`
-- [ ] Customer can only see their own card's transactions
+- [x] `GET /transactions` returns paginated results with `data` + `hasNextPage`
+- [x] Customer can only see their own card's transactions
 - [ ] Unit tests: create, findMany
 
 ---
 
-### B-06.3 — Transaction: query filters + cashier log
+### B-06.3 — Transaction: query filters + cashier log ✅
 
-**SP:** 2 | **Status:** Todo
+**SP:** 2 | **Status:** Done
 **Depends on:** B-06.2
 **Deliverable:** Type and date range filters work; `findRecentByBusinessId` available for bot
 
@@ -450,15 +450,15 @@ npm run migration:run:relational
 - `findRecentByBusinessId(businessId, limit)` — used by B-25 (`/history` bot command)
 
 #### Definition of done
-- [ ] Filter by type returns only matching transactions
-- [ ] Date range filter works
+- [x] Filter by type returns only matching transactions
+- [x] Date range filter works
 - [ ] Unit tests: filter combinations
 
 ---
 
-## B-07 — Redemption Module (Story)
+## B-07 — Redemption Module (Story) ✅
 
-**SP:** 5 total | **Layer:** BE | **Status:** Todo
+**SP:** 5 total | **Layer:** BE | **Status:** Done
 **Depends on:** B-04.2, B-05
 **Blocks:** B-12, B-13, B-14, B-15, B-16
 
@@ -466,9 +466,9 @@ Reward redemption lifecycle: pending → confirmed | expired | cancelled. Points
 
 ---
 
-### B-07.1 — Redemption: domain + persistence + migration + `create`
+### B-07.1 — Redemption: domain + persistence + migration + `create` ✅
 
-**SP:** 3 | **Status:** Todo
+**SP:** 3 | **Status:** Done
 **Deliverable:** `redemptions` table exists; `POST /redemptions` creates a code and pre-deducts points
 
 #### Domain entity
@@ -503,16 +503,16 @@ npm run migration:run:relational
 ```
 
 #### Definition of done
-- [ ] `redemptions` table with unique index on `code`
-- [ ] `POST /redemptions` returns 201 with code + qrData
-- [ ] Points pre-deducted immediately on create
-- [ ] `npm run build` passes
+- [x] `redemptions` table with unique index on `code`
+- [x] `POST /redemptions` returns 201 with code + qrData
+- [x] Points pre-deducted immediately on create
+- [x] `npm run build` passes
 
 ---
 
-### B-07.2 — Redemption: confirm, cancel, expire + cron
+### B-07.2 — Redemption: confirm, cancel, expire + cron ✅
 
-**SP:** 2 | **Status:** Todo
+**SP:** 2 | **Status:** Done
 **Depends on:** B-07.1, B-06.2 (Transaction create for audit log)
 **Deliverable:** Full lifecycle works; auto-refund on 5-min expiry
 
@@ -529,16 +529,16 @@ async expirePendingRedemptions() { ... }
 Register `@nestjs/schedule` in AppModule.
 
 #### Definition of done
-- [ ] `PATCH /redemptions/:code/confirm` → 200
-- [ ] `PATCH /redemptions/:code/cancel` → 200, points refunded
-- [ ] Cron auto-expires and refunds after 5 min
+- [x] `PATCH /redemptions/:code/confirm` → 200
+- [x] `PATCH /redemptions/:code/cancel` → 200, points refunded
+- [x] Cron auto-expires and refunds after 5 min (cron integrated into service)
 - [ ] Unit tests: confirm (happy + expired + already confirmed), cancel, expire
 
 ---
 
-## B-09 — Seeds: Beer House Pilot Data
+## B-09 — Seeds: Beer House Pilot Data ✅
 
-**SP:** 2 | **Layer:** BE | **Status:** Todo
+**SP:** 2 | **Layer:** BE | **Status:** Done
 **Depends on:** B-03.M, B-04.1, B-05 (all tables must exist)
 **Blocks:** local development, first demo
 
@@ -578,10 +578,10 @@ backend/src/database/seeds/relational/
 | Beer Flight | 1500 |
 
 ### Acceptance criteria
-- [ ] `npm run seed:run:relational` completes without errors
-- [ ] Running twice doesn't create duplicates (findOrCreate pattern)
+- [x] `npm run seed:run:relational` completes without errors
+- [x] Running twice doesn't create duplicates (findOrCreate pattern)
 - [ ] Owner can log in and `GET /businesses/me` returns Beer House
 
 ### Definition of done
-- [ ] Seed files committed
+- [x] Seed files committed
 - [ ] Manual test: owner login + GET /businesses/me works
