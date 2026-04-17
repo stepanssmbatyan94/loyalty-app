@@ -4,9 +4,9 @@ Tracks the remaining gaps found after Epic 3 was delivered. All three gaps are i
 
 ---
 
-## F-09b — Wire RecentActivity to Real Transactions API
+## F-09b — Wire RecentActivity to Real Transactions API ✅
 
-**SP:** 2 | **Layer:** FE | **Status:** Todo
+**SP:** 2 | **Layer:** FE | **Status:** Done
 **Depends on:** B-06 (Done — `GET /api/v1/transactions` is live)
 **Blocks:** nothing
 
@@ -80,9 +80,9 @@ The `ActivityTransaction` type already matches this shape — no changes needed 
 
 ---
 
-## F-05b — Display `memberSince` on LoyaltyCardHero
+## F-05b — Display `memberSince` on LoyaltyCardHero ✅
 
-**SP:** 1 | **Layer:** FE | **Status:** Todo
+**SP:** 1 | **Layer:** FE | **Status:** Done
 **Depends on:** F-05 (Done — `LoyaltyCardHero` already receives `memberSince` prop)
 **Blocks:** nothing
 
@@ -126,9 +126,9 @@ Change the destructuring from `memberSince: _` to `memberSince` so it's used.
 
 ---
 
-## F-09c — Use Server-Computed `progressPercent` and `ptsRemaining`
+## F-09c — Use Server-Computed `progressPercent` and `ptsRemaining` ✅
 
-**SP:** 1 | **Layer:** FE | **Status:** Todo
+**SP:** 1 | **Layer:** FE | **Status:** Done
 **Depends on:** B-10 (Done — API returns `progressPercent` and `nextReward.ptsRemaining`)
 **Blocks:** nothing
 

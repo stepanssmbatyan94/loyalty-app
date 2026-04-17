@@ -5,9 +5,9 @@ Start FE components (F-05–F-08) in parallel with B-10 — they can be built wi
 
 ---
 
-## F-05 — LoyaltyCardHero Component
+## F-05 — LoyaltyCardHero Component ✅
 
-**SP:** 5 | **Layer:** FE | **Status:** Todo
+**SP:** 5 | **Layer:** FE | **Status:** Done
 **Depends on:** F-01
 **Blocks:** F-09
 
@@ -96,9 +96,9 @@ Mark `'use client'` — uses `useTranslations`.
 
 ---
 
-## F-06 — ProgressToReward Component
+## F-06 — ProgressToReward Component ✅
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done
 **Depends on:** F-01
 **Blocks:** F-09
 
@@ -147,9 +147,9 @@ const ptsRemaining = nextReward
 
 ---
 
-## F-07 — BentoHighlights Grid
+## F-07 — BentoHighlights Grid ✅
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done
 **Depends on:** F-01
 **Blocks:** F-09
 
@@ -219,9 +219,9 @@ Tapping "Share Invite Link" opens a simple dialog/toast: "Coming soon in the nex
 
 ---
 
-## F-08 — RecentActivity Section
+## F-08 — RecentActivity Section ✅
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done
 **Depends on:** F-01
 **Blocks:** F-09
 
@@ -301,9 +301,9 @@ Date formatting: use `Intl.DateTimeFormat` — "Today, 2:45 PM" or "Yesterday, 8
 
 ---
 
-## B-10 — GET /api/v1/loyalty-cards/me
+## B-10 — GET /api/v1/loyalty-cards/me ✅
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-04, B-05
 **Blocks:** F-09
 
@@ -391,9 +391,9 @@ getMe(@Request() req) {
 
 ---
 
-## F-09 — Wire Home Page to API
+## F-09 — Wire Home Page to API ✅
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done (gaps tracked in epic-3.1)
 **Depends on:** F-04, F-05, F-06, F-07, F-08, B-10
 **Blocks:** nothing (final step for this epic)
 

@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { TypeOrmConfigService } from '../../typeorm-config.service';
 import { BusinessSeedModule } from './business/business-seed.module';
+import { CustomerSeedModule } from './customer/customer-seed.module';
 import { RewardSeedModule } from './reward/reward-seed.module';
 import { RoleSeedModule } from './role/role-seed.module';
 import { StatusSeedModule } from './status/status-seed.module';
@@ -19,6 +20,7 @@ import appConfig from '../../../config/app.config';
     UserSeedModule,
     BusinessSeedModule,
     RewardSeedModule,
+    CustomerSeedModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig],

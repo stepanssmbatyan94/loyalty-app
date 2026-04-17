@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 const createEnv = () => {
   const EnvSchema = z.object({
-    API_URL: z.string(),
+    API_URL: z.string().optional().default(''),
     ENABLE_API_MOCKING: z
       .string()
       .refine((s) => s === 'true' || s === 'false')
