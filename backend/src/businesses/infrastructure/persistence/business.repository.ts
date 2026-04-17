@@ -2,9 +2,7 @@ import { NullableType } from '../../../utils/types/nullable.type';
 import { Business } from '../../domain/business';
 
 export abstract class BusinessRepository {
-  abstract create(
-    data: Omit<Business, 'id' | 'createdAt'>,
-  ): Promise<Business>;
+  abstract create(data: Omit<Business, 'id' | 'createdAt'>): Promise<Business>;
 
   abstract findById(id: Business['id']): Promise<NullableType<Business>>;
 

@@ -24,6 +24,11 @@ import { SessionModule } from './session/session.module';
 import { MailerModule } from './mailer/mailer.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { BusinessesModule } from './businesses/businesses.module';
+import { LoyaltyCardsModule } from './loyalty-cards/loyalty-cards.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { RewardsModule } from './rewards/rewards.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { RedemptionsModule } from './redemptions/redemptions.module';
 
 const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
   useClass: TypeOrmConfigService,
@@ -82,6 +87,11 @@ const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
     HomeModule,
     TelegramModule,
     BusinessesModule,
+    ScheduleModule.forRoot(),
+    LoyaltyCardsModule,
+    RewardsModule,
+    TransactionsModule,
+    RedemptionsModule,
   ],
 })
 export class AppModule {}

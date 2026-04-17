@@ -6,13 +6,18 @@ import {
 
 import { NullableType } from '../utils/types/nullable.type';
 import { Business } from './domain/business';
+import { BusinessTranslation } from './domain/business-translation';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { BusinessRepository } from './infrastructure/persistence/business.repository';
+import { BusinessTranslationRepository } from './infrastructure/persistence/business-translation.repository';
 
 @Injectable()
 export class BusinessesService {
-  constructor(private readonly businessesRepository: BusinessRepository) {}
+  constructor(
+    private readonly businessesRepository: BusinessRepository,
+    private readonly businessTranslationRepository: BusinessTranslationRepository,
+  ) {}
 
   async create(dto: CreateBusinessDto): Promise<Business> {
     const existing = await this.businessesRepository.findByOwnerId(dto.ownerId);
@@ -55,10 +60,39 @@ export class BusinessesService {
     return this.businessesRepository.findAllActive();
   }
 
-  async update(
-    id: Business['id'],
-    dto: UpdateBusinessDto,
-  ): Promise<Business> {
+  async update(id: Business['id'], dto: UpdateBusinessDto): Promise<Business> {
     return this.businessesRepository.update(id, dto);
+  }
+
+  upsertTranslation(
+    data: Omit<BusinessTranslation, 'id'>,
+  ): Promise<BusinessTranslation> {
+    return this.businessTranslationRepository.upsert(data);
+  }
+
+  getTranslations(businessId: string): Promise<BusinessTranslation[]> {
+    return this.businessTranslationRepository.findByBusiness(businessId);
+  }
+
+  async getTranslatedField(
+    businessId: string,
+    locale: string,
+    field: 'name' | 'welcomeMessage' | 'pointsLabel',
+    defaultLocale: string,
+  ): Promise<NullableType<string>> {
+    const value = await this.businessTranslationRepository.getField(
+      businessId,
+      locale,
+      field,
+    );
+    if (value) return value;
+    if (locale !== defaultLocale) {
+      return this.businessTranslationRepository.getField(
+        businessId,
+        defaultLocale,
+        field,
+      );
+    }
+    return null;
   }
 }

@@ -26,7 +26,11 @@ export class Business {
   @Exclude({ toPlainOnly: true })
   botToken: string | null;
 
-  @ApiPropertyOptional({ type: String, nullable: true, example: 'beer_house_bot' })
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    example: 'beer_house_bot',
+  })
   botUsername: string | null;
 
   @Exclude({ toPlainOnly: true })

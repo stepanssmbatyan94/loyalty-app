@@ -15,7 +15,11 @@ export class CreateBusinessDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ type: Number, example: 1, description: 'User ID of the owner' })
+  @ApiProperty({
+    type: Number,
+    example: 1,
+    description: 'User ID of the owner',
+  })
   @IsNumber()
   ownerId: number;
 
