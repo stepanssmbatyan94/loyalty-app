@@ -714,6 +714,7 @@ Upsert translations for this business. Replaces values for provided locale+field
 **Response 200**
 ```json
 { "updated": 2 }
+```
 
 ---
 

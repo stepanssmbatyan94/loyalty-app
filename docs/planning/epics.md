@@ -45,21 +45,26 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 ## Epic 2 — Core Domain (Backend)
 
 > Define and persist the four core domain entities using Hexagonal Architecture. Pure backend epic. Unblocks all API integrations.
+> **Rule:** every ticket that creates a DB entity runs its migration as its final step — nothing is "Done" without a table in the DB.
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| B-03 | `Business` module — domain, repo, service, controller | BE | 5 | Done | Fields: id, name, ownerId, logoUrl, earnRateMode, earnRateValue, botToken (encrypted), botUsername, webhookSecret, telegramGroupChatId, supportedLocales, defaultLocale, isActive |
-| B-03b | `BusinessTranslation` module — domain, repo, service | BE | 3 | Todo | Translates: name, welcomeMessage, pointsLabel. Unique on (businessId, locale, field). Locale fallback in service. |
-| B-04 | `LoyaltyCard` module — domain, repo, service, controller | BE | 8 | Todo | Fields: id, customerId, businessId, points, totalPointsEarned, createdAt. QR generated as signed URL. |
-| B-05 | `Reward` module — domain, repo, service, controller | BE | 5 | Todo | Fields: id, businessId, name, description, pointsCost, isActive, imageUrl, stock (nullable). Soft-delete. |
-| B-05b | `RewardTranslation` module — domain, repo, service | BE | 3 | Todo | Translates: name, description. Unique on (rewardId, locale, field). Same fallback pattern as BusinessTranslation. |
-| B-06 | `Transaction` module — domain, repo, service, controller | BE | 8 | Todo | Fields: id, cardId, type (earn/redeem), points, cashierTelegramId?, rewardId?, note, createdAt. Immutable. |
-| B-07 | `Redemption` module — domain, repo, service, controller | BE | 5 | Todo | Fields: id, cardId, rewardId, code (6-digit), qrData, status (pending/confirmed/expired/cancelled), expiresAt. Auto-refund on expiry via cron job. |
-| B-08 | DB migrations — create all 5 core tables | BE | 3 | Todo | Tables: businesses, loyalty_cards, rewards, transactions, redemptions. Add FK indexes. |
-| B-08b | DB migrations — business_translation + reward_translation tables | BE | 2 | Todo | Unique constraint on (businessId/rewardId, locale, field). FK indexes. |
-| B-09 | Seeds — Beer House business + 4 sample rewards + superadmin account | BE | 2 | Todo | Free Pint (500pts), Half Off Burger (800pts), Appetizer Platter (1200pts), Beer Flight (1500pts). Include EN/RU/HY translations. |
+| B-03 | `Business` module — domain, repo, service, controller | BE | 5 | Done | Full Hexagonal Architecture in `src/businesses/` (17 files) |
+| B-03b | `BusinessTranslation` — domain, repo, service (inside `businesses/`) | BE | 3 | Done | Lives inside `businesses/`; upsert via query builder on unique constraint |
+| B-03.M | Run migrations for `business` + `business_translation` tables | BE | 1 | Done | Tables `business` + `business_translation` in DB |
+| B-04.1 | `LoyaltyCard` — domain + persistence layer + migration | BE | 3 | Done | `loyalty_cards` table in DB; unique on (customerId, businessId) |
+| B-04.2 | `LoyaltyCard` — service methods (`findOrCreate`, `addPoints`, `deductPoints`) | BE | 3 | Done | Unit tests pass; `deductPoints` throws 422 on insufficient balance |
+| B-04.3 | `LoyaltyCard` — `GET /loyalty-cards/me` controller | BE | 2 | Done | Covered by B-10 |
+| B-05 | `Reward` module — domain, repo, service, controller + migration | BE | 5 | Done | `rewards` table in DB; soft-delete; ownership check on update/delete; 10 unit tests |
+| B-05b | `RewardTranslation` — domain, repo, service + migration | BE | 3 | Done | `reward_translation` table in DB; unique on (rewardId, locale, field) |
+| B-06.1 | `Transaction` — domain + persistence layer + migration | BE | 3 | Done | `transactions` table in DB; no update/delete on port (immutability enforced) |
+| B-06.2 | `Transaction` — `create` service method + `GET /transactions` controller | BE | 3 | Done | 7 unit tests pass |
+| B-06.3 | `Transaction` — query filters + `findRecentByBusinessId` for cashier log | BE | 2 | Done | Type/date filters via QueryBuilder; cross-join on `loyalty_cards` for businessId filter |
+| B-07.1 | `Redemption` — domain + persistence + migration + `POST /redemptions` | BE | 3 | Done | `redemptions` table in DB; pre-deducts points; generates 6-digit code + QR |
+| B-07.2 | `Redemption` — confirm, cancel, expire + cron job | BE | 2 | Done | Full lifecycle; `@Cron(EVERY_30_SECONDS)` auto-refunds expired pending redemptions; 14 unit tests |
+| B-09 | Seeds — Beer House business + 4 sample rewards + superadmin account | BE | 2 | Done | owner@beerhouse.am (role: owner); Beer House business; Free Pint 500, Half Off Burger 800, Appetizer Platter 1200, Beer Flight 1500 |
 
-**Epic 2 Total: FE 0 SP | BE 44 SP | Total 44 SP**
+**Epic 2 Total: FE 0 SP | BE 40 SP | Total 40 SP**
 
 ---
 
@@ -70,14 +75,29 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| F-05 | `LoyaltyCardHero` component — gradient glass card, total points, "Premium Member" badge | FE | 5 | Todo | `glass-card` CSS class, `display-lg` 7xl points, `tertiary-fixed` progress bar fill |
-| F-06 | `ProgressToReward` component — progress bar, "X pts away" chip, motivational text | FE | 3 | Todo | `progressPercent` and `nextReward.name` from API response |
-| F-07 | `BentoHighlights` grid — Daily Check-in tile, Happy Hour tile, Invite Friends tile (static) | FE | 3 | Todo | Invite Friends: non-functional, shows "Coming Soon" dialog on tap |
-| F-08 | `RecentActivity` section — last 2 transactions + "See all" link | FE | 3 | Todo | Reuses `TransactionItem` (Epic 6); "See all" switches to History tab |
-| B-10 | `GET /api/v1/loyalty-cards/me` — returns card, balance, nextReward, progressPercent | BE | 3 | Todo | Joins with rewards to find next reachable reward; see `api-contract.md` |
-| F-09 | Wire Home page to API — `useLoyaltyCard()` hook, skeleton loader, error boundary, 0-pts empty state | FE | 3 | Todo | Empty state text: "Welcome! Start earning points at Beer House." |
+| F-05 | `LoyaltyCardHero` component — gradient glass card, total points, "Premium Member" badge | FE | 5 | Done | `glass-card` CSS class, `display-lg` 7xl points, `tertiary-fixed` progress bar fill |
+| F-06 | `ProgressToReward` component — progress bar, "X pts away" chip, motivational text | FE | 3 | Done | `progressPercent` and `nextReward.name` from API response |
+| F-07 | `BentoHighlights` grid — Daily Check-in tile, Happy Hour tile, Invite Friends tile (static) | FE | 3 | Done | Invite Friends: non-functional, shows "Coming Soon" dialog on tap |
+| F-08 | `RecentActivity` section — last 2 transactions + "See all" link | FE | 3 | Done | Reuses `TransactionItem` (Epic 6); "See all" switches to History tab |
+| B-10 | `GET /api/v1/loyalty-cards/me` — returns card, balance, nextReward, progressPercent | BE | 3 | Done | Returns card + rewards eligibility; `findOrCreateForCustomer` on every call |
+| F-09 | Wire Home page to API — `useLoyaltyCard()` hook, skeleton loader, error boundary, 0-pts empty state | FE | 3 | Done | `useLoyaltyCardMe()` hook with React Query; `LoyaltyCardSkeleton` Suspense fallback |
 
 **Epic 3 Total: FE 17 SP | BE 3 SP | Total 20 SP**
+
+---
+
+## Epic 3.1 — Home / My Card: Gap Fixes
+
+> Remaining gaps found after Epic 3 was delivered. All frontend. Backend fully unblocked for each.
+> Ticket details: `docs/planning/tickets/epic-3.1-home-my-card-gaps.md`
+
+| ID | Title | Layer | SP | Status | Notes |
+|----|-------|-------|----|--------|-------|
+| F-09b | Wire `RecentActivity` to real `GET /api/v1/transactions` — remove `MOCK_TRANSACTIONS` | FE | 2 | Todo | B-06 is done; needs hook + wire-up in `loyalty-card-home.tsx` |
+| F-05b | Display `memberSince` date on `LoyaltyCardHero` — prop was received but discarded (`_`) | FE | 1 | Todo | Add i18n key + render at bottom of card |
+| F-09c | Use server-computed `progressPercent` + `ptsRemaining` from API instead of recomputing client-side | FE | 1 | Todo | Unblocked; makes FE consistent with backend business logic |
+
+**Epic 3.1 Total: FE 4 SP | Total 4 SP**
 
 ---
 
@@ -243,7 +263,7 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | # | Epic | FE | BE/BOT | ADMIN | Total |
 |---|------|----|----|-------|-------|
 | 1 | Foundation & Setup | 11 | 8 | — | 19 |
-| 2 | Core Domain + Translations | 0 | 44 | — | 44 |
+| 2 | Core Domain + Translations | 0 | 40 | — | 40 |
 | 3 | Home / My Card | 17 | 3 | — | 20 |
 | 4 | Rewards Catalog | 12 | 3 | — | 15 |
 | 5 | Redemption Flow | 12 | 18 | — | 30 |
@@ -253,4 +273,4 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | 9 | Notifications | 2 | 8 | — | 10 |
 | 10 | Super Admin Panel | — | 5 | 14 | 19 |
 | 11 | Translation Infrastructure | 2 | 8 | — | 10 |
-| | **Total** | **107** | **165** | **14** | **286** |
+| | **Total** | **107** | **161** | **14** | **282** |

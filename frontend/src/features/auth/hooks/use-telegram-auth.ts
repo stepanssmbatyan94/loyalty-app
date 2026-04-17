@@ -25,8 +25,6 @@ export function useTelegramAuth() {
         return;
       }
 
-      alert(JSON.stringify(initData));
-
       try {
         const { token, isNew } = await telegramAuth(initData);
         setToken(token);

@@ -1,17 +1,21 @@
 # Epic 2 — Core Domain (Backend)
 
-Pure backend epic. All 7 tickets follow the Hexagonal Architecture pattern from `backend/docs/conventions.md`. Reference implementation: `backend/src/users/`. Run `npm run generate:resource:relational -- --name <Name>` to scaffold each module skeleton before filling in.
+Pure backend epic. All tickets follow the Hexagonal Architecture pattern from `backend/docs/conventions.md`. Reference implementation: `backend/src/users/`.
+
+**Deliverability rule:** Every ticket that creates a DB entity includes its TypeORM migration as the final step. A ticket is only "Done" when the table exists in the DB and the feature is testable end-to-end.
+
+**Sub-task notation:** `B-04.1`, `B-04.2` etc. are sub-tasks of story `B-04`. Sub-tasks run in order; the story is Done when all sub-tasks are Done.
 
 ---
 
-## B-03 — Business Module
+## B-03 — Business Module ✅
 
 **SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-02 (roles enum)
-**Blocks:** B-03b, B-04, B-09, B-10, B-11, B-27b, B-27c, B-27d, B-28, B-29, B-30
+**Blocks:** B-03b, B-03.M, B-04, B-09, B-10, B-11, B-27b, B-27c, B-27d, B-28, B-29, B-30
 
 ### Description
-Create the `Business` domain entity and full Hexagonal Architecture module. A Business is a merchant registered on the platform (e.g. Beer House). It holds earn rate config, Telegram bot credentials, supported locales, and webhook secret for multi-tenant operation.
+Business domain entity + full Hexagonal Architecture module. Multi-tenant: each business owns its own bot token, supported locales, and webhook secret.
 
 ### Files created
 ```
@@ -30,74 +34,48 @@ backend/src/businesses/
 └── businesses.module.ts
 ```
 
-### Implementation notes
-
-**Domain entity (`domain/business.ts`) — as built:**
+### Domain entity
 ```ts
 export class Business {
-  id: string;                              // UUID — @PrimaryGeneratedColumn('uuid')
-  name: string;                            // base field; translations in business_translation
-  ownerId: number;                         // integer FK → users.id
+  id: string;                              // UUID
+  name: string;
+  ownerId: number;                         // FK → users.id
   logoUrl: string | null;
-  earnRateMode: 'per_amd_spent' | 'fixed_per_visit';  // default: per_amd_spent
-  earnRateValue: number;                   // default: 100 (1 pt per 100 AMD)
-  botToken: string | null;                 // @Exclude({ toPlainOnly: true }) — never in API responses
-  botUsername: string | null;              // indexed + unique; used to look up business on /start
-  webhookSecret: string | null;            // @Exclude({ toPlainOnly: true }) — validated on webhook POST
+  earnRateMode: 'per_amd_spent' | 'fixed_per_visit';
+  earnRateValue: number;                   // default 100
+  botToken: string | null;                 // @Exclude — never in API responses
+  botUsername: string | null;              // indexed, unique
+  webhookSecret: string | null;            // @Exclude — never in API responses
   telegramGroupChatId: string | null;
-  supportedLocales: string[];              // PostgreSQL text[] — default ['en']
+  supportedLocales: string[];              // text[] default ['en']
   defaultLocale: string;                   // default 'en'
-  isActive: boolean;                       // false until owner configures bot (B-27b)
+  isActive: boolean;                       // false until bot configured
   createdAt: Date;
 }
 ```
 
-**TypeORM entity:** `botToken` and `webhookSecret` use `@Exclude({ toPlainOnly: true })` on the domain class so they never appear in any API response. `supportedLocales` stored as PostgreSQL native `text[]`. `isActive` defaults to `false`.
-
-**Earn rate defaults:** `earnRateMode: 'per_amd_spent'`, `earnRateValue: 100`
-
-**Controller routes delivered by B-03:**
-- `GET /api/v1/businesses/me` — owner gets their own business (role: owner) ✅
-
-Not in B-03 (separate tickets):
-- `PATCH /api/v1/businesses/me/settings` → B-28
-- `PATCH /api/v1/businesses/me/bot-settings` → B-27b
-- `GET/POST /api/v1/admin/businesses` → B-36
-
-**Repository methods:**
-- `create(data)` → `Business`
-- `findById(id)` → `Business | null`
-- `findByOwnerId(ownerId: number)` → `Business | null`
-- `findByBotUsername(botUsername: string)` → `Business | null` — used by BotRegistry on /start
-- `findAllActive()` → `Business[]` — used by BotRegistry on startup
-- `update(id, payload)` → `Business`
-
 ### Acceptance criteria
-- [x] `GET /businesses/me` returns business without `botToken` or `webhookSecret` in response
-- [x] Non-owner cannot call `/businesses/me` (403 via RolesGuard)
+- [x] `GET /businesses/me` returns business without `botToken` or `webhookSecret`
+- [x] Non-owner gets 403
 - [x] Domain entity has no TypeORM imports
-- [x] Mapper converts both directions (toDomain / toPersistence)
-- [x] `botToken` and `webhookSecret` excluded from all API responses (`@Exclude`)
-- [x] `isActive` defaults to `false` (business inactive until bot configured)
-- [ ] `PATCH /businesses/me/settings` updates `earnRateMode` and `earnRateValue` — belongs to B-28
+- [x] `isActive` defaults to `false`
 
 ### Definition of done
-- [ ] Unit tests in `businesses.service.spec.ts` — pending
 - [x] `npm run build` passes
-- [ ] Migration generated in B-08
+- [ ] Migration run — see **B-03.M**
 
 ---
 
-## B-03b — BusinessTranslation Module
+## B-03b — BusinessTranslation Module ✅
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-03
-**Blocks:** B-37 (translation service), B-18c (bot welcome from DB), B-27d (translation editor endpoint)
+**Blocks:** B-37 (translation service), B-18c (bot welcome from DB), B-27d
 
 ### Description
-Stores per-locale translations for the three customizable Business text fields: `name`, `welcomeMessage`, and `pointsLabel`. One row per `(businessId, locale, field)` combination. Provides the lookup service with locale fallback used by both the bot and the API.
+Per-locale translations for `name`, `welcomeMessage`, `pointsLabel` stored in `business_translation` table. Composite unique constraint on `(businessId, locale, field)`. Locale fallback chain built into `BusinessesService.getTranslatedField()`.
 
-### Files to create
+### Files created
 ```
 backend/src/businesses/
 ├── domain/business-translation.ts
@@ -106,176 +84,173 @@ backend/src/businesses/
 └── infrastructure/persistence/relational/
     ├── entities/business-translation.entity.ts
     ├── mappers/business-translation.mapper.ts
-    ├── repositories/business-translations.repository.ts
-    └── (re-uses RelationalBusinessPersistenceModule — add entity there)
+    └── repositories/business-translations.repository.ts
 ```
+`RelationalBusinessPersistenceModule` updated to register both entities + both repos.
 
-No separate module or controller — `BusinessTranslation` is owned by `BusinessesModule`.
-
-### Implementation notes
-
-**Domain entity (`domain/business-translation.ts`):**
-```ts
-export class BusinessTranslation {
-  id: string;                                            // UUID
-  businessId: string;
-  locale: string;                                        // e.g. 'en', 'ru', 'hy'
-  field: 'name' | 'welcomeMessage' | 'pointsLabel';
-  value: string;
-}
-```
-
-**TypeORM entity constraints:**
-- Unique constraint on `(businessId, locale, field)` — enforced at DB level
-- Index on `businessId` for fast lookup
-- FK to `business.id`
-
-**Repository methods (abstract port):**
-- `upsert(data: Omit<BusinessTranslation, 'id'>)` → `BusinessTranslation` — insert or update on unique constraint
-- `findByBusiness(businessId: string)` → `BusinessTranslation[]` — all translations for a business
-- `findByBusinessAndLocale(businessId: string, locale: string)` → `BusinessTranslation[]`
-- `getField(businessId: string, locale: string, field: string)` → `string | null` — single value lookup
-
-**Service method (add to `BusinessesService`):**
-```ts
-async getTranslatedField(
-  businessId: string,
-  locale: string,
-  field: 'name' | 'welcomeMessage' | 'pointsLabel',
-  defaultLocale: string,
-): Promise<string | null> {
-  // 1. Try requested locale
-  const value = await this.businessTranslationRepository.getField(businessId, locale, field);
-  if (value) return value;
-  // 2. Fall back to defaultLocale
-  if (locale !== defaultLocale) {
-    return this.businessTranslationRepository.getField(businessId, defaultLocale, field);
-  }
-  return null; // caller uses raw base field as final fallback
-}
-```
-
-**Upsert pattern (PostgreSQL ON CONFLICT):**
-```ts
-await this.repo
-  .createQueryBuilder()
-  .insert()
-  .into(BusinessTranslationEntity)
-  .values(entity)
-  .orUpdate(['value'], ['businessId', 'locale', 'field'])
-  .execute();
-```
-
-### Acceptance criteria
-- [ ] `upsert` creates a new row when `(businessId, locale, field)` does not exist
-- [ ] `upsert` updates existing `value` when the same combination is called again
-- [ ] `getField` returns the value for the requested locale
-- [ ] `getField` returns `null` (not throws) when no translation exists
-- [ ] `getTranslatedField` falls back to `defaultLocale` when requested locale is missing
-- [ ] DB has unique constraint on `(businessId, locale, field)`
-- [ ] Domain entity has no TypeORM imports
+### Service methods added to `BusinessesService`
+- `upsertTranslation(data)` → `BusinessTranslation`
+- `getTranslations(businessId)` → `BusinessTranslation[]`
+- `getTranslatedField(businessId, locale, field, defaultLocale)` → `string | null`
 
 ### Definition of done
-- [ ] Unit tests: upsert, getField (found / not found), fallback chain
-- [ ] Migration generated in B-08b
-- [ ] `npm run build` passes
+- [x] `npm run build` passes
+- [ ] Migration run — see **B-03.M**
 
 ---
 
-## B-04 — LoyaltyCard Module
+## B-03.M — Migrations: business + business_translation
 
-**SP:** 8 | **Layer:** BE | **Status:** Todo
-**Depends on:** B-03
-**Blocks:** B-10, B-11, B-12, B-17, B-19
+**SP:** 1 | **Layer:** BE | **Status:** Todo
+**Depends on:** B-03, B-03b
+**Blocks:** Everything that reads/writes `business` or `business_translation` tables
 
 ### Description
-The core entity — a customer's membership card at a specific business. Tracks current points balance and lifetime earnings. Generates a scannable QR code URL for the cashier earn flow.
+Generate and run the TypeORM migrations for the two tables created in B-03 and B-03b. After this ticket, `GET /businesses/me` is fully testable end-to-end.
 
-### Files to create
+### Commands
+```bash
+cd backend
+npm run migration:generate -- src/database/migrations/CreateBusinessTable
+npm run migration:generate -- src/database/migrations/CreateBusinessTranslationTable
+npm run migration:run:relational
+```
+
+### Acceptance criteria
+- [ ] `business` table exists with all columns including `supported_locales text[]`
+- [ ] `business_translation` table exists with unique constraint on `(business_id, locale, field)`
+- [ ] `GET /api/v1/businesses/me` returns 200 with a seeded owner account
+- [ ] Running migrations twice is idempotent
+
+### Definition of done
+- [ ] Migration files committed to `src/database/migrations/`
+- [ ] `npm run migration:run:relational` succeeds on clean DB
+
+---
+
+## B-04 — LoyaltyCard Module (Story)
+
+**SP:** 8 total | **Layer:** BE | **Status:** Todo
+**Depends on:** B-03.M
+**Blocks:** B-10, B-11, B-12, B-17, B-19
+
+A customer's membership card at a specific business. Tracks spendable `points` and lifetime `totalPointsEarned`. `points` can never go below 0 — enforced in the service layer.
+
+---
+
+### B-04.1 — LoyaltyCard: domain + persistence + migration
+
+**SP:** 3 | **Status:** Todo
+**Deliverable:** `loyalty_cards` table exists in DB, build passes
+
+#### Files to create
 ```
 backend/src/loyalty-cards/
 ├── domain/loyalty-card.ts
 ├── dto/create-loyalty-card.dto.ts
-├── dto/update-loyalty-card.dto.ts
 ├── infrastructure/persistence/loyalty-card.repository.ts
-├── infrastructure/persistence/relational/
-│   ├── entities/loyalty-card.entity.ts
-│   ├── mappers/loyalty-card.mapper.ts
-│   ├── repositories/loyalty-cards.repository.ts
-│   └── relational-persistence.module.ts
-├── loyalty-cards.service.ts
-├── loyalty-cards.controller.ts
-└── loyalty-cards.module.ts
+└── infrastructure/persistence/relational/
+    ├── entities/loyalty-card.entity.ts
+    ├── mappers/loyalty-card.mapper.ts
+    ├── repositories/loyalty-cards.repository.ts
+    └── relational-persistence.module.ts
+├── loyalty-cards.module.ts
 ```
 
-### Implementation notes
-
-**Domain entity (`domain/loyalty-card.ts`):**
+#### Domain entity
 ```ts
 export class LoyaltyCard {
-  id: string;
-  customerId: string;
-  businessId: string;
-  points: number;              // current spendable balance (never < 0)
-  totalPointsEarned: number;   // lifetime total, never decreases
+  id: string;             // UUID
+  customerId: number;     // FK → users.id
+  businessId: string;     // FK → business.id
+  points: number;         // spendable balance — never < 0
+  totalPointsEarned: number; // lifetime total — only increases
   createdAt: Date;
   updatedAt: Date;
 }
 ```
 
-**QR code URL** is not stored — generated on the fly:
-```ts
-// In service
-getScanUrl(cardId: string, token: string): string {
-  return `${this.configService.get('app.frontendDomain')}/api/v1/scan/${cardId}/${token}`;
-}
+#### TypeORM constraints
+- Unique on `(customerId, businessId)` — one card per customer per business
+- Index on `customerId`, `businessId`
+
+#### Repository methods
+- `create(data)` → `LoyaltyCard`
+- `findById(id)` → `LoyaltyCard | null`
+- `findByCustomerAndBusiness(customerId, businessId)` → `LoyaltyCard | null`
+- `save(card)` → `LoyaltyCard` — persists in-memory changes (used after addPoints/deductPoints)
+
+#### Migration
+```bash
+npm run migration:generate -- src/database/migrations/CreateLoyaltyCardsTable
+npm run migration:run:relational
 ```
 
-**Scan token** (short-lived, single-use HMAC):
-- Generate: `crypto.createHmac('sha256', SECRET).update(cardId + timestamp).digest('hex').slice(0, 16)`
-- Store in Redis with 5-min TTL, or as a DB column `ScanToken` table (simpler for MVP)
-- Invalidate after first use
+#### Definition of done
+- [ ] `loyalty_cards` table in DB with unique constraint
+- [ ] `npm run build` passes
 
-**Service methods:**
-- `findOrCreateForCustomer(customerId, businessId)` → `LoyaltyCard`
-- `findByCustomerAndBusiness(customerId, businessId)` → `LoyaltyCard | null`
-- `addPoints(cardId, points)` → `LoyaltyCard` — increments both `points` and `totalPointsEarned`
-- `deductPoints(cardId, points)` → `LoyaltyCard` — decrements `points` only; throws if insufficient
-- `getWithNextReward(customerId, businessId)` → `LoyaltyCard + Reward | null` — for Home screen
+---
 
-**Controller routes:**
-- `GET /api/v1/loyalty-cards/me` — returns card + next reward + progress (role: customer)
-- `GET /api/v1/scan/:cardId/:scanToken` — validates token, triggers bot notification (no auth — secured by token)
+### B-04.2 — LoyaltyCard: service methods
 
-**Business rule:** `points` must never go below 0. Enforce in `deductPoints()`:
+**SP:** 3 | **Status:** Todo
+**Depends on:** B-04.1
+**Deliverable:** Unit tests pass for `findOrCreate`, `addPoints`, `deductPoints`
+
+#### Service to create: `loyalty-cards.service.ts`
+```ts
+async findOrCreateForCustomer(customerId: number, businessId: string): Promise<LoyaltyCard>
+async addPoints(cardId: string, points: number): Promise<LoyaltyCard>
+  // increments both `points` and `totalPointsEarned`
+async deductPoints(cardId: string, points: number): Promise<LoyaltyCard>
+  // decrements `points` only; throws 422 { points: 'insufficient' } if card.points < points
+findByCustomerAndBusiness(customerId: number, businessId: string): Promise<LoyaltyCard | null>
+```
+
+#### Business rule
 ```ts
 if (card.points < points) {
   throw new UnprocessableEntityException({ status: 422, errors: { points: 'insufficient' } });
 }
 ```
 
-### Acceptance criteria
-- [ ] `GET /loyalty-cards/me` returns card with `nextReward` (null if all rewards are reachable)
-- [ ] `addPoints` increases both `points` and `totalPointsEarned`
-- [ ] `deductPoints` decreases `points` only, throws 422 if insufficient
-- [ ] `points` can never go below 0 (validated in service, not just DB)
-- [ ] `GET /scan/:cardId/:scanToken` returns 410 if token expired, 409 if already used
+#### Definition of done
+- [ ] Unit tests in `loyalty-cards.service.spec.ts`: addPoints, deductPoints (insufficient), findOrCreate (existing + new)
+- [ ] `npm run test` passes
 
-### Definition of done
-- [ ] Unit tests: `loyalty-cards.service.spec.ts` covers addPoints, deductPoints (insufficient), findOrCreate
-- [ ] `npm run lint` passes
-- [ ] Migration generated in B-08
+---
+
+### B-04.3 — LoyaltyCard: `GET /loyalty-cards/me` controller
+
+**SP:** 2 | **Status:** Todo
+**Depends on:** B-04.2, B-01 (Telegram JWT with cardId)
+**Deliverable:** Customer can call `GET /loyalty-cards/me` and receive their card + points balance
+
+#### Controller
+```ts
+@Get('me')
+@Roles(RoleEnum.customer)
+async getMyCard(@Request() req): Promise<LoyaltyCard> {
+  return this.loyaltyCardsService.findOrCreateForCustomer(req.user.id, req.user.businessId);
+}
+```
+
+#### Definition of done
+- [ ] `GET /loyalty-cards/me` returns 200 with card data
+- [ ] Customer with 0 points gets a card created automatically (findOrCreate)
+- [ ] Non-customer gets 403
 
 ---
 
 ## B-05 — Reward Module
 
 **SP:** 5 | **Layer:** BE | **Status:** Todo
-**Depends on:** B-03
-**Blocks:** B-11, B-12, B-27
+**Depends on:** B-03.M
+**Blocks:** B-05b, B-11, B-12, B-27
 
 ### Description
-Rewards are prizes customers can redeem points for. Created and managed by the Business Owner. Supports soft-delete and active/inactive toggling.
+Rewards are prizes customers can redeem. Owner CRUD with soft-delete. Customer catalog with `canRedeem` computed per card balance.
 
 ### Files to create
 ```
@@ -295,16 +270,14 @@ backend/src/rewards/
 └── rewards.module.ts
 ```
 
-### Implementation notes
-
-**Domain entity:**
+### Domain entity
 ```ts
 export class Reward {
   id: string;
   businessId: string;
   name: string;
   description: string | null;
-  pointsCost: number;         // positive integer
+  pointsCost: number;         // @Min(1)
   imageUrl: string | null;
   isActive: boolean;
   stock: number | null;       // null = unlimited
@@ -314,265 +287,263 @@ export class Reward {
 }
 ```
 
-**Service methods:**
-- `findAllForBusiness(businessId, includeInactive?)` → `Reward[]`
+### Service methods
 - `findActiveWithEligibility(businessId, customerPoints)` → `Array<Reward & { canRedeem, ptsNeeded }>`
 - `create(businessId, dto)` → `Reward`
 - `update(id, businessId, dto)` → `Reward` — validates ownership
 - `softDelete(id, businessId)` → `void`
 
-**Validation:**
-- `pointsCost` must be > 0 (class-validator: `@IsInt() @Min(1)`)
-- Owner can only modify rewards belonging to their `businessId` (check in service)
+### Controller routes
+- `GET /api/v1/rewards` — customer catalog (role: customer)
+- `POST /api/v1/rewards` — create (role: owner)
+- `PATCH /api/v1/rewards/:id` — update (role: owner)
+- `DELETE /api/v1/rewards/:id` — soft-delete (role: owner)
 
-**Controller routes:**
-- `GET /api/v1/rewards` — customer sees active rewards with `canRedeem` (role: customer)
-- `POST /api/v1/rewards` — owner creates reward (role: owner)
-- `PATCH /api/v1/rewards/:id` — owner updates (role: owner)
-- `DELETE /api/v1/rewards/:id` — owner soft-deletes (role: owner)
-
-**Sorting for customer endpoint:** `ORDER BY pointsCost ASC`
+### Migration
+```bash
+npm run migration:generate -- src/database/migrations/CreateRewardsTable
+npm run migration:run:relational
+```
 
 ### Acceptance criteria
-- [ ] `GET /rewards` excludes inactive and soft-deleted rewards
-- [ ] `canRedeem` computed correctly based on requesting customer's balance
-- [ ] Owner cannot modify a reward from another business (403)
-- [ ] Soft-deleted rewards not returned to customers
-- [ ] `pointsCost` validates as positive integer
+- [ ] `GET /rewards` excludes inactive + soft-deleted
+- [ ] `canRedeem` correct per customer balance
+- [ ] Owner cannot modify another business's reward (403)
+- [ ] `pointsCost` validated as positive integer
 
 ### Definition of done
 - [ ] Unit tests in `rewards.service.spec.ts`
-- [ ] `npm run lint` passes
-- [ ] Migration generated in B-08
+- [ ] `rewards` table in DB with soft-delete column
+- [ ] `npm run build` passes
 
 ---
 
-## B-06 — Transaction Module
+## B-05b — RewardTranslation Module
 
-**SP:** 8 | **Layer:** BE | **Status:** Todo
-**Depends on:** B-04
-**Blocks:** B-17, B-21, B-23
+**SP:** 3 | **Layer:** BE | **Status:** Todo
+**Depends on:** B-05
+**Blocks:** B-37 (translation service), B-27e (reward translation editor)
 
 ### Description
-Immutable record of every points earn or redeem event. Transactions are never edited or deleted. Supports paginated history for customers and full list for owners.
+Per-locale translations for `name` and `description` on Reward. Same pattern as B-03b (BusinessTranslation). Lives inside `rewards/` module — no separate NestJS module.
 
 ### Files to create
 ```
-backend/src/transactions/
-├── domain/transaction.ts
-├── dto/create-transaction.dto.ts
-├── dto/query-transaction.dto.ts
-├── infrastructure/persistence/transaction.repository.ts
-├── infrastructure/persistence/relational/
-│   ├── entities/transaction.entity.ts
-│   ├── mappers/transaction.mapper.ts
-│   ├── repositories/transactions.repository.ts
-│   └── relational-persistence.module.ts
-├── transactions.service.ts
-├── transactions.controller.ts
-└── transactions.module.ts
+backend/src/rewards/
+├── domain/reward-translation.ts
+├── dto/upsert-reward-translation.dto.ts
+├── infrastructure/persistence/reward-translation.repository.ts
+└── infrastructure/persistence/relational/
+    ├── entities/reward-translation.entity.ts
+    ├── mappers/reward-translation.mapper.ts
+    └── repositories/reward-translations.repository.ts
+```
+`RelationalRewardPersistenceModule` updated to register both entities + both repos.
+
+### Domain entity
+```ts
+export class RewardTranslation {
+  id: string;
+  rewardId: string;
+  locale: string;
+  field: 'name' | 'description';
+  value: string;
+}
 ```
 
-### Implementation notes
+### Service methods added to `RewardsService`
+- `upsertTranslation(data)` → `RewardTranslation`
+- `getTranslations(rewardId)` → `RewardTranslation[]`
+- `getTranslatedField(rewardId, locale, field, defaultLocale)` → `string | null`
 
-**Domain entity:**
+### Migration
+```bash
+npm run migration:generate -- src/database/migrations/CreateRewardTranslationTable
+npm run migration:run:relational
+```
+
+### Definition of done
+- [ ] `reward_translation` table in DB with unique constraint on `(reward_id, locale, field)`
+- [ ] `npm run build` passes
+
+---
+
+## B-06 — Transaction Module (Story)
+
+**SP:** 8 total | **Layer:** BE | **Status:** Todo
+**Depends on:** B-04.1
+**Blocks:** B-17, B-21, B-23
+
+Immutable audit log of every earn/redeem event. Never updated or deleted. Mistakes corrected by a reversal transaction of the opposite type.
+
+---
+
+### B-06.1 — Transaction: domain + persistence + migration
+
+**SP:** 3 | **Status:** Todo
+**Deliverable:** `transactions` table exists in DB, build passes
+
+#### Domain entity
 ```ts
 export class Transaction {
   id: string;
   cardId: string;
   businessId: string;
   type: 'earn' | 'redeem';
-  points: number;             // always positive — type indicates direction
-  label: string;              // display name: "Beer House" for earn, reward name for redeem
+  points: number;             // always positive
+  label: string;              // "Beer House" for earn, reward name for redeem
   cashierTelegramId: number | null;
   rewardId: string | null;
   note: string | null;
-  createdAt: Date;
+  createdAt: Date;            // no updatedAt/deletedAt — immutable
 }
 ```
 
-**No `updatedAt` or `deletedAt`** — transactions are immutable by design.
+#### Repository methods
+- `create(data)` → `Transaction`
+- `findManyByCardId(cardId, pagination, filters)` → `Transaction[]`
+- `findRecentByBusinessId(businessId, limit)` → `Transaction[]`
 
-**Service methods:**
-- `create(dto)` → `Transaction` — called internally by bot earn/redeem flows
-- `findManyByCardId(cardId, pagination, filters)` → `{ data, meta }`
-- `findRecentByBusinessId(businessId, limit)` → `Transaction[]` — for cashier log
+**No `update` or `delete` methods on the port** — immutability enforced at the port level.
 
-**Query filters (from `api-contract.md`):**
-- `type?: 'earn' | 'redeem'`
-- `from?: Date` (default: 30 days ago)
-- `to?: Date` (default: now)
-- `page: number`, `limit: number` (max 50)
+#### Migration
+```bash
+npm run migration:generate -- src/database/migrations/CreateTransactionsTable
+npm run migration:run:relational
+```
 
-**Controller routes:**
-- `GET /api/v1/transactions` — customer's own history (role: customer)
-
-**Important:** `TransactionsService` is called by `LoyaltyCardsService` and the bot handlers — it does NOT call those services back (no circular dependencies).
-
-### Acceptance criteria
-- [ ] Transactions cannot be updated or deleted (no update/delete endpoints)
-- [ ] Paginated response includes `meta.total`, `meta.hasNextPage`
-- [ ] Default date range is last 30 days
-- [ ] `label` shows "Beer House" for earn transactions
-- [ ] `label` shows reward name for redeem transactions
-- [ ] Customer can only see their own card's transactions
-
-### Definition of done
-- [ ] Unit tests: create, findMany with filters, pagination
-- [ ] `npm run lint` passes
-- [ ] Migration generated in B-08
+#### Definition of done
+- [ ] `transactions` table in DB with indexes on `card_id`, `business_id`, `created_at`, `type`
+- [ ] `npm run build` passes
 
 ---
 
-## B-07 — Redemption Module
+### B-06.2 — Transaction: `create` service + `GET /transactions` controller
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
-**Depends on:** B-04, B-05
+**SP:** 3 | **Status:** Todo
+**Depends on:** B-06.1, B-04.2
+**Deliverable:** `GET /transactions` returns paginated history for the authenticated customer
+
+#### Service methods
+- `create(dto)` → `Transaction` — internal use only (no public POST endpoint)
+- `findManyByCardId(cardId, paginationOptions)` → `Transaction[]`
+
+#### Controller
+- `GET /api/v1/transactions` — customer's own card history (role: customer, paginated, last 30 days default)
+
+#### Definition of done
+- [ ] `GET /transactions` returns paginated results with `data` + `hasNextPage`
+- [ ] Customer can only see their own card's transactions
+- [ ] Unit tests: create, findMany
+
+---
+
+### B-06.3 — Transaction: query filters + cashier log
+
+**SP:** 2 | **Status:** Todo
+**Depends on:** B-06.2
+**Deliverable:** Type and date range filters work; `findRecentByBusinessId` available for bot
+
+#### Features
+- `?type=earn|redeem` filter
+- `?from=&to=` date range (default: last 30 days)
+- `findRecentByBusinessId(businessId, limit)` — used by B-25 (`/history` bot command)
+
+#### Definition of done
+- [ ] Filter by type returns only matching transactions
+- [ ] Date range filter works
+- [ ] Unit tests: filter combinations
+
+---
+
+## B-07 — Redemption Module (Story)
+
+**SP:** 5 total | **Layer:** BE | **Status:** Todo
+**Depends on:** B-04.2, B-05
 **Blocks:** B-12, B-13, B-14, B-15, B-16
 
-### Description
-Manages the lifecycle of a reward redemption: creation (code generation + points pre-deduction), validation, confirmation by cashier, cancellation, and automatic expiry with points refund.
+Reward redemption lifecycle: pending → confirmed | expired | cancelled. Points pre-deducted on creation, auto-refunded on expiry.
 
-### Files to create
-```
-backend/src/redemptions/
-├── domain/redemption.ts
-├── dto/create-redemption.dto.ts
-├── dto/query-redemption.dto.ts
-├── infrastructure/persistence/redemption.repository.ts
-├── infrastructure/persistence/relational/
-│   ├── entities/redemption.entity.ts
-│   ├── mappers/redemption.mapper.ts
-│   ├── repositories/redemptions.repository.ts
-│   └── relational-persistence.module.ts
-├── redemptions.service.ts
-├── redemptions.controller.ts
-├── redemptions.module.ts
-└── redemptions.cron.ts      ← expiry job
-```
+---
 
-### Implementation notes
+### B-07.1 — Redemption: domain + persistence + migration + `create`
 
-**Domain entity:**
+**SP:** 3 | **Status:** Todo
+**Deliverable:** `redemptions` table exists; `POST /redemptions` creates a code and pre-deducts points
+
+#### Domain entity
 ```ts
 export class Redemption {
   id: string;
   cardId: string;
   rewardId: string;
   businessId: string;
-  code: string;               // 6-digit numeric string e.g. "459201"
-  qrData: string;             // full URL for QR encoding
+  code: string;               // 6-digit e.g. "459201" — unique
+  qrData: string;             // URL for QR display
   status: 'pending' | 'confirmed' | 'expired' | 'cancelled';
-  pointsCost: number;
-  expiresAt: Date;
+  pointsCost: number;         // snapshot of reward.pointsCost at creation
+  expiresAt: Date;            // createdAt + 5 min
   confirmedAt: Date | null;
   cashierTelegramId: number | null;
   createdAt: Date;
 }
 ```
 
-**Code generation:**
-```ts
-// Cryptographically random 6-digit code
-const code = crypto.randomInt(100000, 999999).toString();
-```
+#### `create` logic
+1. Load card — throw 422 `{ points: 'insufficient' }` if `card.points < reward.pointsCost`
+2. `loyaltyCardsService.deductPoints(cardId, pointsCost)`
+3. Generate `code = crypto.randomInt(100000, 999999).toString()`
+4. Set `expiresAt = now + 5 minutes`
+5. Persist and return
 
-**Cron job for expiry (in `redemptions.cron.ts`):**
-```ts
-@Cron(CronExpression.EVERY_30_SECONDS)
-async expirePendingRedemptions() {
-  const expired = await this.redemptionsRepository.findExpiredPending();
-  for (const r of expired) {
-    await this.redemptionsService.expire(r.id); // refunds points
-  }
-}
-```
-
-**`expire()` method:**
-1. Set status to `expired`
-2. Call `loyaltyCardsService.addPoints(cardId, pointsCost)` — refund
-3. Create reversal Transaction record
-4. Trigger customer notification (B-35)
-
-**Service methods:**
-- `create(customerId, rewardId)` → `Redemption` — validates balance, deducts points, generates code
-- `findByCode(code)` → `Redemption | null`
-- `confirm(code, cashierTelegramId)` → `Redemption`
-- `cancel(code)` → `Redemption` — refunds points
-- `expire(id)` → `void` — refunds points (called by cron)
-
-### Acceptance criteria
-- [ ] `create()` throws 422 if `card.points < reward.pointsCost`
-- [ ] Code is unique 6-digit numeric string
-- [ ] `expiresAt` = `createdAt + 5 minutes`
-- [ ] `confirm()` throws 410 if status is `expired`, 409 if `confirmed`
-- [ ] Cron runs every 30s and expires overdue codes
-- [ ] Expired redemptions auto-refund points (card balance restored)
-
-### Definition of done
-- [ ] Unit tests: create (success + insufficient pts), confirm, cancel, expire (cron)
-- [ ] `@nestjs/schedule` added to `AppModule`
-- [ ] `npm run lint` passes
-- [ ] Migration generated in B-08
-
----
-
-## B-08 — Database Migrations
-
-**SP:** 3 | **Layer:** BE | **Status:** Todo
-**Depends on:** B-03, B-04, B-05, B-06, B-07
-**Blocks:** B-09 (seeds), all integration tests
-
-### Description
-Generate and run TypeORM migrations for all 5 new tables. Add correct indexes on all foreign key columns.
-
-### Commands to run
+#### Migration
 ```bash
-npm run migration:generate -- src/database/migrations/CreateBusinessesTable
-npm run migration:generate -- src/database/migrations/CreateLoyaltyCardsTable
-npm run migration:generate -- src/database/migrations/CreateRewardsTable
-npm run migration:generate -- src/database/migrations/CreateTransactionsTable
 npm run migration:generate -- src/database/migrations/CreateRedemptionsTable
 npm run migration:run:relational
 ```
 
-### Implementation notes
+#### Definition of done
+- [ ] `redemptions` table with unique index on `code`
+- [ ] `POST /redemptions` returns 201 with code + qrData
+- [ ] Points pre-deducted immediately on create
+- [ ] `npm run build` passes
 
-**Required indexes** (PostgreSQL does not auto-index FKs):
+---
 
-| Table | Index on |
-|---|---|
-| `loyalty_cards` | `customer_id`, `business_id`, `(customer_id, business_id)` unique |
-| `rewards` | `business_id`, `is_active` |
-| `transactions` | `card_id`, `business_id`, `created_at`, `type` |
-| `redemptions` | `code` unique, `card_id`, `status`, `expires_at` |
+### B-07.2 — Redemption: confirm, cancel, expire + cron
 
-**Unique constraints:**
-- `loyalty_cards(customer_id, business_id)` — one card per customer per business
-- `redemptions(code)` — codes must be globally unique
+**SP:** 2 | **Status:** Todo
+**Depends on:** B-07.1, B-06.2 (Transaction create for audit log)
+**Deliverable:** Full lifecycle works; auto-refund on 5-min expiry
 
-### Acceptance criteria
-- [ ] All 5 migrations run without errors
-- [ ] All FK columns have indexes
-- [ ] `(customer_id, business_id)` unique constraint on `loyalty_cards`
-- [ ] `code` unique index on `redemptions`
-- [ ] `npm run migration:run:relational` idempotent (running twice doesn't break)
+#### Service methods
+- `confirm(code, cashierTelegramId)` → `Redemption` — throws 410 if expired, 409 if already confirmed
+- `cancel(code)` → `Redemption` — refunds points
+- `expire(id)` → `void` — sets expired, refunds points, creates reversal Transaction
 
-### Definition of done
-- [ ] Migration files committed to `src/database/migrations/`
-- [ ] Schema validated against entity definitions
-- [ ] `npm run test:e2e` can connect to DB and run
+#### Cron job (`redemptions.cron.ts`)
+```ts
+@Cron(CronExpression.EVERY_30_SECONDS)
+async expirePendingRedemptions() { ... }
+```
+Register `@nestjs/schedule` in AppModule.
+
+#### Definition of done
+- [ ] `PATCH /redemptions/:code/confirm` → 200
+- [ ] `PATCH /redemptions/:code/cancel` → 200, points refunded
+- [ ] Cron auto-expires and refunds after 5 min
+- [ ] Unit tests: confirm (happy + expired + already confirmed), cancel, expire
 
 ---
 
 ## B-09 — Seeds: Beer House Pilot Data
 
 **SP:** 2 | **Layer:** BE | **Status:** Todo
-**Depends on:** B-08
+**Depends on:** B-03.M, B-04.1, B-05 (all tables must exist)
 **Blocks:** local development, first demo
 
 ### Description
-Create seed data for the Beer House pilot: one business, one owner account, 4 rewards, and one superadmin account.
+Seed data: superadmin account, owner account, Beer House business, 4 rewards.
 
 ### Files to create
 ```
@@ -580,61 +551,37 @@ backend/src/database/seeds/relational/
 ├── business/
 │   ├── business-seed.module.ts
 │   └── business-seed.service.ts
-├── reward/
-│   ├── reward-seed.module.ts
-│   └── reward-seed.service.ts
+└── reward/
+    ├── reward-seed.module.ts
+    └── reward-seed.service.ts
 ```
 
-### Implementation notes
+### Seed data
 
-**Superadmin account** (add to existing user seed):
+**Accounts** (add to existing user seed):
 ```ts
-{
-  email: 'superadmin@loyalty.app',
-  password: 'ChangeMe123!',  // hashed via bcrypt
-  role: RoleEnum.superadmin,
-  firstName: 'Super',
-  lastName: 'Admin',
-}
-```
-
-**Business Owner account:**
-```ts
-{
-  email: 'owner@beerhouse.am',
-  password: 'BeerHouse2024!',
-  role: RoleEnum.owner,
-  firstName: 'Gevorg',
-  lastName: 'Mkrtchyan',
-}
+{ email: 'superadmin@loyalty.app', password: 'ChangeMe123!', role: RoleEnum.superadmin }
+{ email: 'owner@beerhouse.am', password: 'BeerHouse2024!', role: RoleEnum.owner }
 ```
 
 **Business:**
 ```ts
-{
-  name: 'Beer House',
-  ownerId: '<owner user id>',
-  earnRateMode: 'per_amd_spent',
-  earnRateValue: 100,
-  botToken: 'PLACEHOLDER_SET_IN_ENV',
-  telegramGroupChatId: 'PLACEHOLDER_SET_IN_ENV',
-}
+{ name: 'Beer House', ownerId: <owner.id>, earnRateMode: 'per_amd_spent', earnRateValue: 100 }
 ```
 
 **Rewards:**
-| Name | Points | Description |
-|---|---|---|
-| Free Pint | 500 | Choose any flagship brew from our draft list. |
-| Half Off Burger | 800 | Get 50% off any signature burger on the menu. |
-| Appetizer Platter | 1200 | A massive selection of our top-rated starters. |
-| Beer Flight | 1500 | Sampler of 4 seasonal rotating brews. |
+| Name | Points |
+|---|---|
+| Free Pint | 500 |
+| Half Off Burger | 800 |
+| Appetizer Platter | 1200 |
+| Beer Flight | 1500 |
 
 ### Acceptance criteria
 - [ ] `npm run seed:run:relational` completes without errors
-- [ ] All 4 rewards exist and are active
-- [ ] Superadmin and owner accounts exist and can log in
-- [ ] Running seeds twice doesn't create duplicates (use `findOrCreate` pattern)
+- [ ] Running twice doesn't create duplicates (findOrCreate pattern)
+- [ ] Owner can log in and `GET /businesses/me` returns Beer House
 
 ### Definition of done
 - [ ] Seed files committed
-- [ ] `npm run seed:run:relational` documented in backend README
+- [ ] Manual test: owner login + GET /businesses/me works
