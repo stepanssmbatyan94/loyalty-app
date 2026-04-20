@@ -5,9 +5,7 @@ import { QueryConfig } from '@/lib/react-query';
 
 import { ActivityTransaction } from '../types';
 
-type RecentTransactionsResponse = { data: ActivityTransaction[] };
-
-export const getRecentTransactions = (): Promise<RecentTransactionsResponse> =>
+export const getRecentTransactions = (): Promise<ActivityTransaction[]> =>
   api.get('/api/v1/transactions', { params: { limit: 2 } });
 
 export const getRecentTransactionsQueryOptions = () =>

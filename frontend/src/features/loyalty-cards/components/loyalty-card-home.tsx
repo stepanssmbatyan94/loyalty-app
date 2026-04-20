@@ -50,7 +50,7 @@ export function LoyaltyCardHome() {
       }
     : null;
 
-  const recentTransactions = txResponse?.data ?? [];
+  const recentTransactions = txResponse ?? [];
 
   return (
     <div className="flex flex-col gap-6">

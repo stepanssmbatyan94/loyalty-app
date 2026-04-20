@@ -20,7 +20,8 @@ export interface LoyaltyCardData {
 export interface ActivityTransaction {
   id: string;
   type: 'earn' | 'redeem';
-  label: string;
+  note: string | null;
+  rewardId: string | null;
   points: number;
   createdAt: string;
 }

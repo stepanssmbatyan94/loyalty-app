@@ -52,9 +52,10 @@ interface ActivityItemProps {
 export function ActivityItem({ transaction }: ActivityItemProps) {
   const t = useTranslations('loyaltyCards');
   const locale = useLocale();
-  const { type, label, points, createdAt } = transaction;
+  const { type, note, points, createdAt } = transaction;
 
   const isEarn = type === 'earn';
+  const label = note ?? (isEarn ? t('earnedPoints') : t('redeemedReward'));
   const formattedDate = formatActivityDate(
     createdAt,
     locale,

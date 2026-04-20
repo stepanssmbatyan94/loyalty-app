@@ -50,6 +50,8 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "pts": "pts",
+    "earnedPoints": "Earned points",
+    "redeemedReward": "Reward redeemed",
     "noActivity": "No activity yet",
     "viewMyRewards": "VIEW MY REWARDS",
     "memberSince": "Member since",
