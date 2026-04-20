@@ -10,6 +10,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 import { LoyaltyCardMeResponseDto } from './dto/loyalty-card-me-response.dto';
 import { LoyaltyCardsService } from './loyalty-cards.service';
 
@@ -23,8 +24,10 @@ export class LoyaltyCardsController {
   @ApiOkResponse({ type: LoyaltyCardMeResponseDto })
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  async getMe(@Request() request): Promise<LoyaltyCardMeResponseDto> {
-    const customerId: number = request.user.id;
+  async getMe(
+    @Request() request: { user: JwtPayloadType },
+  ): Promise<LoyaltyCardMeResponseDto> {
+    const customerId = request.user.id as number;
     const businessId: string | undefined = request.user.businessId;
 
     if (!businessId) {

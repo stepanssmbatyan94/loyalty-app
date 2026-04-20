@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsNotEmpty } from 'class-validator';
 
 export class AuthTelegramLoginDto {
   @ApiProperty({
@@ -10,4 +10,13 @@ export class AuthTelegramLoginDto {
   @IsString()
   @IsNotEmpty()
   initData: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Business ID — required when the app is opened via a web_app button URL (?startapp=<id>) where Telegram does not inject start_param into initData',
+    example: 'uuid-of-business',
+  })
+  @IsString()
+  @IsOptional()
+  businessId?: string;
 }

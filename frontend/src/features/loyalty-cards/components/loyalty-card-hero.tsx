@@ -22,7 +22,9 @@ export function LoyaltyCardHero({
   return (
     <section className="glass-card flex flex-col items-center justify-center rounded-xl p-8 shadow-2xl shadow-primary/20">
       <div className="flex items-center gap-2 self-start opacity-80">
-        <span className="material-symbols-outlined text-sm text-white">auto_awesome</span>
+        <span className="material-symbols-outlined text-sm text-white">
+          auto_awesome
+        </span>
         <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white">
           {t('memberBadge')}
         </span>

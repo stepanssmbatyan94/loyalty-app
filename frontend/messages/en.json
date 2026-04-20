@@ -52,7 +52,8 @@
     "pts": "pts",
     "noActivity": "No activity yet",
     "viewMyRewards": "VIEW MY REWARDS",
-    "memberSince": "Member since"
+    "memberSince": "Member since",
+    "loadError": "Something went wrong. Please restart the app."
   },
   "rewards": {
     "yourBalance": "Your Balance",

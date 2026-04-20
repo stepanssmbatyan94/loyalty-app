@@ -8,6 +8,8 @@ import { telegramAuth } from '../api/telegram-auth';
 
 export function useTelegramAuth() {
   const setToken = useAuthStore((s) => s.setToken);
+  const setAuthLoading = useAuthStore((s) => s.setAuthLoading);
+  const setAuthError = useAuthStore((s) => s.setAuthError);
 
   useEffect(() => {
     async function init() {
@@ -22,11 +24,22 @@ export function useTelegramAuth() {
         console.warn(
           '[TelegramAuth] No initData — not running inside Telegram',
         );
+        setAuthLoading(false);
         return;
       }
 
+      const unsafe = WebApp.initDataUnsafe;
+
+      // start_param is populated from Telegram deep links (t.me/bot/app?startapp=X).
+      // For web_app button URLs (?startapp=X in the URL), it's absent from initData —
+      // read it from window.location.search as fallback.
+      const businessId =
+        unsafe.start_param ??
+        new URLSearchParams(window.location.search).get('startapp') ??
+        undefined;
+
       try {
-        const { token, isNew } = await telegramAuth(initData);
+        const { token, isNew } = await telegramAuth(initData, businessId);
         setToken(token);
 
         // First-time user: request phone number sharing
@@ -35,9 +48,10 @@ export function useTelegramAuth() {
         }
       } catch (err) {
         console.error('[TelegramAuth] Auth failed:', err);
+        setAuthError('authFailed');
       }
     }
 
     init();
-  }, [setToken]);
+  }, [setToken, setAuthLoading, setAuthError]);
 }

@@ -22,6 +22,7 @@ import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.ty
 import { JwtPayloadType } from './strategies/types/jwt-payload.type';
 import { UsersService } from '../users/users.service';
 import { AllConfigType } from '../config/config.type';
+import { LoyaltyCardsService } from '../loyalty-cards/loyalty-cards.service';
 import { MailService } from '../mail/mail.service';
 import { RoleEnum } from '../roles/roles.enum';
 import { Session } from '../session/domain/session';
@@ -44,6 +45,7 @@ export class AuthService {
     private sessionService: SessionService,
     private mailService: MailService,
     private configService: ConfigService<AllConfigType>,
+    private loyaltyCardsService: LoyaltyCardsService,
   ) {}
 
   async validateLogin(loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
@@ -540,8 +542,10 @@ export class AuthService {
 
   async loginWithTelegram(
     initData: string,
+    bodyBusinessId?: string,
   ): Promise<LoginResponseDto & { isNew: boolean }> {
     const params = new URLSearchParams(initData);
+    console.log('params :>> ', params);
     const hash = params.get('hash');
 
     if (!hash) {
@@ -555,10 +559,20 @@ export class AuthService {
       this.verifyTelegramHmac(params, hash);
       this.validateTelegramAuthDate(params);
     }
+
     const tgUser = this.parseTelegramUser(params);
     const { user, isNew } = await this.findOrCreateTelegramUser(tgUser);
 
-    const businessId = params.get('start_param') ?? undefined;
+    const businessId = params.get('start_param') ?? bodyBusinessId ?? undefined;
+
+    let cardId: string | undefined;
+    if (businessId) {
+      const card = await this.loyaltyCardsService.findOrCreateForCustomer(
+        user.id as number,
+        businessId,
+      );
+      cardId = card.id;
+    }
 
     const sessionHash = crypto
       .createHash('sha256')
@@ -577,6 +591,7 @@ export class AuthService {
       hash: sessionHash,
       telegramId: tgUser.id,
       businessId,
+      cardId,
     });
 
     return { refreshToken, token, tokenExpires, user, isNew };

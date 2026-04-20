@@ -52,7 +52,8 @@
     "pts": "бал.",
     "noActivity": "Нет операций",
     "viewMyRewards": "МОИ НАГРАДЫ",
-    "memberSince": "Участник с"
+    "memberSince": "Участник с",
+    "loadError": "Что-то пошло не так. Пожалуйста, перезапустите приложение."
   },
   "rewards": {
     "yourBalance": "Ваш баланс",

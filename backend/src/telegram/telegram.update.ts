@@ -39,7 +39,7 @@ export class TelegramUpdate {
     private readonly configService: ConfigService<AllConfigType>,
   ) {}
 
-  register(bot: Bot): void {
+  register(bot: Bot, businessId?: string): void {
     bot.command('start', async (ctx) => {
       const keyboard = new InlineKeyboard()
         .text('English 🇺🇸', 'lang:en')
@@ -90,8 +90,11 @@ export class TelegramUpdate {
         !miniAppUrl.startsWith('https://t.me');
 
       if (isValidWebAppUrl) {
+        const urlWithBusiness = businessId
+          ? `${miniAppUrl}?startapp=${businessId}`
+          : miniAppUrl!;
         const keyboard = new Keyboard()
-          .webApp(messages.openApp, miniAppUrl!)
+          .webApp(messages.openApp, urlWithBusiness)
           .resized();
 
         await ctx.reply(messages.welcome, { reply_markup: keyboard });

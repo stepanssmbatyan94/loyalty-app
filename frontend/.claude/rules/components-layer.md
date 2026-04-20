@@ -9,7 +9,7 @@ src/components/
 ├── ui/
 │   ├── button/                      # Simple: one component per folder
 │   │   ├── button.tsx
-│   │   ├── button.stories.tsx
+
 │   │   └── index.ts                 # export * from './button'
 │   │
 │   ├── form/                        # Composite: multiple related files, one folder
@@ -22,18 +22,18 @@ src/components/
 │   │   ├── field-wrapper.tsx
 │   │   ├── error.tsx
 │   │   ├── form-drawer.tsx
-│   │   ├── form.stories.tsx
+
 │   │   ├── __tests__/
 │   │   │   └── form.test.tsx
 │   │   └── index.ts                 # export * from each file
 │   │
 │   ├── dialog/                      # Composite with a nested sub-component
 │   │   ├── dialog.tsx
-│   │   ├── dialog.stories.tsx
+
 │   │   ├── __tests__/
 │   │   ├── confirmation-dialog/     # sub-component gets its own folder + index.ts
 │   │   │   ├── confirmation-dialog.tsx
-│   │   │   ├── confirmation-dialog.stories.tsx
+
 │   │   │   └── index.ts
 │   │   └── index.ts                 # re-exports dialog AND confirmation-dialog
 │   │
@@ -50,7 +50,7 @@ src/components/
 
 | Pattern | When | Examples |
 |---|---|---|
-| **Simple** — one `.tsx` + `.stories.tsx` + `index.ts` | Single self-contained component | `button/`, `spinner/`, `link/`, `dropdown/` |
+| **Simple** — one `.tsx` + `index.ts` | Single self-contained component | `button/`, `spinner/`, `link/`, `dropdown/` |
 | **Composite** — multiple `.tsx` files flat in one folder + `index.ts` | Tightly related group of primitives | `form/`, `dialog/`, `notifications/`, `table/` |
 
 Every component folder **must** have an `index.ts` that re-exports with `export * from './...'`. Consumers import from the folder name, not the file:
@@ -200,27 +200,6 @@ export function Badge({ label, count, variant = 'default', className }: BadgePro
 export function Badge(props: any) { ... }
 ```
 
-## Storybook stories
-
-Every non-trivial shared component must have a `.stories.tsx` file **inside its folder**:
-
-```typescript
-// src/components/ui/button/button.stories.tsx
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from './button';         // relative import within the folder
-
-const meta: Meta<typeof Button> = {
-  component: Button,
-  title: 'UI/Button',
-};
-export default meta;
-
-type Story = StoryObj<typeof Button>;
-
-export const Default: Story = { args: { children: 'Add Points' } };
-export const Destructive: Story = { args: { children: 'Delete', variant: 'destructive' } };
-```
-
 ## Forbidden
 
 | Forbidden | Why | Correct alternative |
@@ -242,7 +221,6 @@ export const Destructive: Story = { args: { children: 'Delete', variant: 'destru
 - [ ] Tailwind classes for styling — no inline styles for static values
 - [ ] Component lives in its own folder (`button/button.tsx`), not as a flat file
 - [ ] `index.ts` exists in the folder, re-exporting with `export * from './...'`
-- [ ] Storybook `.stories.tsx` file is inside the component folder (not alongside it)
 - [ ] No hardcoded text strings in JSX — all text uses `useTranslations()`
 - [ ] New i18n keys added to both `messages/en.json` and `messages/ru.json`
 - [ ] Each `.tsx` file exports exactly one component

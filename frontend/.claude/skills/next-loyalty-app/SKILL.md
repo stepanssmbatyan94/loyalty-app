@@ -316,7 +316,6 @@ const t = useTranslations('loyaltyCards');
 | Inferred Zod type | `PascalCase` + `Values` | `AddPointsValues` |
 | Hook file | `use-kebab-case.ts` | `use-disclosure.ts`, `use-debounce.ts` |
 | Test file | co-located `*.test.tsx` | `loyalty-card-item.test.tsx` |
-| Story file | co-located `*.stories.tsx` | `button.stories.tsx` |
 | i18n namespace | `camelCase` | `loyaltyCards`, `pointTransactions` |
 
 ---

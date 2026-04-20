@@ -14,7 +14,10 @@ type TelegramAuthResponse = {
   };
 };
 
-export const telegramAuth = (initData: string): Promise<TelegramAuthResponse> =>
-  api.post('/api/v1/auth/telegram', { initData });
+export const telegramAuth = (
+  initData: string,
+  businessId?: string,
+): Promise<TelegramAuthResponse> =>
+  api.post('/api/v1/auth/telegram', { initData, businessId });
 
 export const useTelegramAuth = () => useMutation({ mutationFn: telegramAuth });

@@ -18,6 +18,13 @@ export class BusinessSeedService {
   ) {}
 
   async run(): Promise<void> {
+    // TODO [B-27b]: Remove env-based bot token injection once multi-tenant bot provisioning
+    // is implemented. Real flow: owner submits token via PATCH /api/v1/businesses/me/bot-settings
+    // → backend validates via Telegram getMe, generates webhookSecret, calls setWebhook,
+    // registers bot in BotRegistry, sets isActive: true. Seed is dev-only scaffolding.
+    const botToken = process.env.TELEGRAM_BOT_TOKEN ?? null;
+    const botUsername = process.env.TELEGRAM_BOT_USERNAME ?? null;
+
     // Ensure the owner account exists
     let owner = await this.userRepo.findOne({
       where: { email: 'owner@beerhouse.am' },
@@ -52,15 +59,22 @@ export class BusinessSeedService {
           logoUrl: null,
           earnRateMode: 'per_amd_spent',
           earnRateValue: 100,
-          botToken: null,
-          botUsername: null,
+          botToken,
+          botUsername,
           webhookSecret: null,
           telegramGroupChatId: null,
           supportedLocales: ['en', 'ru', 'hy'],
           defaultLocale: 'en',
-          isActive: false,
+          isActive: !!botToken,
         }),
       );
+    } else if (botToken && !existing.botToken) {
+      // Patch existing record with bot credentials from env
+      await this.businessRepo.update(existing.id, {
+        botToken,
+        botUsername,
+        isActive: true,
+      });
     }
   }
 }

@@ -17,7 +17,7 @@ export const getRecentTransactionsQueryOptions = () =>
   });
 
 type UseRecentTransactionsOptions = {
-  queryConfig?: QueryConfig<typeof getRecentTransactions>;
+  queryConfig?: QueryConfig<typeof getRecentTransactionsQueryOptions>;
 };
 
 export const useRecentTransactions = ({

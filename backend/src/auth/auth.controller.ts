@@ -48,7 +48,7 @@ export class AuthController {
   public loginTelegram(
     @Body() dto: AuthTelegramLoginDto,
   ): Promise<LoginResponseDto & { isNew: boolean }> {
-    return this.service.loginWithTelegram(dto.initData);
+    return this.service.loginWithTelegram(dto.initData, dto.businessId);
   }
 
   @SerializeOptions({

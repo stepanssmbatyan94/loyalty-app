@@ -2,7 +2,7 @@
 
 ### API Errors
 
-Implement an interceptor to manage errors effectively. This interceptor can be utilized to trigger notification toasts informing users of errors, log out unauthorized users, or send requests to refresh tokens to maintain secure and seamless application operation.
+Implement an interceptor to manage errors effectively. This interceptor can be utilized to trigger notification toasts informing users of errors, log out Unauthorized users, or send requests to refresh tokens to maintain secure and seamless application operation.
 
 [API Errors Notification Example Code](../apps/react-vite/src/lib/api-client.ts)
 

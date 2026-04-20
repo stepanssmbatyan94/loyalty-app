@@ -71,8 +71,8 @@ async function fetchApi<T>(
   const fullUrl = buildUrlWithParams(`${env.API_URL}${url}`, params);
 
   // Attach Bearer token from Zustand store when available (Telegram Mini App auth)
-  const token =
-    typeof window !== 'undefined' ? useAuthStore.getState().token : null;
+  const { token } =
+    typeof window !== 'undefined' ? useAuthStore.getState() : { token: null };
 
   const response = await fetch(fullUrl, {
     method,

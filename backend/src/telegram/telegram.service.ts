@@ -2,33 +2,21 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Bot } from 'grammy';
 
+import { BusinessesService } from '../businesses/businesses.service';
 import { AllConfigType } from '../config/config.type';
 import { TelegramUpdate } from './telegram.update';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
-  private bot: Bot;
+  private bots = new Map<string, Bot>();
 
   constructor(
     private readonly configService: ConfigService<AllConfigType>,
     private readonly telegramUpdate: TelegramUpdate,
+    private readonly businessesService: BusinessesService,
   ) {}
 
-  onModuleInit(): void {
-    const token = this.configService.get('auth.telegramBotToken', {
-      infer: true,
-    });
-
-    if (!token) {
-      return;
-    }
-
-    this.bot = new Bot(token);
-    this.bot.catch((err) => {
-      console.error('Bot error:', err.message);
-    });
-    this.telegramUpdate.register(this.bot);
-
+  async onModuleInit(): Promise<void> {
     const miniAppUrl = this.configService.get('auth.telegramMiniAppUrl', {
       infer: true,
     });
@@ -37,22 +25,51 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
       miniAppUrl?.startsWith('https://') &&
       !miniAppUrl.startsWith('https://t.me');
 
-    if (isValidWebAppUrl) {
-      void this.bot.api.setChatMenuButton({
-        menu_button: {
-          type: 'web_app',
-          text: 'Open',
-          web_app: { url: miniAppUrl! },
-        },
-      });
-    }
+    const businesses = await this.businessesService.findAllActive();
+    console.log(
+      `[TelegramService] active businesses found: ${businesses.length}`,
+    );
 
-    void this.bot.start();
+    for (const business of businesses) {
+      const tokenStatus = business.botToken ? '***set***' : 'NULL';
+      console.log(
+        `[TelegramService] business ${business.id} — botToken: ${tokenStatus} — botUsername: ${business.botUsername}`,
+      );
+
+      if (!business.botToken) {
+        console.warn(
+          `[TelegramService] skipping business ${business.id} — no botToken in DB. Run seed first.`,
+        );
+        continue;
+      }
+
+      const bot = new Bot(business.botToken);
+      bot.catch((err) => {
+        console.error(`[Bot:${business.id}] ${err.message}`);
+      });
+
+      this.telegramUpdate.register(bot, business.id);
+      if (isValidWebAppUrl) {
+        void bot.api.setChatMenuButton({
+          menu_button: {
+            type: 'web_app',
+            text: 'Open 12121',
+            web_app: { url: `${miniAppUrl}?startapp=${business.id}` },
+          },
+        });
+      }
+
+      void bot.start();
+      this.bots.set(business.id, bot);
+      console.log(
+        `[TelegramService] bot started for business ${business.id} (@${business.botUsername})`,
+      );
+    }
   }
 
   onModuleDestroy(): void {
-    if (this.bot) {
-      void this.bot.stop();
+    for (const bot of this.bots.values()) {
+      void bot.stop();
     }
   }
 }

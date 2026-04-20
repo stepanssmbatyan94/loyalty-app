@@ -3,19 +3,44 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
+import { useAuthStore } from '@/stores/auth-store';
+
 import { useLoyaltyCardMe } from '../api/get-loyalty-card-me';
 import { useRecentTransactions } from '../api/get-recent-transactions';
 
 import { BentoHighlights } from './bento-highlights';
 import { LoyaltyCardHero } from './loyalty-card-hero';
+import { LoyaltyCardSkeleton } from './loyalty-card-skeleton';
 import { RecentActivity } from './recent-activity';
 
 export function LoyaltyCardHome() {
   const t = useTranslations('loyaltyCards');
-  const { data: card } = useLoyaltyCardMe();
-  const { data: txResponse } = useRecentTransactions();
+  const token = useAuthStore((s) => s.token);
+  const isAuthLoading = useAuthStore((s) => s.isAuthLoading);
+  const authError = useAuthStore((s) => s.authError);
 
-  if (!card) return null;
+  const hasAuth = !!token;
+  const {
+    data: card,
+    isLoading: isCardLoading,
+    isError: isCardError,
+  } = useLoyaltyCardMe({
+    queryConfig: { enabled: hasAuth },
+  });
+  const { data: txResponse } = useRecentTransactions({
+    queryConfig: { enabled: hasAuth },
+  });
+
+  if (isAuthLoading || isCardLoading) return <LoyaltyCardSkeleton />;
+
+  if (authError || isCardError || !card) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-16 text-center text-on-surface-variant">
+        <span className="material-symbols-outlined text-4xl">error</span>
+        <p className="font-body text-sm">{t('loadError')}</p>
+      </div>
+    );
+  }
 
   const nextReward = card.nextReward
     ? {

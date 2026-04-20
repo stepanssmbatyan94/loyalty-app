@@ -20,22 +20,11 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
-  const nodeEnv = configService.get('app.nodeEnv', { infer: true });
+  const corsOrigins = configService.getOrThrow('app.corsOrigins', {
+    infer: true,
+  });
   app.enableCors({
-    origin:
-      nodeEnv === 'development'
-        ? (
-            origin: string | undefined,
-            callback: (err: Error | null, allow?: boolean) => void,
-          ) => {
-            // Allow any localhost origin in development (port-agnostic)
-            if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin)) {
-              callback(null, true);
-            } else {
-              callback(new Error('Not allowed by CORS'), false);
-            }
-          }
-        : configService.getOrThrow('app.frontendDomain', { infer: true }),
+    origin: corsOrigins.length ? corsOrigins : false,
     credentials: true,
   });
   app.setGlobalPrefix(

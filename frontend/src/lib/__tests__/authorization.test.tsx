@@ -91,7 +91,7 @@ describe('Comment Authorization', () => {
     expect(canDeleteComment(regularUser, comment)).toBe(false);
   });
 
-  test('should not allow unauthorized users to delete comments', () => {
+  test('should not allow Unauthorized users to delete comments', () => {
     const comment: Comment = {
       id: '1',
       author: regularUser,

@@ -11,7 +11,6 @@ yarn dev                 # Next.js dev server on :3000
 yarn build               # production build
 yarn check-types         # TypeScript type-check (no emit)
 yarn lint                # ESLint
-yarn storybook           # Storybook on :6006
 yarn generate            # plop.js scaffolding — scaffold a new feature
 ```
 
