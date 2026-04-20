@@ -64,7 +64,15 @@
     "sampleReward1": "Free Pint",
     "sampleReward2": "Snack Platter",
     "sampleReward3": "VIP Table",
-    "redeemButton": "Redeem"
+    "redeemButton": "Redeem",
+    "availableBalance": "Available Balance",
+    "ptsLabel": "PTS",
+    "redeem": "Redeem",
+    "processing": "Processing...",
+    "needMorePts": "Need {count} more pts",
+    "noRewardsYet": "No rewards yet",
+    "rewardsCatalog": "Rewards Catalog",
+    "loadError": "Something went wrong. Please restart the app."
   },
   "pointTransactions": {
     "historyTitle": "Transaction History",

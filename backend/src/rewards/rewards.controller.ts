@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  forwardRef,
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   Post,
@@ -20,6 +22,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { LoyaltyCardsService } from '../loyalty-cards/loyalty-cards.service';
 import { Roles } from '../roles/roles.decorator';
 import { RoleEnum } from '../roles/roles.enum';
 import { RolesGuard } from '../roles/roles.guard';
@@ -33,18 +36,27 @@ import { RewardsService } from './rewards.service';
 @ApiTags('Rewards')
 @Controller({ path: 'rewards', version: '1' })
 export class RewardsController {
-  constructor(private readonly rewardsService: RewardsService) {}
+  constructor(
+    private readonly rewardsService: RewardsService,
+    @Inject(forwardRef(() => LoyaltyCardsService))
+    private readonly loyaltyCardsService: LoyaltyCardsService,
+  ) {}
 
   // Customer: browse active rewards for their business
   @Roles(RoleEnum.user)
   @ApiOkResponse({ type: [Reward] })
   @Get()
   @HttpCode(HttpStatus.OK)
-  getCatalog(
+  async getCatalog(
     @Request() request,
   ): ReturnType<RewardsService['findActiveWithEligibility']> {
     const businessId: string = request.user.businessId;
-    const points: number = request.user.points ?? 0;
+    const cardId: string | undefined = request.user.cardId;
+    let points = 0;
+    if (cardId) {
+      const card = await this.loyaltyCardsService.findById(cardId);
+      points = card?.points ?? 0;
+    }
     return this.rewardsService.findActiveWithEligibility(businessId, points);
   }
 

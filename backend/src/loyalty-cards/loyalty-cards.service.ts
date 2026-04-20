@@ -123,6 +123,10 @@ export class LoyaltyCardsService {
     return this.loyaltyCardRepository.save(card);
   }
 
+  findById(id: string): Promise<LoyaltyCard | null> {
+    return this.loyaltyCardRepository.findById(id);
+  }
+
   findByCustomerAndBusiness(
     customerId: number,
     businessId: string,

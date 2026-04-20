@@ -5,9 +5,9 @@ F-10 through F-12 can be built with mock data in parallel with B-11.
 
 ---
 
-## F-10 — PointsBalanceHero Component
+## F-10 — PointsBalanceHero Component ✅
 
-**SP:** 2 | **Layer:** FE | **Status:** Todo
+**SP:** 2 | **Layer:** FE | **Status:** Done
 **Depends on:** F-01
 **Blocks:** F-13
 
@@ -72,9 +72,9 @@ Add to global styles (already present in Rewards Catalog HTML).
 
 ---
 
-## F-11 — RewardCard Component
+## F-11 — RewardCard Component ✅
 
-**SP:** 5 | **Layer:** FE | **Status:** Todo
+**SP:** 5 | **Layer:** FE | **Status:** Done
 **Depends on:** F-01
 **Blocks:** F-12
 
@@ -163,9 +163,9 @@ interface RewardCardProps {
 
 ---
 
-## F-12 — RewardsList Component
+## F-12 — RewardsList Component ✅
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done
 **Depends on:** F-11
 **Blocks:** F-13
 
@@ -239,9 +239,9 @@ const sorted = [...rewards].sort((a, b) => {
 
 ---
 
-## B-11 — GET /api/v1/rewards (Customer Catalog)
+## B-11 — GET /api/v1/rewards (Customer Catalog) ✅
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done (already implemented as getCatalog in rewards.controller.ts)
 **Depends on:** B-05, B-04
 **Blocks:** F-13
 
@@ -310,9 +310,9 @@ findAll(@Request() req) {
 
 ---
 
-## F-13 — Wire Rewards Catalog Page to API
+## F-13 — Wire Rewards Catalog Page to API ✅
 
-**SP:** 2 | **Layer:** FE | **Status:** Todo
+**SP:** 2 | **Layer:** FE | **Status:** Done
 **Depends on:** F-10, F-11, F-12, B-11, F-04
 **Blocks:** nothing (final step for this epic)
 

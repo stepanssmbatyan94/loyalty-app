@@ -64,7 +64,15 @@
     "sampleReward1": "Бесплатное пиво",
     "sampleReward2": "Закусочная тарелка",
     "sampleReward3": "VIP стол",
-    "redeemButton": "Погасить"
+    "redeemButton": "Погасить",
+    "availableBalance": "Доступный баланс",
+    "ptsLabel": "БАЛ",
+    "redeem": "Погасить",
+    "processing": "Обработка...",
+    "needMorePts": "Нужно ещё {count} бал.",
+    "noRewardsYet": "Наград пока нет",
+    "rewardsCatalog": "Каталог наград",
+    "loadError": "Что-то пошло не так. Пожалуйста, перезапустите приложение."
   },
   "pointTransactions": {
     "historyTitle": "История операций",
