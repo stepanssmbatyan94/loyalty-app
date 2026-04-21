@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
 import { Bot, InlineKeyboard, Keyboard } from 'grammy';
 
@@ -9,6 +10,7 @@ import { LoyaltyCardsService } from '../loyalty-cards/loyalty-cards.service';
 import { RedemptionsService } from '../redemptions/redemptions.service';
 import { RoleEnum } from '../roles/roles.enum';
 import { StatusEnum } from '../statuses/statuses.enum';
+import { EarnConfirmedEvent } from './notifications/notification-events';
 import { TransactionsService } from '../transactions/transactions.service';
 import { UsersService } from '../users/users.service';
 import { PendingEarnContext } from './telegram.service';
@@ -54,6 +56,7 @@ export class TelegramUpdate {
     private readonly loyaltyCardsService: LoyaltyCardsService,
     private readonly transactionsService: TransactionsService,
     private readonly redemptionsService: RedemptionsService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   register(
@@ -215,7 +218,7 @@ export class TelegramUpdate {
       const pts = parseInt(ptsStr, 10);
       const cashierTelegramId = parseInt(cashierIdStr, 10);
 
-      await this.loyaltyCardsService.addPoints(cardId, pts);
+      const updatedCard = await this.loyaltyCardsService.addPoints(cardId, pts);
       await this.transactionsService.create({
         cardId,
         type: 'earn',
@@ -225,9 +228,15 @@ export class TelegramUpdate {
         note: null,
       });
 
-      const card = await this.loyaltyCardsService.findById(cardId);
+      this.eventEmitter.emit('earn.confirmed', {
+        customerId: updatedCard.customerId,
+        businessId: businessId ?? updatedCard.businessId,
+        pointsAdded: pts,
+        newBalance: updatedCard.points,
+      } satisfies EarnConfirmedEvent);
+
       await ctx.editMessageText(
-        `✅ *${pts} pts added!*\nNew balance: ${card?.points ?? '?'} pts`,
+        `✅ *${pts} pts added!*\nNew balance: ${updatedCard.points} pts`,
         { parse_mode: 'Markdown' },
       );
     });

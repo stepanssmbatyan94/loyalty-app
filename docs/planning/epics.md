@@ -215,11 +215,11 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| B-32 | Send welcome message on first LoyaltyCard creation | BOT | 2 | Todo | "Welcome to Beer House Loyalty 🍺 You start with 0 points." |
-| B-33 | Send notification after earn transaction confirmed | BOT | 2 | Todo | "+{pts} points at Beer House! Balance: {balance} pts" |
-| B-34 | Send notification after redemption confirmed by cashier | BOT | 2 | Todo | "✅ {rewardName} redeemed. Remaining balance: {balance} pts" |
-| B-35 | Send notification when redemption code expires (auto-refund) | BOT | 2 | Todo | "⏱ Code expired. {pts} pts returned. Balance: {balance} pts" |
-| F-27 | Customer: "Enable notifications" prompt on first Mini App open | FE | 2 | Todo | Prompt user to start a conversation with the business bot to receive notifications |
+| B-32 | Send welcome message on first LoyaltyCard creation | BOT | 2 | Done | "Welcome to Beer House Loyalty 🍺 You start with 0 points." |
+| B-33 | Send notification after earn transaction confirmed | BOT | 2 | Done | "+{pts} points at Beer House! Balance: {balance} pts" |
+| B-34 | Send notification after redemption confirmed by cashier | BOT | 2 | Done | "✅ {rewardName} redeemed. Remaining balance: {balance} pts" |
+| B-35 | Send notification when redemption code expires (auto-refund) | BOT | 2 | Done | "⏱ Code expired. {pts} pts returned. Balance: {balance} pts" |
+| F-27 | Customer: "Enable notifications" prompt on first Mini App open | FE | 2 | Done | Prompt user to start a conversation with the business bot to receive notifications |
 
 **Epic 9 Total: FE 2 SP | BOT/BE 8 SP | Total 10 SP**
 

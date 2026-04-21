@@ -39,6 +39,25 @@ export class BusinessesController {
     private readonly telegramService: TelegramService,
   ) {}
 
+  @Roles(RoleEnum.user)
+  @ApiOkResponse({
+    schema: {
+      properties: {
+        botUsername: { type: 'string' },
+      },
+    },
+  })
+  @Get('customer-info')
+  @HttpCode(HttpStatus.OK)
+  async getCustomerBusinessInfo(
+    @Request() request,
+  ): Promise<{ botUsername: string }> {
+    const businessId: string | undefined = request.user.businessId;
+    if (!businessId) return { botUsername: '' };
+    const business = await this.businessesService.findById(businessId);
+    return { botUsername: business?.botUsername ?? '' };
+  }
+
   @Roles(RoleEnum.owner)
   @SerializeOptions({ excludeExtraneousValues: false })
   @ApiOkResponse({ type: Business })

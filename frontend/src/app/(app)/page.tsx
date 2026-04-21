@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 
-import { LoyaltyCardHome } from '@/features/loyalty-cards/components/loyalty-card-home';
 import { LoyaltyCardSkeleton } from '@/features/loyalty-cards/components/loyalty-card-skeleton';
+
+import { HomeWithNotifications } from './_components/home-with-notifications';
 
 export const metadata = {
   title: 'Home — Beer House',
@@ -10,7 +11,7 @@ export const metadata = {
 const HomePage = () => {
   return (
     <Suspense fallback={<LoyaltyCardSkeleton />}>
-      <LoyaltyCardHome />
+      <HomeWithNotifications />
     </Suspense>
   );
 };

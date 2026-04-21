@@ -191,6 +191,10 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
+  getBot(businessId: string): Bot | undefined {
+    return this.bots.get(businessId);
+  }
+
   getPendingEarn(chatId: string): PendingEarnContext | undefined {
     return this.pendingEarns.get(chatId);
   }

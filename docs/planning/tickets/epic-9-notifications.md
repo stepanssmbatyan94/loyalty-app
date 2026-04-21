@@ -10,7 +10,7 @@ All B-32–B-35 notifications follow the same pattern: listen to a NestJS event 
 
 ## B-32 — Welcome Message on First LoyaltyCard Creation
 
-**SP:** 2 | **Layer:** BOT | **Status:** Todo
+**SP:** 2 | **Layer:** BOT | **Status:** Done
 **Depends on:** B-04, B-18
 **Blocks:** nothing
 
@@ -82,7 +82,7 @@ try {
 
 ## B-33 — Notification After Earn Transaction Confirmed
 
-**SP:** 2 | **Layer:** BOT | **Status:** Todo
+**SP:** 2 | **Layer:** BOT | **Status:** Done
 **Depends on:** B-21 (Bot approve callback), B-32 (notification infrastructure)
 **Blocks:** nothing
 
@@ -138,7 +138,7 @@ async handleEarnConfirmed(payload: EarnConfirmedEvent) {
 
 ## B-34 — Notification After Redemption Confirmed by Cashier
 
-**SP:** 2 | **Layer:** BOT | **Status:** Todo
+**SP:** 2 | **Layer:** BOT | **Status:** Done
 **Depends on:** B-23 (Bot confirm redemption callback), B-32
 **Blocks:** nothing
 
@@ -195,7 +195,7 @@ async handleRedemptionConfirmed(payload: RedemptionConfirmedEvent) {
 
 ## B-35 — Notification When Redemption Code Expires (Auto-Refund)
 
-**SP:** 2 | **Layer:** BOT | **Status:** Todo
+**SP:** 2 | **Layer:** BOT | **Status:** Done
 **Depends on:** B-13 (cron expiry job), B-32
 **Blocks:** nothing
 
@@ -250,7 +250,7 @@ async handleRedemptionExpired(payload: RedemptionExpiredEvent) {
 
 ## F-27 — Customer: Enable Notifications Prompt
 
-**SP:** 2 | **Layer:** FE | **Status:** Todo
+**SP:** 2 | **Layer:** FE | **Status:** Done
 **Depends on:** F-04 (Telegram init), F-09 (Home page)
 **Blocks:** nothing
 

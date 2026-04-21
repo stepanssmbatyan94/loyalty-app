@@ -205,6 +205,12 @@
       "cancel": "Cancel"
     }
   },
+  "notifications": {
+    "enableNotifications": "Get loyalty updates",
+    "enableNotificationsDesc": "Start a chat with our bot to receive points and reward notifications.",
+    "enable": "Enable",
+    "later": "Later"
+  },
   "gypsumProducts": {
     "title": "Gypsum Products",
     "subtitle": "Browse our product catalog",

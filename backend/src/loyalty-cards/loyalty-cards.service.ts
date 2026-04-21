@@ -3,9 +3,11 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
 
 import { AllConfigType } from '../config/config.type';
+import { LoyaltyCardCreatedEvent } from '../telegram/notifications/notification-events';
 import { RewardsService } from '../rewards/rewards.service';
 import { ScanTokensService } from '../scan-tokens/scan-tokens.service';
 import { LoyaltyCard } from './domain/loyalty-card';
@@ -19,6 +21,7 @@ export class LoyaltyCardsService {
     private readonly rewardsService: RewardsService,
     private readonly scanTokensService: ScanTokensService,
     private readonly configService: ConfigService<AllConfigType>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async findOrCreateForCustomer(
@@ -34,12 +37,19 @@ export class LoyaltyCardsService {
       return existing;
     }
 
-    return this.loyaltyCardRepository.create({
+    const card = await this.loyaltyCardRepository.create({
       customerId,
       businessId,
       points: 0,
       totalPointsEarned: 0,
     });
+
+    this.eventEmitter.emit('loyalty_card.created', {
+      customerId,
+      businessId,
+    } satisfies LoyaltyCardCreatedEvent);
+
+    return card;
   }
 
   async getCardWithProgress(

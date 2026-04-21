@@ -3,10 +3,15 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { LoyaltyCardsService } from '../loyalty-cards/loyalty-cards.service';
 import { RewardsService } from '../rewards/rewards.service';
+import {
+  RedemptionConfirmedEvent,
+  RedemptionExpiredEvent,
+} from '../telegram/notifications/notification-events';
 import { TransactionsService } from '../transactions/transactions.service';
 import { NullableType } from '../utils/types/nullable.type';
 import { Redemption } from './domain/redemption';
@@ -24,6 +29,7 @@ export class RedemptionsService {
     private readonly rewardsService: RewardsService,
     private readonly loyaltyCardsService: LoyaltyCardsService,
     private readonly transactionsService: TransactionsService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(
@@ -110,7 +116,11 @@ export class RedemptionsService {
 
     const saved = await this.redemptionRepository.save(redemption);
 
-    const reward = await this.rewardsService.findById(redemption.rewardId);
+    const [reward, card] = await Promise.all([
+      this.rewardsService.findById(redemption.rewardId),
+      this.loyaltyCardsService.findById(redemption.cardId),
+    ]);
+
     await this.transactionsService.create({
       cardId: redemption.cardId,
       type: 'redeem',
@@ -119,6 +129,16 @@ export class RedemptionsService {
       rewardId: redemption.rewardId,
       note: reward?.name ?? null,
     });
+
+    if (card) {
+      this.eventEmitter.emit('redemption.confirmed', {
+        customerId: card.customerId,
+        businessId: card.businessId,
+        rewardName: reward?.name ?? '',
+        pointsSpent: redemption.pointsCost,
+        remainingBalance: card.points,
+      } satisfies RedemptionConfirmedEvent);
+    }
 
     return saved;
   }
@@ -201,10 +221,22 @@ export class RedemptionsService {
       expired.map(async (redemption) => {
         redemption.status = 'expired';
         await this.redemptionRepository.save(redemption);
-        await this.loyaltyCardsService.addPoints(
-          redemption.cardId,
-          redemption.pointsCost,
-        );
+
+        const [updatedCard, reward] = await Promise.all([
+          this.loyaltyCardsService.addPoints(
+            redemption.cardId,
+            redemption.pointsCost,
+          ),
+          this.rewardsService.findById(redemption.rewardId),
+        ]);
+
+        this.eventEmitter.emit('redemption.expired', {
+          customerId: updatedCard.customerId,
+          businessId: updatedCard.businessId,
+          rewardName: reward?.name ?? '',
+          pointsRefunded: redemption.pointsCost,
+          newBalance: updatedCard.points,
+        } satisfies RedemptionExpiredEvent);
       }),
     );
   }

@@ -26,6 +26,7 @@ import { TelegramModule } from './telegram/telegram.module';
 import { BusinessesModule } from './businesses/businesses.module';
 import { LoyaltyCardsModule } from './loyalty-cards/loyalty-cards.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RewardsModule } from './rewards/rewards.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { RedemptionsModule } from './redemptions/redemptions.module';
@@ -90,6 +91,7 @@ const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
     TelegramModule,
     BusinessesModule,
     ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
     LoyaltyCardsModule,
     RewardsModule,
     TransactionsModule,

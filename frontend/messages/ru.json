@@ -205,6 +205,12 @@
       "cancel": "Отмена"
     }
   },
+  "notifications": {
+    "enableNotifications": "Получайте обновления",
+    "enableNotificationsDesc": "Начните чат с нашим ботом, чтобы получать уведомления о баллах и наградах.",
+    "enable": "Включить",
+    "later": "Позже"
+  },
   "gypsumProducts": {
     "title": "Гипсовые продукты",
     "subtitle": "Просматривайте наш каталог продуктов",
