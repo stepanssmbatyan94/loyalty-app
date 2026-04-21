@@ -7,7 +7,7 @@ The most complex customer-facing flow. BE tickets (B-12–B-16) can start as soo
 
 ## B-12 — POST /api/v1/redemptions (Create Redemption)
 
-**SP:** 8 | **Layer:** BE | **Status:** Todo
+**SP:** 8 | **Layer:** BE | **Status:** Done ✅
 **Depends on:** B-04, B-05, B-07
 **Blocks:** B-14, B-15, B-16, F-16
 
@@ -108,7 +108,7 @@ create(@Body() dto: CreateRedemptionDto, @Request() req) {
 
 ## B-13 — Cron Job: Auto-Expire Redemptions
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done ✅
 **Depends on:** B-07, B-06
 **Blocks:** B-35 (expiry notification)
 
@@ -178,7 +178,7 @@ ScheduleModule.forRoot()
 
 ## B-14 — GET /api/v1/redemptions/validate/:code
 
-**SP:** 2 | **Layer:** BE | **Status:** Todo
+**SP:** 2 | **Layer:** BE | **Status:** Done ✅
 **Depends on:** B-07
 **Blocks:** B-23 (bot confirm flow)
 
@@ -236,7 +236,7 @@ Math.max(0, Math.floor((redemption.expiresAt.getTime() - Date.now()) / 1000))
 
 ## B-15 — PATCH /api/v1/redemptions/:code/confirm
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done ✅
 **Depends on:** B-14, B-06
 **Blocks:** nothing (final bot confirm step)
 
@@ -296,7 +296,7 @@ async confirm(code: string, cashierTelegramId: number) {
 
 ## B-16 — PATCH /api/v1/redemptions/:code/cancel
 
-**SP:** 2 | **Layer:** BE | **Status:** Todo
+**SP:** 2 | **Layer:** BE | **Status:** Done ✅
 **Depends on:** B-07
 **Blocks:** nothing
 
@@ -337,7 +337,7 @@ async cancel(code: string) {
 
 ## F-14 — RedemptionScreen Layout
 
-**SP:** 5 | **Layer:** FE | **Status:** Todo
+**SP:** 5 | **Layer:** FE | **Status:** Done ✅
 **Depends on:** F-01
 **Blocks:** F-16, F-17
 
@@ -428,7 +428,7 @@ Wrap in the styled container from design (lines 116–136): white background car
 
 ## F-15 — CountdownTimer Component
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done ✅
 **Depends on:** F-01
 **Blocks:** F-16
 
@@ -509,7 +509,7 @@ const isWarning = secondsLeft <= 60 && secondsLeft > 0;
 
 ## F-16 — Redeem Action from Catalog
 
-**SP:** 2 | **Layer:** FE | **Status:** Todo
+**SP:** 2 | **Layer:** FE | **Status:** Done ✅
 **Depends on:** F-13, B-12
 **Blocks:** F-17
 
@@ -566,7 +566,7 @@ const createRedemption = useCreateRedemption({
 
 ## F-17 — Redemption Screen Page + Done Button
 
-**SP:** 2 | **Layer:** FE | **Status:** Todo
+**SP:** 2 | **Layer:** FE | **Status:** Done ✅
 **Depends on:** F-14, F-15, F-16, B-12
 **Blocks:** nothing (final step for this epic)
 

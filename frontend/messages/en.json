@@ -89,20 +89,20 @@
     "cancelRedemptionMessage": "Your code hasn't been confirmed yet. Your points will be refunded."
   },
   "pointTransactions": {
-    "historyTitle": "Transaction History",
-    "filter": {
-      "all": "All",
-      "earn": "Earned",
-      "redeem": "Redeemed"
-    },
-    "sampleEarn1": "Craft IPA Purchase",
-    "sampleDate1": "Today, 2:45 PM",
-    "sampleRedeem1": "Redeemed: Snack Platter",
-    "sampleDate2": "Yesterday, 8:12 PM",
-    "sampleEarn2": "Beer Flight",
-    "sampleDate3": "Mon, 7:30 PM",
-    "sampleEarn3": "Happy Hour Special",
-    "sampleDate4": "Sun, 6:00 PM"
+    "history": "History",
+    "loyaltyBalance": "Loyalty Balance",
+    "allTime": "All Time",
+    "thisMonth": "This Month",
+    "thisWeek": "This Week",
+    "earned": "Earned",
+    "redeemed": "Redeemed",
+    "earnedPoints": "Earned Points",
+    "redeemedReward": "Redeemed Reward",
+    "today": "Today, {time}",
+    "yesterday": "Yesterday, {time}",
+    "showingLast30Days": "Showing your last 30 days of activity",
+    "noTransactionsYet": "No transactions yet. Start earning points!",
+    "loadingMore": "Loading more..."
   },
   "gypsumProducts": {
     "title": "Gypsum Products",
