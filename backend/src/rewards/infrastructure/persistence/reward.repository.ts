@@ -10,6 +10,8 @@ export abstract class RewardRepository {
 
   abstract findAllActiveByBusinessId(businessId: string): Promise<Reward[]>;
 
+  abstract findAllByBusinessId(businessId: string): Promise<Reward[]>;
+
   abstract update(id: Reward['id'], payload: Partial<Reward>): Promise<Reward>;
 
   abstract softDelete(id: Reward['id']): Promise<void>;

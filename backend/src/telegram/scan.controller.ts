@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Param,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -51,8 +45,7 @@ export class ScanController {
 
     const user = await this.usersService.findById(card.customerId);
     const customerName =
-      [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
-      'Customer';
+      [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Customer';
 
     await this.telegramService.sendEarnPrompt({
       businessId: record.businessId,

@@ -52,10 +52,9 @@ class EnvironmentVariablesValidator {
   @IsOptional()
   CORS_ORIGIN: string;
 }
-
 export default registerAs<AppConfig>('app', () => {
   validateConfig(process.env, EnvironmentVariablesValidator);
-
+  console.log('CORS_ORIGIN :>> ', process.env.CORS_ORIGIN);
   return {
     nodeEnv: process.env.NODE_ENV || 'development',
     name: process.env.APP_NAME || 'app',

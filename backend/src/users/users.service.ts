@@ -3,6 +3,7 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { CreateCashierDto } from './dto/create-cashier.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { NullableType } from '../utils/types/nullable.type';
 import { FilterUserDto, SortUserDto } from './dto/query-user.dto';
@@ -285,5 +286,65 @@ export class UsersService {
 
   async remove(id: User['id']): Promise<void> {
     await this.usersRepository.remove(id);
+  }
+
+  findCashiersByBusiness(businessId: string): Promise<User[]> {
+    return this.usersRepository.findByBusinessAndRole(
+      businessId,
+      RoleEnum.cashier,
+    );
+  }
+
+  async createCashier(
+    businessId: string,
+    dto: CreateCashierDto,
+  ): Promise<User> {
+    const existing = await this.usersRepository.findByEmail(dto.email);
+    if (existing) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { email: 'emailAlreadyExists' },
+      });
+    }
+
+    const salt = await bcrypt.genSalt();
+    const password = await bcrypt.hash(
+      Math.random().toString(36).slice(-10),
+      salt,
+    );
+
+    return this.usersRepository.create({
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      email: dto.email,
+      password,
+      provider: AuthProvidersEnum.email,
+      role: { id: RoleEnum.cashier },
+      status: { id: StatusEnum.active },
+      businessId,
+      socialId: dto.telegramUserId ?? null,
+    });
+  }
+
+  async deactivateCashier(
+    id: User['id'],
+    businessId: string,
+  ): Promise<User | null> {
+    const user = await this.usersRepository.findById(id);
+
+    if (
+      !user ||
+      user.businessId !== businessId ||
+      Number(user.role?.id) !== RoleEnum.cashier
+    ) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'cashierNotFound' },
+      });
+    }
+
+    return this.usersRepository.update(id, {
+      status: { id: StatusEnum.inactive },
+    });
   }
 }

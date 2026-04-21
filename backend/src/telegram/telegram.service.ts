@@ -49,9 +49,12 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
       miniAppUrl?.startsWith('https://') &&
       !miniAppUrl.startsWith('https://t.me');
 
-    const webhookBaseUrl = this.configService.get('auth.telegramWebhookBaseUrl', {
-      infer: true,
-    });
+    const webhookBaseUrl = this.configService.get(
+      'auth.telegramWebhookBaseUrl',
+      {
+        infer: true,
+      },
+    );
 
     this.webhookMode = !!webhookBaseUrl;
 
@@ -115,6 +118,44 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
         void bot.stop();
       }
     }
+  }
+
+  async registerBot(business: {
+    id: string;
+    botToken: string;
+    botUsername: string | null;
+    webhookSecret: string | null;
+  }): Promise<void> {
+    if (this.bots.has(business.id)) {
+      const existing = this.bots.get(business.id)!;
+      if (!this.webhookMode) existing.stop();
+      this.bots.delete(business.id);
+    }
+
+    const bot = new Bot(business.botToken);
+    bot.catch((err) => {
+      console.error(`[Bot:${business.id}] ${err.message}`);
+    });
+
+    this.telegramUpdate.register(bot, business.id, this.pendingEarns);
+
+    const webhookBaseUrl = this.configService.get(
+      'auth.telegramWebhookBaseUrl',
+      {
+        infer: true,
+      },
+    );
+
+    if (webhookBaseUrl && business.webhookSecret) {
+      await bot.api.setWebhook(
+        `${webhookBaseUrl}/api/v1/telegram/${business.id}/webhook`,
+        { secret_token: business.webhookSecret },
+      );
+    } else {
+      void bot.start();
+    }
+
+    this.bots.set(business.id, bot);
   }
 
   async handleUpdate(businessId: string, update: unknown): Promise<void> {

@@ -11,7 +11,9 @@ import {
   HttpStatus,
   HttpCode,
   SerializeOptions,
+  Request,
 } from '@nestjs/common';
+import { CreateCashierDto } from './dto/create-cashier.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
@@ -135,5 +137,38 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: User['id']): Promise<void> {
     return this.usersService.remove(id);
+  }
+
+  // Owner: list cashiers for their business
+  @Roles(RoleEnum.owner)
+  @ApiOkResponse({ type: [User] })
+  @Get('cashiers')
+  @HttpCode(HttpStatus.OK)
+  getCashiers(@Request() request): Promise<User[]> {
+    return this.usersService.findCashiersByBusiness(request.user.businessId);
+  }
+
+  // Owner: create a cashier for their business
+  @Roles(RoleEnum.owner)
+  @ApiCreatedResponse({ type: User })
+  @Post('cashiers')
+  @HttpCode(HttpStatus.CREATED)
+  createCashier(
+    @Request() request,
+    @Body() dto: CreateCashierDto,
+  ): Promise<User> {
+    return this.usersService.createCashier(request.user.businessId, dto);
+  }
+
+  // Owner: deactivate a cashier
+  @Roles(RoleEnum.owner)
+  @ApiOkResponse({ type: User })
+  @Patch('cashiers/:id/deactivate')
+  @HttpCode(HttpStatus.OK)
+  deactivateCashier(
+    @Request() request,
+    @Param('id') id: User['id'],
+  ): Promise<User | null> {
+    return this.usersService.deactivateCashier(id, request.user.businessId);
   }
 }

@@ -66,6 +66,9 @@ export class User {
   @ApiPropertyOptional({ type: String, example: 'en' })
   language?: string | null;
 
+  @ApiPropertyOptional({ type: String, format: 'uuid', nullable: true })
+  businessId?: string | null;
+
   @ApiProperty()
   createdAt: Date;
 

@@ -17,13 +17,24 @@ export type Meta = {
   totalPages: number;
 };
 
+export type UserRole = {
+  id: number;
+  name: 'admin' | 'user' | 'owner' | 'cashier';
+};
+
+export type UserStatus = {
+  id: number;
+  name: 'active' | 'inactive';
+};
+
 export type User = Entity<{
   firstName: string;
   lastName: string;
   email: string;
-  role: 'ADMIN' | 'USER';
-  teamId: string;
-  bio: string;
+  role: UserRole;
+  status: UserStatus;
+  businessId?: string | null;
+  photo?: { path: string } | null;
 }>;
 
 export type AuthResponse = {

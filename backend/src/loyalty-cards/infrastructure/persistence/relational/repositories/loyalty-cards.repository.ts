@@ -58,10 +58,9 @@ export class LoyaltyCardsRelationalRepository implements LoyaltyCardRepository {
       .createQueryBuilder('card')
       .innerJoin(UserEntity, 'u', 'u.id = card.customerId')
       .where('card.businessId = :businessId', { businessId })
-      .andWhere(
-        '(LOWER(u.firstName) LIKE :q OR LOWER(u.lastName) LIKE :q)',
-        { q },
-      )
+      .andWhere('(LOWER(u.firstName) LIKE :q OR LOWER(u.lastName) LIKE :q)', {
+        q,
+      })
       .select('card.id', 'cardId')
       .addSelect('u.firstName', 'firstName')
       .addSelect('u.lastName', 'lastName')

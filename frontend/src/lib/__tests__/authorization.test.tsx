@@ -11,12 +11,12 @@ import {
 describe('Discussion Authorization', () => {
   const adminUser: User = {
     id: '1',
-    role: 'ADMIN',
+    role: { id: 1, name: 'admin' },
   } as User;
 
   const regularUser: User = {
     id: '2',
-    role: 'USER',
+    role: { id: 2, name: 'user' },
   } as User;
 
   test('should allow admin to create discussions', () => {
@@ -51,17 +51,17 @@ describe('Discussion Authorization', () => {
 describe('Comment Authorization', () => {
   const adminUser: User = {
     id: '1',
-    role: 'ADMIN',
+    role: { id: 1, name: 'admin' },
   } as User;
 
   const regularUser: User = {
     id: '2',
-    role: 'USER',
+    role: { id: 2, name: 'user' },
   } as User;
 
   const anotherUser: User = {
     id: '3',
-    role: 'USER',
+    role: { id: 2, name: 'user' },
   } as User;
 
   test('should allow admin to delete any comment', () => {

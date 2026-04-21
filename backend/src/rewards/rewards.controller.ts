@@ -10,6 +10,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -27,8 +28,10 @@ import { Roles } from '../roles/roles.decorator';
 import { RoleEnum } from '../roles/roles.enum';
 import { RolesGuard } from '../roles/roles.guard';
 import { Reward } from './domain/reward';
+import { RewardTranslation } from './domain/reward-translation';
 import { CreateRewardDto } from './dto/create-reward.dto';
 import { UpdateRewardDto } from './dto/update-reward.dto';
+import { UpdateRewardTranslationsDto } from './dto/update-reward-translations.dto';
 import { RewardsService } from './rewards.service';
 
 @ApiBearerAuth()
@@ -58,6 +61,16 @@ export class RewardsController {
       points = card?.points ?? 0;
     }
     return this.rewardsService.findActiveWithEligibility(businessId, points);
+  }
+
+  // Owner: list all rewards (including inactive) for their business
+  @Roles(RoleEnum.owner)
+  @ApiOkResponse({ type: [Reward] })
+  @Get('owner')
+  @HttpCode(HttpStatus.OK)
+  getOwnerRewards(@Request() request): Promise<Reward[]> {
+    const businessId: string = request.user.businessId;
+    return this.rewardsService.findAllByBusinessId(businessId);
   }
 
   // Owner: create a reward for their business
@@ -100,5 +113,36 @@ export class RewardsController {
   remove(@Request() request, @Param('id') id: string): Promise<void> {
     const businessId: string = request.user.businessId;
     return this.rewardsService.softDelete(id, businessId);
+  }
+
+  // Owner: get translations for a reward
+  @Roles(RoleEnum.owner)
+  @ApiOkResponse({ type: [RewardTranslation] })
+  @Get(':id/translations')
+  @HttpCode(HttpStatus.OK)
+  getTranslations(
+    @Request() request,
+    @Param('id') id: string,
+  ): Promise<RewardTranslation[]> {
+    const businessId: string = request.user.businessId;
+    return this.rewardsService.getTranslations(id, businessId);
+  }
+
+  // Owner: upsert translations for a reward
+  @Roles(RoleEnum.owner)
+  @ApiOkResponse({ schema: { properties: { updated: { type: 'number' } } } })
+  @Put(':id/translations')
+  @HttpCode(HttpStatus.OK)
+  updateTranslations(
+    @Request() request,
+    @Param('id') id: string,
+    @Body() dto: UpdateRewardTranslationsDto,
+  ): Promise<{ updated: number }> {
+    const businessId: string = request.user.businessId;
+    return this.rewardsService.updateTranslations(
+      id,
+      businessId,
+      dto.translations,
+    );
   }
 }

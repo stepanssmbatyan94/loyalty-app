@@ -46,7 +46,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const navigation = [
     { name: 'Dashboard', to: paths.app.root.getHref(), icon: Home },
     { name: 'Discussions', to: paths.app.discussions.getHref(), icon: Folder },
-    user.data?.role === 'ADMIN' && {
+    user.data?.role?.name === 'admin' && {
       name: 'Users',
       to: paths.app.users.getHref(),
       icon: Users,

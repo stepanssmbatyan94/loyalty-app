@@ -1,14 +1,21 @@
+import crypto from 'crypto';
+
 import {
   HttpStatus,
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Bot } from 'grammy';
 
+import { AllConfigType } from '../config/config.type';
 import { NullableType } from '../utils/types/nullable.type';
 import { Business } from './domain/business';
 import { BusinessTranslation } from './domain/business-translation';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { UpdateBotSettingsDto } from './dto/update-bot-settings.dto';
+import { UpdateLanguagesDto } from './dto/update-languages.dto';
 import { BusinessRepository } from './infrastructure/persistence/business.repository';
 import { BusinessTranslationRepository } from './infrastructure/persistence/business-translation.repository';
 
@@ -17,6 +24,7 @@ export class BusinessesService {
   constructor(
     private readonly businessesRepository: BusinessRepository,
     private readonly businessTranslationRepository: BusinessTranslationRepository,
+    private readonly configService: ConfigService<AllConfigType>,
   ) {}
 
   async create(dto: CreateBusinessDto): Promise<Business> {
@@ -62,6 +70,85 @@ export class BusinessesService {
 
   async update(id: Business['id'], dto: UpdateBusinessDto): Promise<Business> {
     return this.businessesRepository.update(id, dto);
+  }
+
+  async updateBotSettings(
+    id: Business['id'],
+    dto: UpdateBotSettingsDto,
+  ): Promise<{
+    webhookRegistered: boolean;
+    botUsername: string;
+    isActive: boolean;
+  }> {
+    const bot = new Bot(dto.botToken);
+
+    let botInfo: { username: string };
+    try {
+      botInfo = await bot.api.getMe();
+    } catch {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { botToken: 'invalidBotToken' },
+      });
+    }
+
+    const webhookSecret = crypto.randomBytes(32).toString('hex');
+
+    const webhookBaseUrl = this.configService.get(
+      'auth.telegramWebhookBaseUrl',
+      {
+        infer: true,
+      },
+    );
+
+    let webhookRegistered = false;
+    if (webhookBaseUrl) {
+      await bot.api.setWebhook(
+        `${webhookBaseUrl}/api/v1/telegram/${id}/webhook`,
+        { secret_token: webhookSecret },
+      );
+      webhookRegistered = true;
+    }
+
+    await this.businessesRepository.update(id, {
+      botToken: dto.botToken,
+      botUsername: botInfo.username,
+      webhookSecret,
+      telegramGroupChatId: dto.telegramGroupChatId,
+      isActive: true,
+    });
+
+    return { webhookRegistered, botUsername: botInfo.username, isActive: true };
+  }
+
+  async updateLanguages(
+    id: Business['id'],
+    dto: UpdateLanguagesDto,
+  ): Promise<Business> {
+    if (!dto.supportedLocales.includes(dto.defaultLocale)) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { defaultLocale: 'mustBeInSupportedLocales' },
+      });
+    }
+    return this.businessesRepository.update(id, {
+      supportedLocales: dto.supportedLocales,
+      defaultLocale: dto.defaultLocale,
+    });
+  }
+
+  async updateTranslations(
+    businessId: string,
+    translations: Array<{
+      locale: string;
+      field: 'name' | 'welcomeMessage' | 'pointsLabel';
+      value: string;
+    }>,
+  ): Promise<{ updated: number }> {
+    for (const t of translations) {
+      await this.upsertTranslation({ businessId, ...t });
+    }
+    return { updated: translations.length };
   }
 
   upsertTranslation(

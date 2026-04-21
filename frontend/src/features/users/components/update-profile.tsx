@@ -56,7 +56,7 @@ export const UpdateProfile = () => {
             firstName: user.data?.firstName ?? '',
             lastName: user.data?.lastName ?? '',
             email: user.data?.email ?? '',
-            bio: user.data?.bio ?? '',
+            bio: '',
           },
         }}
         schema={updateProfileInputSchema}

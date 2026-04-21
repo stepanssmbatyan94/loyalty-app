@@ -7,6 +7,7 @@ import {
 import { z } from 'zod';
 
 import { AuthResponse, User } from '@/types/api';
+import { useAuthStore } from '@/stores/auth-store';
 
 import { api } from './api-client';
 
@@ -35,6 +36,7 @@ export const useLogin = ({ onSuccess }: { onSuccess?: () => void }) => {
   return useMutation({
     mutationFn: loginWithEmailAndPassword,
     onSuccess: (data) => {
+      useAuthStore.getState().setSession(data.token, data.refreshToken, data.tokenExpires);
       queryClient.setQueryData(userQueryKey, data.user);
       onSuccess?.();
     },
@@ -74,7 +76,7 @@ export const loginInputSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginInputSchema>;
 const loginWithEmailAndPassword = (data: LoginInput): Promise<AuthResponse> => {
-  return api.post('/auth/login', data);
+  return api.post('/auth/email/login', data);
 };
 
 export const registerInputSchema = z

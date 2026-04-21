@@ -1,17 +1,17 @@
 import { Comment, User } from '@/types/api';
 
 export const canCreateDiscussion = (user: User | null | undefined) => {
-  return user?.role === 'ADMIN';
+  return user?.role?.name === 'admin';
 };
 export const canDeleteDiscussion = (user: User | null | undefined) => {
-  return user?.role === 'ADMIN';
+  return user?.role?.name === 'admin';
 };
 export const canUpdateDiscussion = (user: User | null | undefined) => {
-  return user?.role === 'ADMIN';
+  return user?.role?.name === 'admin';
 };
 
 export const canViewUsers = (user: User | null | undefined) => {
-  return user?.role === 'ADMIN';
+  return user?.role?.name === 'admin';
 };
 
 export const canDeleteComment = (
@@ -22,7 +22,7 @@ export const canDeleteComment = (
     return true;
   }
 
-  if (user?.role === 'USER' && comment.author?.id === user.id) {
+  if (user?.role?.name === 'user' && comment.author?.id === user.id) {
     return true;
   }
 

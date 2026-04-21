@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 
 import { BusinessesModule } from '../businesses/businesses.module';
 import { LoyaltyCardsModule } from '../loyalty-cards/loyalty-cards.module';
@@ -14,7 +14,7 @@ import { TelegramUpdate } from './telegram.update';
 @Module({
   imports: [
     UsersModule,
-    BusinessesModule,
+    forwardRef(() => BusinessesModule),
     LoyaltyCardsModule,
     TransactionsModule,
     RedemptionsModule,

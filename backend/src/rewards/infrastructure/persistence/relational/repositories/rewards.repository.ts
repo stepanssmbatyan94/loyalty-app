@@ -36,6 +36,15 @@ export class RewardsRelationalRepository implements RewardRepository {
     return entities.map((e) => RewardMapper.toDomain(e));
   }
 
+  async findAllByBusinessId(businessId: string): Promise<Reward[]> {
+    const entities = await this.repo.find({
+      where: { businessId },
+      withDeleted: true,
+      order: { createdAt: 'DESC' },
+    });
+    return entities.map((e) => RewardMapper.toDomain(e));
+  }
+
   async update(id: Reward['id'], payload: Partial<Reward>): Promise<Reward> {
     const entity = await this.repo.findOne({ where: { id } });
 

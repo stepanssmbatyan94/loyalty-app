@@ -186,23 +186,23 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| B-27 | `POST/PATCH/DELETE /api/v1/rewards` — owner CRUD | BE | 3 | Todo | Owner role only; soft-delete on DELETE |
-| B-27b | `PATCH /api/v1/businesses/me/bot-settings` — save token, auto-register webhook | BE | 5 | Todo | Validates token via Telegram `getMe`; generates webhookSecret; calls `setWebhook`; registers in BotRegistry; sets `isActive: true` |
-| B-27c | `GET/PATCH /api/v1/businesses/me/languages` — manage supportedLocales + defaultLocale | BE | 2 | Todo | `defaultLocale` must be in `supportedLocales` |
-| B-27d | `GET/PUT /api/v1/businesses/me/translations` — upsert BusinessTranslation rows | BE | 3 | Todo | Fields: name, welcomeMessage, pointsLabel |
-| B-27e | `GET/PUT /api/v1/rewards/:id/translations` — upsert RewardTranslation rows | BE | 2 | Todo | Fields: name, description |
-| B-28 | `PATCH /api/v1/businesses/me/settings` — earn rate config | BE | 2 | Todo | `earnRateMode: 'per_amd_spent'`, `earnRateValue: 100` |
-| B-29 | `GET /api/v1/analytics/dashboard` — total customers, txns today, total pts issued | BE | 5 | Todo | Aggregated queries with short cache TTL |
-| B-30 | `GET /api/v1/analytics/top-customers` — paginated, sorted by totalPointsEarned DESC | BE | 2 | Todo | Returns rank, name, phone, totals |
-| B-31 | `POST/PATCH /api/v1/users` — owner creates/deactivates cashier accounts | BE | 3 | Todo | Cashier includes telegramUserId for bot auth; sends invite email |
-| F-22 | Owner: reward management UI — list, create, edit, toggle active, soft delete | FE | 8 | Todo | Image upload via `/api/v1/files/upload`; inline active toggle; reward translation fields inline in create/edit form |
-| F-23 | Owner: earn rate settings UI — mode selector + value input | FE | 2 | Todo | Two modes: fixed per visit / per AMD spent |
-| F-24 | Owner: dashboard metrics page — 3 KPI cards | FE | 5 | Todo | KPIs: total customers, transactions today, pts issued all-time |
-| F-25 | Owner: top customers list — ranked table | FE | 3 | Todo | Paginated, 20/page |
-| F-26 | Owner: cashier management UI — list, create, deactivate | FE | 5 | Todo | Shows name, telegram handle, status; create form: name + email + telegramUserId |
-| F-28 | Owner: Bot Settings UI — token input, bot username, group chat ID, webhook status indicator | FE | 5 | Todo | Shows "Webhook active ✅" or "Not configured ⚠️"; save triggers `PATCH /businesses/me/bot-settings` |
-| F-29 | Owner: Language Management UI — add/remove supported locales, set default | FE | 3 | Todo | Chip list of active locales; locale picker to add new ones; default locale selector |
-| F-30 | Owner: Translation Editor UI — per locale, per field, with missing-translation highlight | FE | 8 | Todo | Tab per locale; fields: business name, welcome message, points label; missing translations shown in red |
+| B-27 | `POST/PATCH/DELETE /api/v1/rewards` — owner CRUD | BE | 3 | Done | Owner role only; soft-delete on DELETE |
+| B-27b | `PATCH /api/v1/businesses/me/bot-settings` — save token, auto-register webhook | BE | 5 | Done | Validates token via Telegram `getMe`; generates webhookSecret; calls `setWebhook`; registers in BotRegistry; sets `isActive: true` |
+| B-27c | `GET/PATCH /api/v1/businesses/me/languages` — manage supportedLocales + defaultLocale | BE | 2 | Done | `defaultLocale` must be in `supportedLocales` |
+| B-27d | `GET/PUT /api/v1/businesses/me/translations` — upsert BusinessTranslation rows | BE | 3 | Done | Fields: name, welcomeMessage, pointsLabel |
+| B-27e | `GET/PUT /api/v1/rewards/:id/translations` — upsert RewardTranslation rows | BE | 2 | Done | Fields: name, description |
+| B-28 | `PATCH /api/v1/businesses/me/settings` — earn rate config | BE | 2 | Done | `earnRateMode: 'per_amd_spent'`, `earnRateValue: 100` |
+| B-29 | `GET /api/v1/analytics/dashboard` — total customers, txns today, total pts issued | BE | 5 | Done | Aggregated queries with short cache TTL |
+| B-30 | `GET /api/v1/analytics/top-customers` — paginated, sorted by totalPointsEarned DESC | BE | 2 | Done | Returns rank, name, phone, totals |
+| B-31 | `POST/PATCH /api/v1/users` — owner creates/deactivates cashier accounts | BE | 3 | Done | Cashier includes telegramUserId for bot auth; sends invite email |
+| F-22 | Owner: reward management UI — list, create, edit, toggle active, soft delete | FE | 8 | Done | Image upload via `/api/v1/files/upload`; inline active toggle; reward translation fields inline in create/edit form |
+| F-23 | Owner: earn rate settings UI — mode selector + value input | FE | 2 | Done | Two modes: fixed per visit / per AMD spent |
+| F-24 | Owner: dashboard metrics page — 3 KPI cards | FE | 5 | Done | KPIs: total customers, transactions today, pts issued all-time |
+| F-25 | Owner: top customers list — ranked table | FE | 3 | Done | Paginated, 20/page |
+| F-26 | Owner: cashier management UI — list, create, deactivate | FE | 5 | Done | Shows name, telegram handle, status; create form: name + email + telegramUserId |
+| F-28 | Owner: Bot Settings UI — token input, bot username, group chat ID, webhook status indicator | FE | 5 | Done | Shows "Webhook active ✅" or "Not configured ⚠️"; save triggers `PATCH /businesses/me/bot-settings` |
+| F-29 | Owner: Language Management UI — add/remove supported locales, set default | FE | 3 | Done | Chip list of active locales; locale picker to add new ones; default locale selector |
+| F-30 | Owner: Translation Editor UI — per locale, per field, with missing-translation highlight | FE | 8 | Done | Tab per locale; fields: business name, welcome message, points label; missing translations shown in red |
 
 **Epic 8 Total: FE 39 SP | BE 27 SP | Total 66 SP**
 

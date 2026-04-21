@@ -31,6 +31,11 @@ export abstract class UserRepository {
     provider: User['provider'];
   }): Promise<NullableType<User>>;
 
+  abstract findByBusinessAndRole(
+    businessId: string,
+    roleId: number,
+  ): Promise<User[]>;
+
   abstract update(
     id: User['id'],
     payload: DeepPartial<User>,

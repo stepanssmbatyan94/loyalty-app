@@ -66,6 +66,10 @@ export class UserEntity extends EntityRelationalHelper {
   @Column({ type: String, nullable: true })
   language?: string | null;
 
+  @Index()
+  @Column({ type: String, nullable: true })
+  businessId?: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

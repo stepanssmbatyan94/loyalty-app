@@ -11,16 +11,16 @@ export const DashboardInfo = () => {
         Welcome <b>{`${user.data?.firstName} ${user.data?.lastName}`}</b>
       </h1>
       <h4 className="my-3">
-        Your role is : <b>{user.data?.role}</b>
+        Your role is : <b>{user.data?.role?.name}</b>
       </h4>
       <p className="font-medium">In this application you can:</p>
-      {user.data?.role === 'USER' && (
+      {user.data?.role?.name === 'user' && (
         <ul className="my-4 list-inside list-disc">
           <li>Create comments in discussions</li>
           <li>Delete own comments</li>
         </ul>
       )}
-      {user.data?.role === 'ADMIN' && (
+      {user.data?.role?.name === 'admin' && (
         <ul className="my-4 list-inside list-disc">
           <li>Create discussions</li>
           <li>Edit discussions</li>

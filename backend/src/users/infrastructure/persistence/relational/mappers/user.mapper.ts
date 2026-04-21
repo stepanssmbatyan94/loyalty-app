@@ -21,6 +21,7 @@ export class UserMapper {
     domainEntity.role = raw.role;
     domainEntity.status = raw.status;
     domainEntity.language = raw.language;
+    domainEntity.businessId = raw.businessId;
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
     domainEntity.deletedAt = raw.deletedAt;
@@ -63,6 +64,7 @@ export class UserMapper {
     persistenceEntity.firstName = domainEntity.firstName;
     persistenceEntity.lastName = domainEntity.lastName;
     persistenceEntity.language = domainEntity.language;
+    persistenceEntity.businessId = domainEntity.businessId;
     persistenceEntity.photo = photo;
     persistenceEntity.role = role;
     persistenceEntity.status = status;

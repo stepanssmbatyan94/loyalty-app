@@ -34,6 +34,26 @@ export const paths = {
       getHref: () => '/app/profile',
     },
   },
+  owner: {
+    login: {
+      getHref: () => '/owner/login',
+    },
+    dashboard: {
+      getHref: () => '/owner/dashboard',
+    },
+    rewards: {
+      getHref: () => '/owner/rewards',
+    },
+    settings: {
+      getHref: () => '/owner/settings',
+    },
+    customers: {
+      getHref: () => '/owner/customers',
+    },
+    team: {
+      getHref: () => '/owner/team',
+    },
+  },
   public: {
     discussion: {
       getHref: (id: string) => `/public/discussions/${id}`,

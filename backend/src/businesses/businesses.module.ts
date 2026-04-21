@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 
+import { TelegramModule } from '../telegram/telegram.module';
 import { BusinessesController } from './businesses.controller';
 import { BusinessesService } from './businesses.service';
 import { RelationalBusinessPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
@@ -7,7 +8,7 @@ import { RelationalBusinessPersistenceModule } from './infrastructure/persistenc
 const infrastructurePersistenceModule = RelationalBusinessPersistenceModule;
 
 @Module({
-  imports: [infrastructurePersistenceModule],
+  imports: [infrastructurePersistenceModule, forwardRef(() => TelegramModule)],
   controllers: [BusinessesController],
   providers: [BusinessesService],
   exports: [BusinessesService, infrastructurePersistenceModule],

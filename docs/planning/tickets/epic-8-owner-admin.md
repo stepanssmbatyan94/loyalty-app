@@ -10,7 +10,7 @@ All backend tickets (B-27–B-31) can be started immediately. FE tickets (F-22�
 
 ## B-27 — POST/PATCH/DELETE /api/v1/rewards (Owner CRUD)
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-05
 **Blocks:** F-22
 
@@ -111,7 +111,7 @@ remove(@Param('id') id: string, @Request() req) {
 
 ## B-28 — PATCH /api/v1/businesses/me/settings
 
-**SP:** 2 | **Layer:** BE | **Status:** Todo
+**SP:** 2 | **Layer:** BE | **Status:** Done
 **Depends on:** B-03
 **Blocks:** F-23
 
@@ -179,7 +179,7 @@ const pts = business.earnRateValue;
 
 ## B-29 — GET /api/v1/analytics/dashboard
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
+**SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-04, B-06
 **Blocks:** F-24
 
@@ -270,7 +270,7 @@ getDashboard(@Request() req) {
 
 ## B-30 — GET /api/v1/analytics/top-customers
 
-**SP:** 2 | **Layer:** BE | **Status:** Todo
+**SP:** 2 | **Layer:** BE | **Status:** Done
 **Depends on:** B-04
 **Blocks:** F-25
 
@@ -354,7 +354,7 @@ async getTopCustomers(businessId: string, query: TopCustomersQueryDto) {
 
 ## B-31 — POST/PATCH /api/v1/users (Cashier Account Management)
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-01
 **Blocks:** F-26
 
@@ -447,7 +447,7 @@ deactivateCashier(@Param('id') id: string, @Request() req) {
 
 ## F-22 — Owner: Reward Management UI
 
-**SP:** 8 | **Layer:** FE | **Status:** Todo
+**SP:** 8 | **Layer:** FE | **Status:** Done
 **Depends on:** B-27, F-01
 **Blocks:** nothing
 
@@ -527,7 +527,7 @@ const handleImageUpload = async (file: File) => {
 
 ## F-23 — Owner: Earn Rate Settings UI
 
-**SP:** 2 | **Layer:** FE | **Status:** Todo
+**SP:** 2 | **Layer:** FE | **Status:** Done
 **Depends on:** B-28, F-01
 **Blocks:** nothing
 
@@ -590,7 +590,7 @@ export const useUpdateSettings = () =>
 
 ## F-24 — Owner: Dashboard Metrics Page
 
-**SP:** 5 | **Layer:** FE | **Status:** Todo
+**SP:** 5 | **Layer:** FE | **Status:** Done
 **Depends on:** B-29, F-01
 **Blocks:** nothing
 
@@ -664,7 +664,7 @@ interface KpiCardProps {
 
 ## F-25 — Owner: Top Customers List
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done
 **Depends on:** B-30, F-01
 **Blocks:** nothing
 
@@ -721,7 +721,7 @@ export const useTopCustomers = (page: number) =>
 
 ## F-26 — Owner: Cashier Management UI
 
-**SP:** 5 | **Layer:** FE | **Status:** Todo
+**SP:** 5 | **Layer:** FE | **Status:** Done
 **Depends on:** B-31, F-01
 **Blocks:** nothing
 
