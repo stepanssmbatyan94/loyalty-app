@@ -162,18 +162,18 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| B-18 | `BotRegistry` service + webhook controller `POST /api/v1/telegram/:businessId/webhook` | BE | 8 | Todo | Replaces single-bot long-polling. Loads all active businesses on startup; creates grammy `Bot` per business in webhook mode; validates `X-Telegram-Bot-Api-Secret-Token` header. |
-| B-18b | `/start` handler — look up business by botUsername, show supportedLocales keyboard | BOT | 3 | Todo | Fetches business from DB by `ctx.me.username`; builds dynamic language keyboard from `business.supportedLocales`. |
-| B-18c | `lang:*` callback — find/create user, save language, send translated welcome from DB | BOT | 2 | Todo | Fetches welcomeMessage + pointsLabel from `business_translation`; falls back to `defaultLocale`. |
-| B-19 | Bot: handle customer QR scan event — send "Enter amount" message to group | BE | 5 | Todo | Triggered by `GET /scan/:cardId/:scanToken`; fetches customer name + balance |
-| B-20 | Bot: handle cashier amount reply — calculate pts, send confirm/cancel inline keyboard | BE | 5 | Todo | `pts = floor(amountAmd / earnRateValue)`; validates sender is registered cashier |
-| B-21 | Bot: handle "Approve" callback — calls `POST /transactions/earn` internally | BE | 3 | Todo | Edits original message to success state |
-| B-22 | Bot: handle 6-digit code input — calls `GET /redemptions/validate/:code`, sends confirm/reject keyboard | BE | 5 | Todo | Detects 6-digit numeric message as redemption code |
-| B-23 | Bot: handle "Confirm Redemption" callback — calls `PATCH /redemptions/:code/confirm` | BE | 3 | Todo | Edits message to confirmed state |
-| B-24 | Bot: `/balance` command — look up customer by phone/name | BE | 2 | Todo | Cashier: `/balance +37491234567` |
-| B-25 | Bot: `/history` command — show last 10 transactions in this business | BE | 2 | Todo | US-11: cashier recent log |
-| B-26 | Scan token generation — create short-lived HMAC token embedded in customer QR URL | BE | 3 | Todo | 5-min expiry, single-use; stored in Redis or DB |
-| F-21 | Customer QR display — render QR code image on Home screen loyalty card | FE | 3 | Todo | QR encodes the scan URL with cardId + fresh scanToken; refresh token on each app open |
+| B-18 | `BotRegistry` service + webhook controller `POST /api/v1/telegram/:businessId/webhook` | BE | 8 | Done | Replaces single-bot long-polling. Loads all active businesses on startup; creates grammy `Bot` per business in webhook mode; validates `X-Telegram-Bot-Api-Secret-Token` header. |
+| B-18b | `/start` handler — look up business by botUsername, show supportedLocales keyboard | BOT | 3 | Done | Keyboard built dynamically from `business.supportedLocales`; falls back to en/ru/hy if not configured |
+| B-18c | `lang:*` callback — find/create user, save language, send translated welcome from DB | BOT | 2 | Done | Welcome message fetched from `business_translation` table; falls back to hardcoded if no DB translation |
+| B-19 | Bot: handle customer QR scan event — send "Enter amount" message to group | BE | 5 | Done | Triggered by `GET /scan/:cardId/:scanToken`; fetches customer name + balance |
+| B-20 | Bot: handle cashier amount reply — calculate pts, send confirm/cancel inline keyboard | BE | 5 | Done | `pts = floor(amountAmd / earnRateValue)`; validates sender is registered cashier |
+| B-21 | Bot: handle "Approve" callback — calls `POST /transactions/earn` internally | BE | 3 | Done | Edits original message to success state |
+| B-22 | Bot: handle 6-digit code input — calls `GET /redemptions/validate/:code`, sends confirm/reject keyboard | BE | 5 | Done | Detects 6-digit numeric message as redemption code |
+| B-23 | Bot: handle "Confirm Redemption" callback — calls `PATCH /redemptions/:code/confirm` | BE | 3 | Done | Edits message to confirmed state |
+| B-24 | Bot: `/balance` command — look up customer by phone/name | BE | 2 | Done | Cashier lookup by partial name via `searchCustomers()`; returns top 3 matches with balance |
+| B-25 | Bot: `/history` command — show last 10 transactions in this business | BE | 2 | Done | Uses `findRecentByBusinessId(businessId, 10)` — business-wide cashier log |
+| B-26 | Scan token generation — create short-lived HMAC token embedded in customer QR URL | BE | 3 | Done | 5-min expiry, single-use; stored in Redis or DB |
+| F-21 | Customer QR display — render QR code image on Home screen loyalty card | FE | 3 | Done | `LoyaltyCardQr` component with show/hide toggle; placed below hero in `loyalty-card-home.tsx` |
 
 **Epic 7 Total: FE 3 SP | BOT/BE 38 SP | Total 41 SP**
 

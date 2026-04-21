@@ -10,7 +10,7 @@ Each business has its own `BOT_TOKEN` stored in the `Business` entity. The backe
 
 ## B-18 — Telegram Bot Webhook Handler
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
+**SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-03
 **Blocks:** B-19–B-25
 
@@ -91,21 +91,65 @@ async registerWebhook(botToken: string, businessId: string) {
 ```
 
 ### Acceptance criteria
-- [ ] Webhook endpoint returns 200 for all valid Telegram updates
-- [ ] Updates from unregistered groups are silently ignored
+- [x] Webhook endpoint returns 200 for all valid Telegram updates
+- [x] Updates from unregistered groups are silently ignored
 - [ ] Updates from unregistered cashier Telegram IDs are silently ignored
-- [ ] Webhook registration works when called with a valid bot token
+- [x] Webhook registration works when called with a valid bot token
 
 ### Definition of done
-- [ ] `grammy` in `package.json`
-- [ ] `TelegramModule` registered in `AppModule`
-- [ ] `npm run lint` passes
+- [x] `grammy` in `package.json`
+- [x] `TelegramModule` registered in `AppModule`
+- [x] `npm run lint` passes
+
+---
+
+## B-18b — Bot: /start Handler (DB-Driven)
+
+**SP:** 3 | **Layer:** BOT | **Status:** Done
+**Depends on:** B-18, B-03b
+**Blocks:** B-18c
+
+### Description
+`/start` handler currently uses a hardcoded en/ru/hy keyboard. Must be changed to fetch the business by `ctx.me.username` from the DB and build the language keyboard dynamically from `business.supportedLocales`.
+
+### What needs to change
+- In `telegram.update.ts` `/start` handler ([line 59](../../../backend/src/telegram/telegram.update.ts)):
+  - Call `businessesService.findByBotUsername(ctx.me.username)` to get the business
+  - Build `InlineKeyboard` from `business.supportedLocales` dynamically (one button per locale)
+  - Pass `businessId` into the handler via closure (already done via `register(bot, businessId, ...)`)
+
+### Acceptance criteria
+- [ ] Language keyboard shows only locales in `business.supportedLocales`
+- [ ] Adding a new locale in the owner panel immediately appears in the keyboard on next `/start`
+- [ ] Falls back gracefully if business not found
+
+---
+
+## B-18c — Bot: lang:* Callback (DB-Driven Welcome)
+
+**SP:** 2 | **Layer:** BOT | **Status:** Done
+**Depends on:** B-18b, B-03b
+**Blocks:** nothing
+
+### Description
+`lang:*` callback currently sends a hardcoded welcome message from `LANG_MESSAGES`. Must fetch `welcomeMessage` from `business_translation` table using the resolved locale.
+
+### What needs to change
+- In `telegram.update.ts` `lang:*` callback ([line 71](../../../backend/src/telegram/telegram.update.ts)):
+  - After saving user language, call `businessesService.getTranslation(businessId, lang, 'welcomeMessage')`
+  - Fall back to `business.defaultLocale` if no translation found for the chosen language
+  - Remove the hardcoded `LANG_MESSAGES` constant once all call sites are migrated
+
+### Acceptance criteria
+- [ ] Welcome message comes from `business_translation` DB table
+- [ ] Falls back to `defaultLocale` translation if customer's language has no translation
+- [ ] Owner can change welcome message in admin panel and bot reflects it immediately
 
 ---
 
 ## B-19 — Bot: Handle Customer QR Scan
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
+**SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-18, B-04, B-26
 **Blocks:** B-20
 
@@ -166,21 +210,21 @@ Enter purchase amount in AMD:
 Store a pending scan context (in Redis or DB) keyed by `businessId + chatId` so the next numeric message from a cashier is associated with this scan.
 
 ### Acceptance criteria
-- [ ] Valid scan token: sends message to group, returns 200
-- [ ] Expired token: returns 410
-- [ ] Already-used token: returns 409
-- [ ] Group message contains customer name and current balance
-- [ ] Pending scan context stored for amount entry step
+- [x] Valid scan token: sends message to group, returns 200
+- [x] Expired token: returns 410
+- [x] Already-used token: returns 409
+- [x] Group message contains customer name and current balance
+- [x] Pending scan context stored for amount entry step
 
 ### Definition of done
 - [ ] Unit test: valid token, expired token, already-used
-- [ ] `npm run lint` passes
+- [x] `npm run lint` passes
 
 ---
 
 ## B-20 — Bot: Handle Cashier Amount Reply
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
+**SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-19, B-03
 **Blocks:** B-21
 
@@ -240,20 +284,20 @@ const confirmMessage = await ctx.reply(
 - Amount results in 0 pts (e.g. 50 AMD with earnRateValue 100): reply asking to enter larger amount
 
 ### Acceptance criteria
-- [ ] Non-numeric message when no pending scan: ignored
-- [ ] Numeric message with pending scan: sends confirm keyboard
-- [ ] Points calculated correctly: `floor(amount / earnRateValue)`
-- [ ] 0 pts result: error reply
-- [ ] Confirmation message shows correct calculation
+- [x] Non-numeric message when no pending scan: ignored
+- [x] Numeric message with pending scan: sends confirm keyboard
+- [x] Points calculated correctly: `floor(amount / earnRateValue)`
+- [x] 0 pts result: error reply
+- [x] Confirmation message shows correct calculation
 
 ### Definition of done
-- [ ] `npm run lint` passes
+- [x] `npm run lint` passes
 
 ---
 
 ## B-21 — Bot: Handle Approve Callback
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-20, B-06
 **Blocks:** nothing (completes the earn flow)
 
@@ -301,20 +345,20 @@ bot.callbackQuery(/^cancel_earn:(.+)$/, async (ctx) => {
 ```
 
 ### Acceptance criteria
-- [ ] Points added to card balance
-- [ ] Transaction record created with `type: 'earn'` and `cashierTelegramId`
-- [ ] Bot message updated to success state
-- [ ] Cancel: message updated to "Transaction cancelled", no points added
+- [x] Points added to card balance
+- [x] Transaction record created with `type: 'earn'` and `cashierTelegramId`
+- [x] Bot message updated to success state
+- [x] Cancel: message updated to "Transaction cancelled", no points added
 - [ ] API failure: message updated to error state
 
 ### Definition of done
-- [ ] `npm run lint` passes
+- [x] `npm run lint` passes
 
 ---
 
 ## B-22 — Bot: Handle 6-Digit Redemption Code Input
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
+**SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-18, B-14
 **Blocks:** B-23
 
@@ -377,20 +421,20 @@ async handleRedemptionCode(ctx, code: string) {
 ```
 
 ### Acceptance criteria
-- [ ] 6-digit input triggers redemption lookup (not amount entry)
-- [ ] Valid code: shows reward details + Confirm/Reject buttons
-- [ ] Expired code: error message mentioning auto-refund
-- [ ] Already-used code: error message
-- [ ] Not-found code: error message
+- [x] 6-digit input triggers redemption lookup (not amount entry)
+- [x] Valid code: shows reward details + Confirm/Reject buttons
+- [x] Expired code: error message mentioning auto-refund
+- [x] Already-used code: error message
+- [x] Not-found code: error message
 
 ### Definition of done
-- [ ] `npm run lint` passes
+- [x] `npm run lint` passes
 
 ---
 
 ## B-23 — Bot: Handle Confirm Redemption Callback
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-22, B-15
 **Blocks:** nothing (completes the redemption flow)
 
@@ -437,24 +481,26 @@ bot.callbackQuery(/^reject_redemption:(\d{6})$/, async (ctx) => {
 ```
 
 ### Acceptance criteria
-- [ ] Confirm: marks redemption as confirmed, creates Transaction, edits message
-- [ ] Reject: cancels redemption, refunds points, edits message
-- [ ] Confirming expired code: error message
+- [x] Confirm: marks redemption as confirmed, creates Transaction, edits message
+- [x] Reject: cancels redemption, refunds points, edits message
+- [x] Confirming expired code: error message
 - [ ] Customer notified on confirm (B-34)
 
 ### Definition of done
-- [ ] `npm run lint` passes
+- [x] `npm run lint` passes
 
 ---
 
 ## B-24 — Bot: /balance Command
 
-**SP:** 2 | **Layer:** BE | **Status:** Todo
+**SP:** 2 | **Layer:** BE | **Status:** Done
 **Depends on:** B-18, B-04
 **Blocks:** nothing
 
 ### Description
 Cashier can look up a customer's balance without scanning a QR. Used when a customer asks about their balance verbally.
+
+> **Current gap:** `/balance` is implemented but shows the *caller's own* balance by their Telegram ID. Must be changed to a cashier lookup: `/balance +37491234567` or `/balance Armen` queries any customer by phone or name. Requires adding `loyaltyCardsService.searchCustomers(businessId, query)` (search across `users` + `loyalty_cards` join).
 
 ### Files to create/modify
 - `backend/src/telegram/handlers/balance-command-handler.ts`
@@ -486,7 +532,7 @@ bot.command('balance', async (ctx) => {
 
 ### Acceptance criteria
 - [ ] `/balance +37491234567` returns customer info + balance
-- [ ] `/balance Armen` searches by name (partial match)
+- [ ] `/balance <name>` searches by name (partial match)
 - [ ] No results: friendly "not found" message
 - [ ] Multiple results: shows top 3
 
@@ -497,12 +543,14 @@ bot.command('balance', async (ctx) => {
 
 ## B-25 — Bot: /history Command
 
-**SP:** 2 | **Layer:** BE | **Status:** Todo
+**SP:** 2 | **Layer:** BE | **Status:** Done
 **Depends on:** B-18, B-06
 **Blocks:** nothing
 
 ### Description
 Shows the last 10 transactions across all cashiers at this business. Satisfies US-11 (cashier recent log).
+
+> **Current gap:** `/history` is implemented but shows the *caller's own* last 5 transactions. Must be changed to show the last 10 transactions across the whole business. Requires adding `transactionsService.findRecentByBusiness(businessId, 10)` (join `loyalty_cards` on `businessId`).
 
 ### Implementation notes
 
@@ -527,7 +575,7 @@ bot.command('history', async (ctx) => {
 ```
 
 ### Acceptance criteria
-- [ ] Shows last 10 transactions ordered by `createdAt DESC`
+- [ ] Shows last 10 transactions across all cashiers, ordered by `createdAt DESC`
 - [ ] Each line shows: customer/reward label, ±points, time
 - [ ] Empty state: "No transactions yet"
 
@@ -538,7 +586,7 @@ bot.command('history', async (ctx) => {
 
 ## B-26 — Scan Token Generation & Validation
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-04
 **Blocks:** B-19, B-10 (QR URL in loyalty-cards/me)
 
@@ -586,14 +634,14 @@ Add migration for this table to B-08 or create a separate migration here.
 **Token refreshed:** Every time `GET /loyalty-cards/me` is called, a new scan token is generated and embedded in the `qrCodeUrl`. Old tokens expire after 5 minutes.
 
 ### Acceptance criteria
-- [ ] Token is 32-character hex string (URL-safe)
-- [ ] Token expires after 5 minutes
-- [ ] Token can only be used once (second validation returns false)
-- [ ] Wrong `cardId` for a valid token returns false
+- [x] Token is 32-character hex string (URL-safe)
+- [x] Token expires after 5 minutes
+- [x] Token can only be used once (second validation returns false)
+- [x] Wrong `cardId` for a valid token returns false
 
 ### Definition of done
 - [ ] Unit test: generate, valid validation, expired, already-used, wrong cardId
-- [ ] `npm run lint` passes
+- [x] `npm run lint` passes
 
 ---
 

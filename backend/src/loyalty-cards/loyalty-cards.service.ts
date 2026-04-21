@@ -145,4 +145,8 @@ export class LoyaltyCardsService {
       businessId,
     );
   }
+
+  searchCustomers(businessId: string, query: string) {
+    return this.loyaltyCardRepository.searchCustomers(businessId, query);
+  }
 }

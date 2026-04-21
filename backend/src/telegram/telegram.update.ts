@@ -37,6 +37,12 @@ const LANG_MESSAGES: Record<
   },
 };
 
+const LOCALE_BUTTON_LABELS: Record<string, string> = {
+  en: 'English 🇺🇸',
+  ru: 'Русский 🇷🇺',
+  hy: 'Հայերեն 🇦🇲',
+};
+
 const SIX_DIGIT_RE = /^\d{6}$/;
 
 @Injectable()
@@ -57,18 +63,29 @@ export class TelegramUpdate {
   ): void {
     // ── /start ──────────────────────────────────────────────────────────────
     bot.command('start', async (ctx) => {
-      const keyboard = new InlineKeyboard()
-        .text('English 🇺🇸', 'lang:en')
-        .text('Русский 🇷🇺', 'lang:ru')
-        .text('Հայերեն 🇦🇲', 'lang:hy');
+      const business = businessId
+        ? await this.businessesService.findById(businessId)
+        : null;
 
-      await ctx.reply(LANG_MESSAGES['en'].chooseLanguage, {
-        reply_markup: keyboard,
-      });
+      const locales = business?.supportedLocales?.length
+        ? business.supportedLocales
+        : ['en', 'ru', 'hy'];
+
+      const keyboard = new InlineKeyboard();
+      for (const locale of locales) {
+        keyboard.text(LOCALE_BUTTON_LABELS[locale] ?? locale, `lang:${locale}`);
+      }
+
+      const promptLocale = business?.defaultLocale ?? 'en';
+      const promptText =
+        LANG_MESSAGES[promptLocale]?.chooseLanguage ??
+        LANG_MESSAGES['en'].chooseLanguage;
+
+      await ctx.reply(promptText, { reply_markup: keyboard });
     });
 
     // ── lang:* callback ──────────────────────────────────────────────────────
-    bot.callbackQuery(/^lang:(en|ru|hy)$/, async (ctx) => {
+    bot.callbackQuery(/^lang:([a-z]{2,5})$/, async (ctx) => {
       await ctx.answerCallbackQuery();
 
       const lang = ctx.match[1];
@@ -94,7 +111,23 @@ export class TelegramUpdate {
 
       await this.usersService.update(user.id, { language: lang });
 
-      const messages = LANG_MESSAGES[lang] ?? LANG_MESSAGES['en'];
+      const business = businessId
+        ? await this.businessesService.findById(businessId)
+        : null;
+
+      const defaultLocale = business?.defaultLocale ?? 'en';
+      const dbWelcome = business
+        ? await this.businessesService.getTranslatedField(
+            business.id,
+            lang,
+            'welcomeMessage',
+            defaultLocale,
+          )
+        : null;
+
+      const fallbackMessages = LANG_MESSAGES[lang] ?? LANG_MESSAGES['en'];
+      const welcomeText = dbWelcome ?? fallbackMessages.welcome;
+
       const miniAppUrl = this.configService.get('auth.telegramMiniAppUrl', {
         infer: true,
       });
@@ -108,85 +141,71 @@ export class TelegramUpdate {
           ? `${miniAppUrl}?startapp=${businessId}`
           : miniAppUrl!;
         const keyboard = new Keyboard()
-          .webApp(messages.openApp, urlWithBusiness)
+          .webApp(fallbackMessages.openApp, urlWithBusiness)
           .resized();
 
-        await ctx.reply(messages.welcome, { reply_markup: keyboard });
+        await ctx.reply(welcomeText, { reply_markup: keyboard });
       } else {
-        await ctx.reply(messages.welcome);
+        await ctx.reply(welcomeText);
       }
     });
 
     // ── /balance command ─────────────────────────────────────────────────────
     bot.command('balance', async (ctx) => {
-      const telegramId = ctx.from?.id;
-      if (!telegramId || !businessId) return;
+      if (!businessId) return;
 
-      const user = await this.usersService.findBySocialIdAndProvider({
-        socialId: String(telegramId),
-        provider: AuthProvidersEnum.telegram,
-      });
-      if (!user) {
-        await ctx.reply('No loyalty card found. Use /start to register.');
+      const query = ctx.match?.trim();
+      if (!query) {
+        await ctx.reply('Usage: /balance <customer name>');
         return;
       }
 
-      const card = await this.loyaltyCardsService.findByCustomerAndBusiness(
-        user.id as number,
+      const results = await this.loyaltyCardsService.searchCustomers(
         businessId,
+        query,
       );
-      if (!card) {
-        await ctx.reply('No loyalty card found for this business.');
+
+      if (!results.length) {
+        await ctx.reply(`No customer found for "${query}"`);
         return;
       }
 
-      await ctx.reply(
-        `🍺 *Your balance:* ${card.points} pts\n*Total earned:* ${card.totalPointsEarned} pts`,
-        { parse_mode: 'Markdown' },
+      const lines = results.map(
+        (c) =>
+          `👤 ${[c.firstName, c.lastName].filter(Boolean).join(' ') || 'Unknown'}\n` +
+          `💰 Balance: *${c.points} pts* | Total earned: ${c.totalPointsEarned} pts`,
       );
+
+      await ctx.reply(lines.join('\n\n'), { parse_mode: 'Markdown' });
     });
 
     // ── /history command ─────────────────────────────────────────────────────
     bot.command('history', async (ctx) => {
-      const telegramId = ctx.from?.id;
-      if (!telegramId || !businessId) return;
+      if (!businessId) return;
 
-      const user = await this.usersService.findBySocialIdAndProvider({
-        socialId: String(telegramId),
-        provider: AuthProvidersEnum.telegram,
-      });
-      if (!user) {
-        await ctx.reply('No loyalty card found. Use /start to register.');
-        return;
-      }
-
-      const card = await this.loyaltyCardsService.findByCustomerAndBusiness(
-        user.id as number,
+      const txs = await this.transactionsService.findRecentByBusinessId(
         businessId,
+        10,
       );
-      if (!card) {
-        await ctx.reply('No loyalty card found for this business.');
-        return;
-      }
-
-      const txs = await this.transactionsService.findManyByCardId(card.id, {
-        limit: 5,
-        offset: 0,
-      });
 
       if (!txs.length) {
         await ctx.reply('No transactions yet.');
         return;
       }
 
-      const lines = txs.map((tx) => {
+      const lines = txs.map((tx, i) => {
         const sign = tx.type === 'earn' ? '🟢 +' : '🔴 -';
         const label = tx.note ?? tx.type;
-        const date = tx.createdAt.toLocaleDateString();
-        return `${sign}${tx.points} pts — ${label} — ${date}`;
+        const time = tx.createdAt.toLocaleTimeString('en', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        return `${i + 1}. ${sign}${tx.points} pts — ${label} (${time})`;
       });
 
-      await ctx.reply(lines.join('\n'), { parse_mode: 'Markdown' });
+      await ctx.reply(`📋 *Last 10 transactions:*\n\n${lines.join('\n')}`, {
+        parse_mode: 'Markdown',
+      });
     });
 
     // ── earn_confirm callback ────────────────────────────────────────────────

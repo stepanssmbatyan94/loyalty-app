@@ -7,7 +7,7 @@ All 4 tickets are relatively straightforward. F-18 and F-19 can be started with 
 
 ## B-17 — GET /api/v1/transactions
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done ✅
 **Depends on:** B-06
 **Blocks:** F-20
 
@@ -110,7 +110,7 @@ findAll(@Query() query: QueryTransactionDto, @Request() req) {
 
 ## F-18 — TransactionItem Component
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done ✅
 **Depends on:** F-01
 **Blocks:** F-19, also used by F-08 (RecentActivity)
 
@@ -204,7 +204,7 @@ Note: Use i18n for labels, but date formatting logic can live in a util file (`s
 
 ## F-19 — TransactionHistoryPage
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done ✅
 **Depends on:** F-18, F-01
 **Blocks:** F-20
 
@@ -284,7 +284,7 @@ const getDateRange = (period: FilterPeriod) => {
 
 ## F-20 — Wire History Page to API
 
-**SP:** 3 | **Layer:** FE | **Status:** Todo
+**SP:** 3 | **Layer:** FE | **Status:** Done ✅
 **Depends on:** F-19, B-17, F-04
 **Blocks:** nothing (final step for this epic)
 

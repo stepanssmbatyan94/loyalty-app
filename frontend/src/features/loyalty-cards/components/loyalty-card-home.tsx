@@ -10,6 +10,7 @@ import { useRecentTransactions } from '../api/get-recent-transactions';
 
 import { BentoHighlights } from './bento-highlights';
 import { LoyaltyCardHero } from './loyalty-card-hero';
+import { LoyaltyCardQr } from './loyalty-card-qr';
 import { LoyaltyCardSkeleton } from './loyalty-card-skeleton';
 import { RecentActivity } from './recent-activity';
 
@@ -60,6 +61,8 @@ export function LoyaltyCardHome() {
         progressPercent={card.progressPercent}
         memberSince={card.memberSince}
       />
+
+      <LoyaltyCardQr qrCodeUrl={card.qrCodeUrl} />
 
       <Link
         href="/rewards"

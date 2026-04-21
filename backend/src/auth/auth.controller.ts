@@ -130,6 +130,12 @@ export class AuthController {
     return this.service.refreshToken({
       sessionId: request.user.sessionId,
       hash: request.user.hash,
+      ...(request.user.businessId !== undefined && {
+        businessId: request.user.businessId,
+      }),
+      ...(request.user.cardId !== undefined && {
+        cardId: request.user.cardId,
+      }),
     });
   }
 

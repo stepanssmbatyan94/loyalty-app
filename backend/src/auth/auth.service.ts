@@ -502,7 +502,10 @@ export class AuthService {
   }
 
   async refreshToken(
-    data: Pick<JwtRefreshPayloadType, 'sessionId' | 'hash'>,
+    data: Pick<
+      JwtRefreshPayloadType,
+      'sessionId' | 'hash' | 'businessId' | 'cardId'
+    >,
   ): Promise<Omit<LoginResponseDto, 'user'>> {
     const hash = crypto
       .createHash('sha256')
@@ -531,6 +534,8 @@ export class AuthService {
       },
       sessionId: session.id,
       hash,
+      ...(data.businessId !== undefined && { businessId: data.businessId }),
+      ...(data.cardId !== undefined && { cardId: data.cardId }),
     });
 
     return {
@@ -756,6 +761,8 @@ export class AuthService {
         {
           sessionId: data.sessionId,
           hash: data.hash,
+          ...(data.businessId !== undefined && { businessId: data.businessId }),
+          ...(data.cardId !== undefined && { cardId: data.cardId }),
         },
         {
           secret: this.configService.getOrThrow('auth.refreshSecret', {

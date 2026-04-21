@@ -58,7 +58,10 @@
     "noActivity": "No activity yet",
     "viewMyRewards": "VIEW MY REWARDS",
     "memberSince": "Member since",
-    "loadError": "Something went wrong. Please restart the app."
+    "loadError": "Something went wrong. Please restart the app.",
+    "showQr": "Show QR Code",
+    "hideQr": "Hide QR Code",
+    "showToCashier": "Show this to your cashier to earn points"
   },
   "rewards": {
     "yourBalance": "Your Balance",
