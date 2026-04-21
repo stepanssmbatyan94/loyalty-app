@@ -1,11 +1,17 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { QRCodeSVG } from 'qrcode.react';
 import { useState } from 'react';
 
-export function BentoHighlights() {
+interface BentoHighlightsProps {
+  qrCodeUrl: string;
+}
+
+export function BentoHighlights({ qrCodeUrl }: BentoHighlightsProps) {
   const t = useTranslations('loyaltyCards');
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [showQr, setShowQr] = useState(false);
 
   const handleShareClick = () => {
     setShowComingSoon(true);
@@ -64,12 +70,46 @@ export function BentoHighlights() {
             {t('shareInviteLink')} →
           </button>
         </div>
-        <div className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-surface-container-low">
-          <span className="material-symbols-outlined text-2xl text-on-surface-variant">
-            qr_code_2
-          </span>
-        </div>
+        <button
+          onClick={() => setShowQr(true)}
+          className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white"
+          aria-label={t('scanMyQr')}
+        >
+          <QRCodeSVG
+            value={qrCodeUrl}
+            size={56}
+            bgColor="#ffffff"
+            fgColor="#1a1c1e"
+            level="M"
+          />
+        </button>
       </div>
+
+      {showQr && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm">
+          <h2 className="mb-6 font-headline text-xl font-bold text-on-background">
+            {t('scanMyQr')}
+          </h2>
+          <div className="rounded-xl bg-white p-6 shadow-xl">
+            <QRCodeSVG
+              value={qrCodeUrl}
+              size={240}
+              bgColor="#ffffff"
+              fgColor="#1a1c1e"
+              level="M"
+            />
+          </div>
+          <p className="mt-4 max-w-[240px] text-center text-sm text-on-surface-variant">
+            {t('scanQrHint')}
+          </p>
+          <button
+            onClick={() => setShowQr(false)}
+            className="mt-8 font-bold text-primary"
+          >
+            {t('close')}
+          </button>
+        </div>
+      )}
 
       {showComingSoon && (
         <div

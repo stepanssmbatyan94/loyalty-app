@@ -67,11 +67,16 @@ export default registerAs<AppConfig>('app', () => {
       : process.env.PORT
         ? parseInt(process.env.PORT, 10)
         : 3000,
+    apiUrl:
+      process.env.APP_API_URL ??
+      `http://localhost:${process.env.APP_PORT ?? process.env.PORT ?? 3000}`,
     apiPrefix: process.env.API_PREFIX || 'api',
     fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE || 'en',
     headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
     corsOrigins: process.env.CORS_ORIGIN
-      ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
+      ? process.env.CORS_ORIGIN.split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
       : [],
   };
 });

@@ -1,6 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 
 import { RewardsModule } from '../rewards/rewards.module';
+import { ScanTokensModule } from '../scan-tokens/scan-tokens.module';
 import { RelationalLoyaltyCardPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { LoyaltyCardsController } from './loyalty-cards.controller';
 import { LoyaltyCardsService } from './loyalty-cards.service';
@@ -8,7 +9,11 @@ import { LoyaltyCardsService } from './loyalty-cards.service';
 const infrastructurePersistenceModule = RelationalLoyaltyCardPersistenceModule;
 
 @Module({
-  imports: [infrastructurePersistenceModule, forwardRef(() => RewardsModule)],
+  imports: [
+    infrastructurePersistenceModule,
+    forwardRef(() => RewardsModule),
+    ScanTokensModule,
+  ],
   controllers: [LoyaltyCardsController],
   providers: [LoyaltyCardsService],
   exports: [LoyaltyCardsService, infrastructurePersistenceModule],

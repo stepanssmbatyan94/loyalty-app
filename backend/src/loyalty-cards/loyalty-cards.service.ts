@@ -3,8 +3,11 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
+import { AllConfigType } from '../config/config.type';
 import { RewardsService } from '../rewards/rewards.service';
+import { ScanTokensService } from '../scan-tokens/scan-tokens.service';
 import { LoyaltyCard } from './domain/loyalty-card';
 import { LoyaltyCardMeResponseDto } from './dto/loyalty-card-me-response.dto';
 import { LoyaltyCardRepository } from './infrastructure/persistence/loyalty-card.repository';
@@ -14,6 +17,8 @@ export class LoyaltyCardsService {
   constructor(
     private readonly loyaltyCardRepository: LoyaltyCardRepository,
     private readonly rewardsService: RewardsService,
+    private readonly scanTokensService: ScanTokensService,
+    private readonly configService: ConfigService<AllConfigType>,
   ) {}
 
   async findOrCreateForCustomer(
@@ -69,8 +74,12 @@ export class LoyaltyCardsService {
         }
       : null;
 
-    // TODO: Replace with real signed scan token URL when scan-token feature (B-08) is implemented
-    const qrCodeUrl = `https://placeholder/qr/${card.id}`;
+    const token = await this.scanTokensService.generate(
+      card.id,
+      card.businessId,
+    );
+    const apiUrl = this.configService.get('app.apiUrl', { infer: true });
+    const qrCodeUrl = `${apiUrl}/api/v1/scan/${card.id}/${token}`;
 
     return {
       id: card.id,

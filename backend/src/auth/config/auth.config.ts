@@ -46,5 +46,6 @@ export default registerAs<AuthConfig>('auth', () => {
       .AUTH_CONFIRM_EMAIL_TOKEN_EXPIRES_IN as ms.StringValue,
     telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
     telegramMiniAppUrl: process.env.TELEGRAM_MINI_APP_URL,
+    telegramWebhookBaseUrl: process.env.TELEGRAM_WEBHOOK_BASE_URL || undefined,
   };
 });

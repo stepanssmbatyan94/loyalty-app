@@ -7,7 +7,10 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { LoyaltyCardsService } from '../loyalty-cards/loyalty-cards.service';
 import { RewardsService } from '../rewards/rewards.service';
+import { TransactionsService } from '../transactions/transactions.service';
+import { NullableType } from '../utils/types/nullable.type';
 import { Redemption } from './domain/redemption';
+import { RedemptionDetailDto } from './dto/redemption-detail.dto';
 import { RedemptionRepository } from './infrastructure/persistence/redemption.repository';
 
 function generateCode(): string {
@@ -20,6 +23,7 @@ export class RedemptionsService {
     private readonly redemptionRepository: RedemptionRepository,
     private readonly rewardsService: RewardsService,
     private readonly loyaltyCardsService: LoyaltyCardsService,
+    private readonly transactionsService: TransactionsService,
   ) {}
 
   async create(
@@ -104,7 +108,19 @@ export class RedemptionsService {
     redemption.confirmedAt = new Date();
     redemption.cashierTelegramId = cashierTelegramId;
 
-    return this.redemptionRepository.save(redemption);
+    const saved = await this.redemptionRepository.save(redemption);
+
+    const reward = await this.rewardsService.findById(redemption.rewardId);
+    await this.transactionsService.create({
+      cardId: redemption.cardId,
+      type: 'redeem',
+      points: redemption.pointsCost,
+      cashierTelegramId,
+      rewardId: redemption.rewardId,
+      note: reward?.name ?? null,
+    });
+
+    return saved;
   }
 
   async cancel(code: string): Promise<Redemption> {
@@ -135,6 +151,45 @@ export class RedemptionsService {
     );
 
     return saved;
+  }
+
+  async findByIdWithDetails(
+    id: string,
+  ): Promise<NullableType<RedemptionDetailDto>> {
+    const redemption = await this.redemptionRepository.findById(id);
+    if (!redemption) return null;
+    const reward = await this.rewardsService.findById(redemption.rewardId);
+    return Object.assign(new RedemptionDetailDto(), redemption, {
+      rewardName: reward?.name ?? '',
+    });
+  }
+
+  async findByCodeForValidation(code: string): Promise<{
+    code: string;
+    status: string;
+    rewardName: string;
+    pointsCost: number;
+    expiresAt: Date;
+    secondsRemaining: number;
+  } | null> {
+    const redemption = await this.redemptionRepository.findByCode(code);
+    if (!redemption) return null;
+    const now = new Date();
+    const secondsRemaining = Math.max(
+      0,
+      Math.floor((redemption.expiresAt.getTime() - now.getTime()) / 1000),
+    );
+    const reward = await this.rewardsService.findById(redemption.rewardId);
+    const isValid =
+      redemption.status === 'pending' && redemption.expiresAt > now;
+    return {
+      code: redemption.code,
+      status: isValid ? 'valid' : redemption.status,
+      rewardName: reward?.name ?? '',
+      pointsCost: redemption.pointsCost,
+      expiresAt: redemption.expiresAt,
+      secondsRemaining,
+    };
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)

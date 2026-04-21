@@ -8,7 +8,10 @@ import { RewardsService } from './rewards.service';
 const infrastructurePersistenceModule = RelationalRewardPersistenceModule;
 
 @Module({
-  imports: [infrastructurePersistenceModule, forwardRef(() => LoyaltyCardsModule)],
+  imports: [
+    infrastructurePersistenceModule,
+    forwardRef(() => LoyaltyCardsModule),
+  ],
   controllers: [RewardsController],
   providers: [RewardsService],
   exports: [RewardsService, infrastructurePersistenceModule],

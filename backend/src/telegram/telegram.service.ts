@@ -1,14 +1,38 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import type { Update } from '@grammyjs/types';
 import { Bot } from 'grammy';
 
 import { BusinessesService } from '../businesses/businesses.service';
 import { AllConfigType } from '../config/config.type';
 import { TelegramUpdate } from './telegram.update';
 
+export interface EarnPromptContext {
+  businessId: string;
+  chatId: string;
+  cardId: string;
+  customerId: number;
+  customerName: string;
+  balance: number;
+  earnRateMode: 'per_amd_spent' | 'fixed_per_visit';
+  earnRateValue: number;
+}
+
+export interface PendingEarnContext {
+  cardId: string;
+  customerId: number;
+  customerName: string;
+  balance: number;
+  earnRateMode: 'per_amd_spent' | 'fixed_per_visit';
+  earnRateValue: number;
+  expiresAt: Date;
+}
+
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
   private bots = new Map<string, Bot>();
+  private pendingEarns = new Map<string, PendingEarnContext>();
+  private webhookMode = false;
 
   constructor(
     private readonly configService: ConfigService<AllConfigType>,
@@ -24,6 +48,12 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     const isValidWebAppUrl =
       miniAppUrl?.startsWith('https://') &&
       !miniAppUrl.startsWith('https://t.me');
+
+    const webhookBaseUrl = this.configService.get('auth.telegramWebhookBaseUrl', {
+      infer: true,
+    });
+
+    this.webhookMode = !!webhookBaseUrl;
 
     const businesses = await this.businessesService.findAllActive();
     console.log(
@@ -48,28 +78,83 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
         console.error(`[Bot:${business.id}] ${err.message}`);
       });
 
-      this.telegramUpdate.register(bot, business.id);
+      this.telegramUpdate.register(bot, business.id, this.pendingEarns);
+
       if (isValidWebAppUrl) {
         void bot.api.setChatMenuButton({
           menu_button: {
             type: 'web_app',
-            text: 'Open 12121',
+            text: 'Open App',
             web_app: { url: `${miniAppUrl}?startapp=${business.id}` },
           },
         });
       }
 
-      void bot.start();
+      if (this.webhookMode && business.webhookSecret) {
+        await bot.api.setWebhook(
+          `${webhookBaseUrl}/api/v1/telegram/${business.id}/webhook`,
+          { secret_token: business.webhookSecret },
+        );
+        console.log(
+          `[TelegramService] webhook set for business ${business.id}`,
+        );
+      } else {
+        void bot.start();
+        console.log(
+          `[TelegramService] bot started (polling) for business ${business.id} (@${business.botUsername})`,
+        );
+      }
+
       this.bots.set(business.id, bot);
-      console.log(
-        `[TelegramService] bot started for business ${business.id} (@${business.botUsername})`,
-      );
     }
   }
 
   onModuleDestroy(): void {
-    for (const bot of this.bots.values()) {
-      void bot.stop();
+    if (!this.webhookMode) {
+      for (const bot of this.bots.values()) {
+        void bot.stop();
+      }
     }
+  }
+
+  async handleUpdate(businessId: string, update: unknown): Promise<void> {
+    const bot = this.bots.get(businessId);
+    if (!bot) return;
+    await bot.handleUpdate(update as Update);
+  }
+
+  async sendEarnPrompt(ctx: EarnPromptContext): Promise<void> {
+    const bot = this.bots.get(ctx.businessId);
+    if (!bot) {
+      console.warn(
+        `[TelegramService] no bot found for business ${ctx.businessId}`,
+      );
+      return;
+    }
+
+    const text =
+      `🍺 *Customer:* ${ctx.customerName}\n` +
+      `*Balance:* ${ctx.balance} pts\n\n` +
+      `Enter purchase amount in AMD:`;
+
+    await bot.api.sendMessage(ctx.chatId, text, { parse_mode: 'Markdown' });
+
+    this.pendingEarns.set(String(ctx.chatId), {
+      cardId: ctx.cardId,
+      customerId: ctx.customerId,
+      customerName: ctx.customerName,
+      balance: ctx.balance,
+      earnRateMode: ctx.earnRateMode,
+      earnRateValue: ctx.earnRateValue,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    });
+  }
+
+  getPendingEarn(chatId: string): PendingEarnContext | undefined {
+    return this.pendingEarns.get(chatId);
+  }
+
+  clearPendingEarn(chatId: string): void {
+    this.pendingEarns.delete(chatId);
   }
 }

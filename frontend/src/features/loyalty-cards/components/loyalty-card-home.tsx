@@ -69,7 +69,7 @@ export function LoyaltyCardHome() {
         {t('viewMyRewards')}
       </Link>
 
-      <BentoHighlights />
+      <BentoHighlights qrCodeUrl={card.qrCodeUrl} />
 
       <RecentActivity transactions={recentTransactions} />
     </div>

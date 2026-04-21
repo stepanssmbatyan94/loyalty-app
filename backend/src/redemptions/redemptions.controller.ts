@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -22,6 +24,7 @@ import { RoleEnum } from '../roles/roles.enum';
 import { RolesGuard } from '../roles/roles.guard';
 import { Redemption } from './domain/redemption';
 import { CreateRedemptionDto } from './dto/create-redemption.dto';
+import { RedemptionDetailDto } from './dto/redemption-detail.dto';
 import { RedemptionsService } from './redemptions.service';
 
 @ApiBearerAuth()
@@ -43,6 +46,28 @@ export class RedemptionsController {
     const customerId: number = request.user.id;
     const businessId: string = request.user.businessId;
     return this.redemptionsService.create(customerId, businessId, dto.rewardId);
+  }
+
+  // Cashier: validate a redemption by code (for bot scan flow)
+  @Roles(RoleEnum.cashier)
+  @ApiOkResponse()
+  @Get('validate/:code')
+  @HttpCode(HttpStatus.OK)
+  async validateByCode(@Param('code') code: string) {
+    const result = await this.redemptionsService.findByCodeForValidation(code);
+    if (!result) throw new NotFoundException();
+    return result;
+  }
+
+  // Customer: get redemption details by id (polled by Mini App)
+  @Roles(RoleEnum.user)
+  @ApiOkResponse({ type: RedemptionDetailDto })
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async findById(@Param('id') id: string): Promise<RedemptionDetailDto> {
+    const result = await this.redemptionsService.findByIdWithDetails(id);
+    if (!result) throw new NotFoundException();
+    return result;
   }
 
   // Cashier: confirm a redemption by code

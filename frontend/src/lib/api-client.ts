@@ -1,5 +1,6 @@
 import { useNotifications } from '@/components/ui/notifications';
 import { env } from '@/config/env';
+import { refreshTokenApi } from '@/features/auth/api/refresh-token';
 import { useAuthStore } from '@/stores/auth-store';
 
 type RequestOptions = {
@@ -48,9 +49,34 @@ export function getServerCookies() {
   });
 }
 
+// Deduplicates concurrent 401s: only one refresh call in flight at a time.
+let refreshingPromise: Promise<boolean> | null = null;
+
+async function tryRefresh(): Promise<boolean> {
+  if (refreshingPromise) return refreshingPromise;
+
+  refreshingPromise = (async () => {
+    const { refreshToken, setSession, clearToken } = useAuthStore.getState();
+    if (!refreshToken) return false;
+    try {
+      const refreshed = await refreshTokenApi(refreshToken);
+      setSession(refreshed.token, refreshed.refreshToken, refreshed.tokenExpires);
+      return true;
+    } catch {
+      clearToken();
+      return false;
+    } finally {
+      refreshingPromise = null;
+    }
+  })();
+
+  return refreshingPromise;
+}
+
 async function fetchApi<T>(
   url: string,
   options: RequestOptions = {},
+  isRetry = false,
 ): Promise<T> {
   const {
     method = 'GET',
@@ -88,6 +114,14 @@ async function fetchApi<T>(
     cache,
     next,
   });
+
+  if (response.status === 401 && !isRetry && typeof window !== 'undefined') {
+    const refreshed = await tryRefresh();
+    if (refreshed) {
+      return fetchApi<T>(url, options, true);
+    }
+    throw new Error('Session expired');
+  }
 
   if (!response.ok) {
     const message = (await response.json()).message || response.statusText;

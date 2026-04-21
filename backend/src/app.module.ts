@@ -29,6 +29,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { RewardsModule } from './rewards/rewards.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { RedemptionsModule } from './redemptions/redemptions.module';
+import { ScanTokensModule } from './scan-tokens/scan-tokens.module';
 
 const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
   useClass: TypeOrmConfigService,
@@ -92,6 +93,7 @@ const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
     RewardsModule,
     TransactionsModule,
     RedemptionsModule,
+    ScanTokensModule,
   ],
 })
 export class AppModule {}

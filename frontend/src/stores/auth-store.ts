@@ -1,21 +1,56 @@
 import { create } from 'zustand';
 
+import { tokenStorage } from '@/lib/token-storage';
+
 interface AuthStore {
   token: string | null;
+  refreshToken: string | null;
+  tokenExpires: number | null;
   isAuthLoading: boolean;
   authError: string | null;
   setToken: (token: string) => void;
+  setSession: (
+    token: string,
+    refreshToken: string,
+    tokenExpires: number,
+  ) => void;
   clearToken: () => void;
   setAuthLoading: (loading: boolean) => void;
   setAuthError: (error: string | null) => void;
 }
 
+const stored = tokenStorage.get();
+
 export const useAuthStore = create<AuthStore>((set) => ({
-  token: null,
+  token: stored?.token ?? null,
+  refreshToken: stored?.refreshToken ?? null,
+  tokenExpires: stored?.tokenExpires ?? null,
   isAuthLoading: true,
   authError: null,
+
   setToken: (token) => set({ token, isAuthLoading: false, authError: null }),
-  clearToken: () => set({ token: null, isAuthLoading: false }),
+
+  setSession: (token, refreshToken, tokenExpires) => {
+    tokenStorage.set({ token, refreshToken, tokenExpires });
+    set({
+      token,
+      refreshToken,
+      tokenExpires,
+      isAuthLoading: false,
+      authError: null,
+    });
+  },
+
+  clearToken: () => {
+    tokenStorage.clear();
+    set({
+      token: null,
+      refreshToken: null,
+      tokenExpires: null,
+      isAuthLoading: false,
+    });
+  },
+
   setAuthLoading: (loading) => set({ isAuthLoading: loading }),
   setAuthError: (error) => set({ authError: error, isAuthLoading: false }),
 }));

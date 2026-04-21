@@ -11,4 +11,5 @@ export type AuthConfig = {
   confirmEmailExpires?: ms.StringValue;
   telegramBotToken?: string;
   telegramMiniAppUrl?: string;
+  telegramWebhookBaseUrl?: string;
 };
