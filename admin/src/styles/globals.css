@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 220 8% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 8% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 8% 11%;
+    --primary: 207 100% 31%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 16% 93%;
+    --secondary-foreground: 220 8% 11%;
+    --muted: 210 16% 93%;
+    --muted-foreground: 213 12% 57%;
+    --accent: 210 16% 93%;
+    --accent-foreground: 220 8% 11%;
+    --destructive: 0 72% 41%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 213 25% 87%;
+    --input: 213 25% 87%;
+    --ring: 207 100% 31%;
+    --radius: 1rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

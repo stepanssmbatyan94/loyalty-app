@@ -37,7 +37,7 @@ Epic 10 (ADMIN-03, ADMIN-04, ADMIN-05, B-36) can start in parallel once `ADMIN-0
 
 ### Description
 
-Bootstrap the `admin/` Vite + React app. Routing must accommodate both superadmin paths (`/businesses/*`) and owner paths (`/owner/*`) from the start.
+Bootstrap the `admin/` Vite + React app. Routing uses flat paths — no role prefix. Both roles share the same URL namespace; `ProtectedRoute` enforces access by role.
 
 ### Files to create
 
@@ -65,13 +65,12 @@ admin/
     └── routes/
         ├── index.tsx        ← route definitions
         ├── login/page.tsx
-        ├── businesses/page.tsx      ← placeholder (Epic 10)
-        └── owner/
-            ├── dashboard/page.tsx   ← placeholder
-            ├── rewards/page.tsx     ← placeholder
-            ├── settings/page.tsx    ← placeholder
-            ├── customers/page.tsx   ← placeholder
-            └── team/page.tsx        ← placeholder
+        ├── businesses/page.tsx    ← superadmin only (placeholder, Epic 10)
+        ├── dashboard/page.tsx     ← owner only
+        ├── rewards/page.tsx       ← owner only
+        ├── settings/page.tsx      ← owner only
+        ├── customers/page.tsx     ← owner only
+        └── team/page.tsx          ← owner only
 ```
 
 ### Implementation notes
