@@ -11,6 +11,7 @@ import { RewardsService } from '../rewards/rewards.service';
 import {
   RedemptionConfirmedEvent,
   RedemptionExpiredEvent,
+  RedemptionRejectedEvent,
 } from '../telegram/notifications/notification-events';
 import { TransactionsService } from '../transactions/transactions.service';
 import { NullableType } from '../utils/types/nullable.type';
@@ -143,7 +144,7 @@ export class RedemptionsService {
     return saved;
   }
 
-  async cancel(code: string): Promise<Redemption> {
+  async cancel(code: string, emitRejectedEvent = false): Promise<Redemption> {
     const redemption = await this.redemptionRepository.findByCode(code);
 
     if (!redemption) {
@@ -164,11 +165,25 @@ export class RedemptionsService {
 
     const saved = await this.redemptionRepository.save(redemption);
 
-    // Refund points
-    await this.loyaltyCardsService.addPoints(
-      redemption.cardId,
-      redemption.pointsCost,
-    );
+    const [updatedCard, reward] = await Promise.all([
+      this.loyaltyCardsService.addPoints(
+        redemption.cardId,
+        redemption.pointsCost,
+      ),
+      emitRejectedEvent
+        ? this.rewardsService.findById(redemption.rewardId)
+        : Promise.resolve(null),
+    ]);
+
+    if (emitRejectedEvent) {
+      this.eventEmitter.emit('redemption.rejected', {
+        customerId: updatedCard.customerId,
+        businessId: updatedCard.businessId,
+        rewardName: reward?.name ?? '',
+        pointsRefunded: redemption.pointsCost,
+        newBalance: updatedCard.points,
+      } satisfies RedemptionRejectedEvent);
+    }
 
     return saved;
   }

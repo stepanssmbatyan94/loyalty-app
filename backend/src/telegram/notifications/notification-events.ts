@@ -25,3 +25,11 @@ export interface RedemptionExpiredEvent {
   pointsRefunded: number;
   newBalance: number;
 }
+
+export interface RedemptionRejectedEvent {
+  customerId: number;
+  businessId: string;
+  rewardName: string;
+  pointsRefunded: number;
+  newBalance: number;
+}

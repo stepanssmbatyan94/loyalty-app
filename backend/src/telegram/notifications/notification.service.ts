@@ -10,6 +10,7 @@ import {
   LoyaltyCardCreatedEvent,
   RedemptionConfirmedEvent,
   RedemptionExpiredEvent,
+  RedemptionRejectedEvent,
 } from './notification-events';
 
 @Injectable()
@@ -149,6 +150,30 @@ export class NotificationService {
       .catch((e: Error) =>
         this.logger.warn(
           `Expiry notification failed for telegramId ${telegramId}: ${e.message}`,
+        ),
+      );
+  }
+
+  @OnEvent('redemption.rejected')
+  async handleRedemptionRejected(
+    payload: RedemptionRejectedEvent,
+  ): Promise<void> {
+    const telegramId = await this.getTelegramId(payload.customerId);
+    if (!telegramId) return;
+
+    const bot = this.telegramService.getBot(payload.businessId);
+    if (!bot) return;
+
+    await bot.api
+      .sendMessage(
+        telegramId,
+        `❌ Your redemption of ${payload.rewardName} was not confirmed by the cashier.\n\n` +
+          `${payload.pointsRefunded} pts have been returned to your balance.\n` +
+          `💰 Current balance: ${payload.newBalance.toLocaleString()} pts`,
+      )
+      .catch((e: Error) =>
+        this.logger.warn(
+          `Rejection notification failed for telegramId ${telegramId}: ${e.message}`,
         ),
       );
   }

@@ -266,7 +266,17 @@ export class TelegramUpdate {
     // ── redeem_reject callback ───────────────────────────────────────────────
     bot.callbackQuery(/^redeem_reject:(.+)$/, async (ctx) => {
       await ctx.answerCallbackQuery();
-      await ctx.editMessageText('❌ Redemption rejected.');
+      const code = ctx.match[1];
+      try {
+        await this.redemptionsService.cancel(code, true);
+        await ctx.editMessageText(
+          '❌ Redemption rejected. Points returned to customer.',
+        );
+      } catch {
+        await ctx.editMessageText(
+          '❌ Could not reject — code may have already expired or been confirmed.',
+        );
+      }
     });
 
     // ── staff group text messages (redemption code or purchase amount) ───────

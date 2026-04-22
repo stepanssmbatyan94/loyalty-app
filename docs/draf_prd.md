@@ -46,7 +46,7 @@ The system has three distinct roles, each with a different interface and set of 
 | **Role**           | **Interface**                   | **Primary Responsibility**                                              |
 | ------------------ | ------------------------------- | ----------------------------------------------------------------------- |
 | **Customer**       | Telegram Mini App (via QR scan) | View points balance, transaction history, available rewards             |
-| **Cashier**        | Telegram Bot or web panel       | Add points after purchase, search customers, confirm redemptions        |
+| **Cashier**        | Telegram Bot (per-business, in staff group) | Add points after purchase, search customers, confirm redemptions |
 | **Business Owner** | Admin web panel                 | Configure rewards, view analytics, manage cashier accounts, export data |
 
 # **4\. Core User Flows**
@@ -195,11 +195,11 @@ The system has three distinct roles, each with a different interface and set of 
 
 # **7\. Open Questions**
 
-| **#** | **Question**                                                                           | **Owner**                  |
-| ----- | -------------------------------------------------------------------------------------- | -------------------------- |
-| **1** | What is the earn rate for the pilot (Beer House)? Fixed rate or per AMD spent?         | _Product + Business Owner_ |
-| **2** | How does the cashier access the tool - dedicated Telegram bot, or web URL on phone?    | _Product + Engineering_    |
-| **3** | Should redemption codes expire? If yes, what is the expiry window?                     | _Product_                  |
-| **4** | What happens if a customer loses access to their Telegram account?                     | _Product + Engineering_    |
-| **5** | Do we need a privacy policy / data consent screen at registration for GDPR compliance? | _Product + Legal_          |
-| **6** | Is broadcast messaging needed for the pilot launch or can it wait for v1.1?            | _Product_                  |
+| **#** | **Question**                                                                           | **Owner**                  | **Resolution** |
+| ----- | -------------------------------------------------------------------------------------- | -------------------------- | -------------- |
+| **1** | What is the earn rate for the pilot (Beer House)? Fixed rate or per AMD spent?         | _Product + Business Owner_ | ✅ **Resolved:** Both modes supported. Default is `per_amd_spent` (1 pt per 100 AMD). Owner can switch to `fixed_per_visit` via admin panel. |
+| **2** | How does the cashier access the tool - dedicated Telegram bot, or web URL on phone?    | _Product + Engineering_    | ✅ **Resolved:** Telegram Bot only. Each business has its own bot operating in a dedicated staff Telegram group. No web UI for cashiers. |
+| **3** | Should redemption codes expire? If yes, what is the expiry window?                     | _Product_                  | ✅ **Resolved:** Yes, codes expire after 5 minutes. Points are pre-deducted on code generation and auto-refunded on expiry. Cron job runs every 30 seconds to expire pending codes. |
+| **4** | What happens if a customer loses access to their Telegram account?                     | _Product + Engineering_    | ✅ **Resolved (descoped to v1.1):** MVP relies entirely on Telegram identity (socialId). Account recovery is out of scope for the pilot. Customers who lose Telegram access cannot recover their card without manual intervention by the business owner. |
+| **5** | Do we need a privacy policy / data consent screen at registration for GDPR compliance? | _Product + Legal_          | ✅ **Resolved (descoped to v1.1):** Consent screen deferred. The MVP pilot (Beer House) is a closed deployment — full GDPR compliance screen planned for v1.1 before public rollout. |
+| **6** | Is broadcast messaging needed for the pilot launch or can it wait for v1.1?            | _Product_                  | ✅ **Resolved:** Deferred to v1.1. Broadcast messaging (US-16) is explicitly out of MVP scope per PRD section 6.2. |

@@ -28,7 +28,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-02 — See current points balance
 **Status:** `MVP`
-**Epic mapping:** Epic 3 (F-05, F-09, B-08)
+**Epic mapping:** Epic 3 (F-05, F-06, F-09, B-10)
 
 > _As a customer, I want to see my current points balance at any time, so that I know how close I am to my next reward._
 
@@ -44,7 +44,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-03 — Receive notification on earn/redeem
 **Status:** `MVP`
-**Epic mapping:** Epic 9 (B-21, B-22, B-23)
+**Epic mapping:** Epic 9 (B-32, B-33, B-34, B-35, F-27)
 
 > _As a customer, I want to receive a notification every time I earn points, so that I trust the system is recording my purchases correctly._
 
@@ -59,7 +59,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-04 — Full transaction history
 **Status:** `MVP`
-**Epic mapping:** Epic 6 (F-18, F-19, F-20, B-13)
+**Epic mapping:** Epic 6 (B-17, F-18, F-19, F-20)
 
 > _As a customer, I want to see my full transaction history, so that I can verify all my past purchases and earnings._
 
@@ -76,7 +76,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-05 — Browse rewards catalog
 **Status:** `MVP`
-**Epic mapping:** Epic 4 (F-10, F-11, F-12, F-13, B-09)
+**Epic mapping:** Epic 4 (B-11, F-10, F-11, F-12, F-13)
 
 > _As a customer, I want to browse available rewards and see how many points each requires, so that I am motivated to keep coming back._
 
@@ -93,7 +93,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-06 — Redeem points in a few taps
 **Status:** `MVP`
-**Epic mapping:** Epic 5 (F-14, F-15, F-16, F-17, B-10, B-11, B-12)
+**Epic mapping:** Epic 5 (B-12, B-13, B-14, B-15, B-16, F-14, F-15, F-16, F-17)
 
 > _As a customer, I want to redeem my points for a reward in a few taps, so that the process is as easy as earning._
 
@@ -116,7 +116,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-07 — Search customer by name or phone
 **Status:** `MVP`
-**Epic mapping:** Epic 7 (F-21, B-15)
+**Epic mapping:** Epic 7 (B-24, B-26)
 
 > _As a cashier, I want to quickly find a customer by name or phone number, so that I can process the loyalty transaction without slowing down the queue._
 
@@ -133,7 +133,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-08 — Add points in under 15 seconds
 **Status:** `MVP`
-**Epic mapping:** Epic 7 (F-22, F-23, B-14)
+**Epic mapping:** Epic 7 (B-19, B-20, B-21)
 
 > _As a cashier, I want to add points to a customer's account in under 15 seconds, so that my workflow at the register stays efficient._
 
@@ -148,7 +148,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-09 — Confirm points were added
 **Status:** `MVP`
-**Epic mapping:** Epic 7 (F-23, B-14)
+**Epic mapping:** Epic 7 (B-21, B-33)
 
 > _As a cashier, I want to confirm that points were successfully added before dismissing the customer, so that there are no disputes about missing points later._
 
@@ -163,7 +163,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-10 — Validate a redemption code
 **Status:** `MVP`
-**Epic mapping:** Epic 7 (F-24, B-11, B-12)
+**Epic mapping:** Epic 7 (B-14, B-22, B-23)
 
 > _As a cashier, I want to validate a customer's redemption code, so that I can confirm a reward claim is legitimate before providing it._
 
@@ -181,7 +181,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-11 — Recent transaction log (cashier)
 **Status:** `MVP`
-**Epic mapping:** Epic 7 (F-25)
+**Epic mapping:** Epic 7 (B-25)
 
 > _As a cashier, I want to see a short recent transaction log, so that I can quickly reference the last few actions if a customer has a question._
 
@@ -199,7 +199,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-12 — Set the points earn rate
 **Status:** `MVP`
-**Epic mapping:** Epic 8 (F-28, B-18)
+**Epic mapping:** Epic 8 (F-23, B-28)
 
 > _As a business owner, I want to set the points earn rate (e.g. 1 point per 100 AMD), so that the loyalty economics match my business margins._
 
@@ -214,7 +214,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-13 — Create and manage rewards
 **Status:** `MVP`
-**Epic mapping:** Epic 8 (F-27, B-17)
+**Epic mapping:** Epic 8 (F-22, B-27)
 
 > _As a business owner, I want to create and manage rewards with custom point thresholds, so that I can design a program that drives the behavior I want._
 
@@ -230,7 +230,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-14 — Dashboard metrics
 **Status:** `MVP`
-**Epic mapping:** Epic 8 (F-29, B-19)
+**Epic mapping:** Epic 8 (F-24, B-29)
 
 > _As a business owner, I want to see how many customers have joined and how active they are, so that I can measure whether the loyalty program is working._
 
@@ -243,7 +243,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-15 — Top customers by points
 **Status:** `MVP`
-**Epic mapping:** Epic 8 (F-30, B-20)
+**Epic mapping:** Epic 8 (F-25, B-30)
 
 > _As a business owner, I want to view a list of my top customers ranked by points, so that I can identify and reward my most loyal regulars._
 
@@ -252,7 +252,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 - [ ] List is ranked by `totalPointsEarned` (lifetime, not current balance)
 - [ ] Each entry shows: rank, customer name, phone, total points earned, current balance
 - [ ] List is paginated (20 per page)
-- [ ] Owner can search/filter within the list
+- [ ] ~~Owner can search/filter within the list~~ — descoped to v1.1; paginated sorted list is sufficient for MVP pilot
 
 ---
 
@@ -267,7 +267,7 @@ Derived from `docs/draf_prd.md` v1.0 MVP. Acceptance criteria are filled in base
 
 ### US-17 — Cashier account management
 **Status:** `MVP`
-**Epic mapping:** Epic 7 (F-26, B-16)
+**Epic mapping:** Epic 8 (F-26, B-31)
 
 > _As a business owner, I want to create separate cashier accounts with limited permissions, so that I do not need to share my admin credentials with staff._
 

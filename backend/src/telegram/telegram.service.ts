@@ -1,7 +1,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Update } from '@grammyjs/types';
-import { Bot } from 'grammy';
+import { Bot, InlineKeyboard } from 'grammy';
 
 import { BusinessesService } from '../businesses/businesses.service';
 import { AllConfigType } from '../config/config.type';
@@ -169,6 +169,22 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     if (!bot) {
       console.warn(
         `[TelegramService] no bot found for business ${ctx.businessId}`,
+      );
+      return;
+    }
+
+    if (ctx.earnRateMode === 'fixed_per_visit') {
+      const pts = ctx.earnRateValue;
+      const keyboard = new InlineKeyboard()
+        .text(`✅ Add ${pts} pts`, `earn_confirm:${ctx.cardId}:${pts}:0`)
+        .text('❌ Cancel', `earn_cancel:${ctx.cardId}`);
+
+      await bot.api.sendMessage(
+        ctx.chatId,
+        `🍺 *Customer:* ${ctx.customerName}\n` +
+          `*Balance:* ${ctx.balance} pts\n\n` +
+          `Fixed reward: *+${pts} pts*\n\nConfirm adding points?`,
+        { reply_markup: keyboard, parse_mode: 'Markdown' },
       );
       return;
     }

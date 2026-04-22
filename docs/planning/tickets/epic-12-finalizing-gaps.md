@@ -12,7 +12,7 @@ Closing functional and documentation gaps discovered during the full cross-refer
 
 ## B-36b — GET + PATCH /api/v1/admin/businesses/:id
 
-**SP:** 3 | **Layer:** BE | **Status:** Todo
+**SP:** 3 | **Layer:** BE | **Status:** Done
 **Depends on:** B-36
 **Blocks:** ADMIN-05 (detail page already calls these endpoints in its code)
 
@@ -85,7 +85,7 @@ Errors:
 
 ## B-23b — Customer Notification on Cashier Reject Redemption
 
-**SP:** 2 | **Layer:** BOT | **Status:** Todo
+**SP:** 2 | **Layer:** BOT | **Status:** Done
 **Depends on:** B-23 (reject callback already exists), B-35
 **Blocks:** nothing
 
@@ -142,7 +142,7 @@ bot.callbackQuery(/^reject_redemption:(\d{6})$/, async (ctx) => {
 
 ## B-20b — Fixed-Per-Visit Earn Mode Path in Bot
 
-**SP:** 3 | **Layer:** BOT | **Status:** Todo
+**SP:** 3 | **Layer:** BOT | **Status:** Done
 **Depends on:** B-20, B-28 (PATCH /businesses/me/settings supports `earnRateMode`)
 **Blocks:** nothing
 
@@ -228,7 +228,7 @@ Points to add: +50 pts (fixed visit reward)
 
 ## DOC-01 — Fix Wrong Ticket IDs in user-stories.md
 
-**SP:** 1 | **Layer:** DOCS | **Status:** Todo
+**SP:** 1 | **Layer:** DOCS | **Status:** Done
 **Depends on:** nothing
 **Blocks:** nothing
 
@@ -266,7 +266,7 @@ US-02 through US-17 in `docs/planning/user-stories.md` have incorrect epic mappi
 
 ## DOC-02 — Resolve ADMIN-01/ADMIN-02 Orphans in epics.md
 
-**SP:** 1 | **Layer:** DOCS | **Status:** Todo
+**SP:** 1 | **Layer:** DOCS | **Status:** Done
 **Depends on:** nothing
 
 ### What's wrong
@@ -291,7 +291,7 @@ In `docs/planning/epics.md` Epic 10 table:
 
 ## DOC-03 — Resolve US-15 Top Customers Search Gap
 
-**SP:** 1 | **Layer:** DOCS | **Status:** Todo
+**SP:** 1 | **Layer:** DOCS | **Status:** Done
 **Depends on:** nothing
 
 ### What's wrong
@@ -318,7 +318,7 @@ Choose one option:
 
 ## DOC-04 — PRD Cleanup + Epic 10.0 Dependency Note
 
-**SP:** 1 | **Layer:** DOCS | **Status:** Todo
+**SP:** 1 | **Layer:** DOCS | **Status:** Done
 **Depends on:** nothing
 
 ### What's wrong
@@ -360,7 +360,7 @@ Three related documentation inconsistencies:
 
 ## DOC-05 — Make PATCH /users/:id/status Explicit in B-31
 
-**SP:** 1 | **Layer:** DOCS | **Status:** Todo
+**SP:** 1 | **Layer:** DOCS | **Status:** Done
 **Depends on:** nothing
 
 ### What's wrong
@@ -378,7 +378,7 @@ The API contract documents `PATCH /api/v1/users/:id/status` with a `{ "status": 
 
 ## DOC-06 — Confirm GET /api/v1/businesses/me in B-03
 
-**SP:** 1 | **Layer:** DOCS | **Status:** Todo
+**SP:** 1 | **Layer:** DOCS | **Status:** Done
 **Depends on:** nothing
 
 ### What's wrong
@@ -393,19 +393,3 @@ The API contract documents `GET /api/v1/businesses/me` as needed by the owner ad
 - [ ] api-contract.md shows the implementation status annotation for this endpoint
 
 ---
-
-## Epic 12 Summary
-
-| ID | Title | Layer | SP | Status |
-|----|-------|-------|----|--------|
-| B-36b | GET + PATCH /api/v1/admin/businesses/:id | BE | 3 | Todo |
-| B-23b | Customer notification on cashier reject redemption | BOT | 2 | Todo |
-| B-20b | Fixed-per-visit earn mode path in bot | BOT | 3 | Todo |
-| DOC-01 | Fix wrong ticket IDs in user-stories.md | DOCS | 1 | Todo |
-| DOC-02 | Resolve ADMIN-01/ADMIN-02 orphans in epics.md | DOCS | 1 | Todo |
-| DOC-03 | Resolve US-15 top customers search gap | DOCS | 1 | Todo |
-| DOC-04 | PRD cleanup + Epic 10.0 dependency note | DOCS | 1 | Todo |
-| DOC-05 | Make PATCH /users/:id/status explicit in B-31 | DOCS | 1 | Todo |
-| DOC-06 | Confirm GET /businesses/me in B-03 | DOCS | 1 | Todo |
-
-**Epic 12 Total: BE 3 SP | BOT 5 SP | DOCS 6 SP | Total 14 SP**

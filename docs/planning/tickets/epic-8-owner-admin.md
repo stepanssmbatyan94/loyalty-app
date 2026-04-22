@@ -438,6 +438,7 @@ deactivateCashier(@Param('id') id: string, @Request() req) {
 - [ ] Deactivated cashier cannot log in (`isActive: false` check in auth)
 - [ ] Owner cannot deactivate cashiers from other businesses (404)
 - [ ] `telegramUserId` is stored for bot authentication
+- [ ] `PATCH /api/v1/users/:id/status` endpoint accepts `{ isActive: boolean }` and updates the cashier's active status (used by F-26 deactivate button)
 
 ### Definition of done
 - [ ] Unit tests: create cashier, deactivate cashier, cross-business 404

@@ -194,7 +194,7 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | B-28 | `PATCH /api/v1/businesses/me/settings` — earn rate config | BE | 2 | Done | `earnRateMode: 'per_amd_spent'`, `earnRateValue: 100` |
 | B-29 | `GET /api/v1/analytics/dashboard` — total customers, txns today, total pts issued | BE | 5 | Done | Aggregated queries with short cache TTL |
 | B-30 | `GET /api/v1/analytics/top-customers` — paginated, sorted by totalPointsEarned DESC | BE | 2 | Done | Returns rank, name, phone, totals |
-| B-31 | `POST/PATCH /api/v1/users` — owner creates/deactivates cashier accounts | BE | 3 | Done | Cashier includes telegramUserId for bot auth; sends invite email |
+| B-31 | `POST /api/v1/users/cashiers` + `PATCH /api/v1/users/:id/status` — owner creates/deactivates cashier accounts | BE | 3 | Done | Cashier includes telegramUserId for bot auth; sends invite email |
 | F-22 | Owner: reward management UI — list, create, edit, toggle active, soft delete | FE | 8 | Done | Image upload via `/api/v1/files/upload`; inline active toggle; reward translation fields inline in create/edit form |
 | F-23 | Owner: earn rate settings UI — mode selector + value input | FE | 2 | Done | Two modes: fixed per visit / per AMD spent |
 | F-24 | Owner: dashboard metrics page — 3 KPI cards | FE | 5 | Done | KPIs: total customers, transactions today, pts issued all-time |
@@ -231,14 +231,14 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 | ID | Title | Layer | SP | Status | Notes |
 |----|-------|-------|----|--------|-------|
-| ADMIN-01 | React app scaffold — Vite + React + TypeScript + Tailwind + React Query | ADMIN | 3 | Todo | Separate repo or `admin/` folder in monorepo |
-| ADMIN-02 | Super admin login page — email + password | ADMIN | 2 | Todo | Uses `POST /api/v1/auth/email/login` with superadmin role check |
+| ADMIN-01 | ~~React app scaffold — Vite + React + TypeScript + Tailwind + React Query~~ | ADMIN | ~~3~~ | Superseded | Superseded by ADMIN-0-01 in Epic 10.0 (scaffold is part of the unified admin app) |
+| ADMIN-02 | ~~Super admin login page — email + password~~ | ADMIN | ~~2~~ | Superseded | Superseded by ADMIN-0-02 in Epic 10.0 (shared login page for both super admin and owner) |
 | ADMIN-03 | Businesses list page — table of all businesses with status | ADMIN | 3 | Todo | `GET /api/v1/admin/businesses` |
 | ADMIN-04 | Create business form — business name, owner email, owner name only | ADMIN | 3 | Todo | `POST /api/v1/admin/businesses`; bot token/webhook set by owner after first login; backend creates shell Business (isActive: false) + sends invite email |
 | ADMIN-05 | Business detail page — view/edit business info, owner details | ADMIN | 3 | Todo | Activate/deactivate business |
 | B-36 | `GET/POST /api/v1/admin/businesses` — super admin business management | BE | 5 | Todo | Creates Business + Owner user + sends credentials email + registers bot webhook |
 
-**Epic 10 Total: ADMIN 14 SP | BE 5 SP | Total 19 SP**
+**Epic 10 Total: ADMIN 9 SP | BE 5 SP | Total 14 SP** _(ADMIN-01 and ADMIN-02 superseded by Epic 10.0)_
 
 ---
 
@@ -292,7 +292,7 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | 7 | Telegram Bot (Cashier) | 3 | 38 | — | 41 |
 | 8 | Owner Admin Panel | 39 | 27 | — | 66 |
 | 9 | Notifications | 2 | 8 | — | 10 |
-| 10 | Super Admin Panel | — | 5 | 14 | 19 |
+| 10 | Super Admin Panel | — | 5 | 9 | 14 |
 | 11 | Translation Infrastructure | 2 | 8 | — | 10 |
 | 12 | Finalizing Gaps | — | 8 | 6 DOCS | 14 |
-| | **Total** | **107** | **169** | **14** | **296** |
+| | **Total** | **107** | **169** | **9** | **291** |

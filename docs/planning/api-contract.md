@@ -557,7 +557,7 @@ Top customers ranked by lifetime points earned.
 
 ## Businesses
 
-### GET /api/v1/businesses/me
+### GET /api/v1/businesses/me — ✅ Exists (B-03)
 Returns the authenticated owner's business profile.
 
 **Auth:** Owner JWT required
@@ -811,34 +811,114 @@ List all businesses on the platform.
 ---
 
 ### POST /api/v1/admin/businesses
-Super admin creates a new business shell + owner account. Bot configuration is done by the owner after first login.
+Super admin provisions a fully configured business: creates Business + Owner user + registers bot webhook.
 
 **Auth:** Super Admin JWT required
 
 **Request**
 ```json
 {
-  "businessName": "Beer House",
+  "name": "Beer House",
+  "ownerName": "Gevorg Mkrtchyan",
   "ownerEmail": "owner@beerhouse.am",
-  "ownerFirstName": "Gevorg",
-  "ownerLastName": "Mkrtchyan"
+  "botToken": "123456789:AABBccDDeeFFggHHiiJJkkLLmmNNooP-QQ",
+  "telegramGroupChatId": "-1001234567890",
+  "botUsername": "beer_house_bot",
+  "logoUrl": "https://example.com/logo.png"
 }
 ```
 
 **Response 201**
 ```json
 {
-  "businessId": "uuid",
-  "ownerId": "uuid",
-  "ownerEmail": "owner@beerhouse.am",
-  "message": "Owner credentials sent to owner@beerhouse.am"
+  "business": {
+    "id": "uuid",
+    "name": "Beer House",
+    "isActive": true
+  }
 }
 ```
 
 **Notes:**
-- Creates `Business` with `isActive: false` — becomes active after owner saves their bot token
+- Validates `botToken` via Telegram `getMe` before persisting
+- Creates `Business` with `isActive: true` — bot webhook registered immediately
 - Creates `User` with role `owner` + sends invite email with login URL + temporary password
-- Bot token, webhook, and language setup are done by the owner in the admin panel (`PATCH /businesses/me/bot-settings`)
+
+**Errors:**
+- `422` — `{ errors: { ownerEmail: "emailAlreadyExists" } }`
+- `422` — `{ errors: { botToken: "invalidBotToken" } }`
+
+---
+
+### GET /api/v1/admin/businesses/:id ✅ Exists (B-36b)
+Returns a single business by ID.
+
+**Auth:** Super Admin JWT required
+
+**Response 200**
+```json
+{
+  "id": "uuid",
+  "name": "Beer House",
+  "ownerId": 1,
+  "logoUrl": null,
+  "botUsername": "beer_house_bot",
+  "telegramGroupChatId": "-1001234567890",
+  "webhookSecret": null,
+  "earnRateMode": "per_amd_spent",
+  "earnRateValue": 100,
+  "supportedLocales": ["en", "hy"],
+  "defaultLocale": "hy",
+  "isActive": true,
+  "createdAt": "2023-10-01T00:00:00.000Z"
+}
+```
+
+**Notes:**
+- `botToken` is never returned (excluded at domain level via `@Exclude`)
+- `webhookSecret` is never returned (excluded at domain level via `@Exclude`)
+
+**Errors:**
+- `404` — business not found
+- `403` — caller is not superadmin
+
+---
+
+### PATCH /api/v1/admin/businesses/:id ✅ Exists (B-36b)
+Update business fields. All fields optional.
+
+**Auth:** Super Admin JWT required
+
+**Request**
+```json
+{
+  "name": "Beer House Updated",
+  "logoUrl": "https://example.com/new-logo.png",
+  "isActive": false
+}
+```
+
+**Response 200** — updated business object (same shape as GET /:id)
+
+**Errors:**
+- `404` — business not found
+- `403` — caller is not superadmin
+
+---
+
+### POST /api/v1/admin/businesses/:id/webhook ✅ Exists (B-36b)
+Re-register the Telegram webhook for an existing business (useful when bot token changes or webhook gets stale).
+
+**Auth:** Super Admin JWT required
+
+**Response 200**
+```json
+{ "ok": true }
+```
+
+**Errors:**
+- `404` — business not found
+- `422` — `{ errors: { botToken: "botTokenNotConfigured" } }` — business has no bot token set
 
 ---
 

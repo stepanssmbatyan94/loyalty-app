@@ -16,9 +16,9 @@ import { TelegramUpdate } from './telegram.update';
   imports: [
     UsersModule,
     forwardRef(() => BusinessesModule),
-    LoyaltyCardsModule,
+    forwardRef(() => LoyaltyCardsModule),
     TransactionsModule,
-    RedemptionsModule,
+    forwardRef(() => RedemptionsModule),
     ScanTokensModule,
   ],
   providers: [TelegramService, TelegramUpdate, NotificationService],

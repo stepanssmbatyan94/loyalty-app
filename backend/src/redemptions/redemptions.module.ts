@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 
 import { LoyaltyCardsModule } from '../loyalty-cards/loyalty-cards.module';
 import { RewardsModule } from '../rewards/rewards.module';
@@ -12,8 +12,8 @@ const infrastructurePersistenceModule = RelationalRedemptionPersistenceModule;
 @Module({
   imports: [
     infrastructurePersistenceModule,
-    RewardsModule,
-    LoyaltyCardsModule,
+    forwardRef(() => RewardsModule),
+    forwardRef(() => LoyaltyCardsModule),
     TransactionsModule,
   ],
   controllers: [RedemptionsController],
