@@ -39,3 +39,23 @@ export type AuthResponse = {
   tokenExpires: number;
   user: User;
 };
+
+export type Business = Entity<{
+  name: string;
+  logoUrl: string | null;
+  ownerId: number | null;
+  botUsername: string | null;
+  telegramGroupChatId: string | null;
+  botToken: string | null;
+  isActive: boolean;
+  earnRateMode: 'per_amd_spent' | 'fixed_per_visit';
+  earnRateValue: number;
+  supportedLocales: string[];
+  defaultLocale: string;
+}>;
+
+export type PaginationMeta = {
+  page: number;
+  total: number;
+  totalPages: number;
+};

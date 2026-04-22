@@ -119,6 +119,37 @@ export class MailService {
     });
   }
 
+  async sendOwnerWelcome(
+    mailData: MailData<{
+      name: string;
+      businessName: string;
+      loginUrl: string;
+      tempPassword: string;
+    }>,
+  ): Promise<void> {
+    await this.mailerService.sendMail({
+      to: mailData.to,
+      subject: `Welcome to ${mailData.data.businessName} — Your Admin Account`,
+      text: `Hi ${mailData.data.name}, your account is ready. Login at ${mailData.data.loginUrl} with password: ${mailData.data.tempPassword}`,
+      templatePath: path.join(
+        this.configService.getOrThrow('app.workingDirectory', {
+          infer: true,
+        }),
+        'src',
+        'mail',
+        'mail-templates',
+        'owner-welcome.hbs',
+      ),
+      context: {
+        app_name: this.configService.get('app.name', { infer: true }),
+        name: mailData.data.name,
+        businessName: mailData.data.businessName,
+        loginUrl: mailData.data.loginUrl,
+        tempPassword: mailData.data.tempPassword,
+      },
+    });
+  }
+
   async confirmNewEmail(mailData: MailData<{ hash: string }>): Promise<void> {
     const i18n = I18nContext.current();
     let emailConfirmTitle: MaybeType<string>;

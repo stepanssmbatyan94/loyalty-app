@@ -96,15 +96,18 @@ async function fetchApi<T>(
 
   const fullUrl = buildUrlWithParams(`${env.API_URL}${url}`, params);
 
-  // Attach Bearer token from Zustand store when available (Telegram Mini App auth)
-  const { token } =
-    typeof window !== 'undefined' ? useAuthStore.getState() : { token: null };
+  // Attach Bearer token and language from Zustand store when available (Telegram Mini App auth)
+  const { token, language } =
+    typeof window !== 'undefined'
+      ? useAuthStore.getState()
+      : { token: null, language: null };
 
   const response = await fetch(fullUrl, {
     method,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Accept-Language': language ?? 'en',
       ...headers,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(cookieHeader ? { Cookie: cookieHeader } : {}),

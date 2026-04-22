@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { Business } from '../../../../domain/business';
 import { BusinessRepository } from '../../business.repository';
 import { BusinessEntity } from '../entities/business.entity';
@@ -43,6 +44,17 @@ export class BusinessesRelationalRepository implements BusinessRepository {
   async findAllActive(): Promise<Business[]> {
     const entities = await this.repo.find({ where: { isActive: true } });
     return entities.map((e) => BusinessMapper.toDomain(e));
+  }
+
+  async findAllWithPagination(
+    paginationOptions: IPaginationOptions,
+  ): Promise<{ data: Business[]; total: number }> {
+    const [entities, total] = await this.repo.findAndCount({
+      skip: (paginationOptions.page - 1) * paginationOptions.limit,
+      take: paginationOptions.limit,
+      order: { createdAt: 'DESC' },
+    });
+    return { data: entities.map((e) => BusinessMapper.toDomain(e)), total };
   }
 
   async update(

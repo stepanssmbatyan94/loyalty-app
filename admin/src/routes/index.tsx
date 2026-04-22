@@ -12,6 +12,8 @@ import { RewardsEditPage } from './rewards/edit/page';
 import { SettingsPage } from './settings/page';
 import { TeamPage } from './team/page';
 import { BusinessesPage } from './businesses/page';
+import { BusinessesNewPage } from './businesses/new/page';
+import { BusinessDetailPage } from './businesses/detail/page';
 
 function RootRedirect() {
   const { role } = useAuthStore();
@@ -31,6 +33,26 @@ export const AppRoutes = () => (
         <ProtectedRoute allowedRoles={['superadmin']}>
           <SuperAdminLayout>
             <BusinessesPage />
+          </SuperAdminLayout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/businesses/new"
+      element={
+        <ProtectedRoute allowedRoles={['superadmin']}>
+          <SuperAdminLayout>
+            <BusinessesNewPage />
+          </SuperAdminLayout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/businesses/:id"
+      element={
+        <ProtectedRoute allowedRoles={['superadmin']}>
+          <SuperAdminLayout>
+            <BusinessDetailPage />
           </SuperAdminLayout>
         </ProtectedRoute>
       }

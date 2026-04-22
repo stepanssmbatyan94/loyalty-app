@@ -1,4 +1,5 @@
 import { NullableType } from '../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../utils/types/pagination-options';
 import { Business } from '../../domain/business';
 
 export abstract class BusinessRepository {
@@ -13,6 +14,10 @@ export abstract class BusinessRepository {
   ): Promise<NullableType<Business>>;
 
   abstract findAllActive(): Promise<Business[]>;
+
+  abstract findAllWithPagination(
+    paginationOptions: IPaginationOptions,
+  ): Promise<{ data: Business[]; total: number }>;
 
   abstract update(
     id: Business['id'],

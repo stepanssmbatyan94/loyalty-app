@@ -1,5 +1,6 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { forwardRef, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
+import { LocaleMiddleware } from '../common/middleware/locale.middleware';
 import { TelegramModule } from '../telegram/telegram.module';
 import { BusinessesController } from './businesses.controller';
 import { BusinessesService } from './businesses.service';
@@ -13,4 +14,8 @@ const infrastructurePersistenceModule = RelationalBusinessPersistenceModule;
   providers: [BusinessesService],
   exports: [BusinessesService, infrastructurePersistenceModule],
 })
-export class BusinessesModule {}
+export class BusinessesModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(LocaleMiddleware).forRoutes(BusinessesController);
+  }
+}

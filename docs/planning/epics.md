@@ -258,6 +258,27 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 
 ---
 
+## Epic 12 — Finalizing Gaps
+
+> Closes functional and documentation gaps found during full cross-reference of Epic 1–11 tickets against user-stories.md, api-contract.md, and draf_prd.md.
+> Ticket details: `docs/planning/tickets/epic-12-finalizing-gaps.md`
+
+| ID | Title | Layer | SP | Status | Notes |
+|----|-------|-------|----|--------|-------|
+| B-36b | `GET + PATCH /api/v1/admin/businesses/:id` — single-resource read + update | BE | 3 | Todo | Required by ADMIN-05 (already calls these endpoints); add to api-contract.md |
+| B-23b | Customer notification on cashier reject redemption | BOT | 2 | Todo | Reject callback exists in B-23 but sends no customer notification; add to notifications service |
+| B-20b | Fixed-per-visit earn mode path in bot | BOT | 3 | Todo | B-20 only handles per_amd_spent; branch on earnRateMode in B-19 to skip amount entry |
+| DOC-01 | Fix wrong ticket IDs in user-stories.md (US-02 → US-17) | DOCS | 1 | Todo | Systematic off-by-epic mapping errors; no code change |
+| DOC-02 | Resolve ADMIN-01/ADMIN-02 orphans in epics.md | DOCS | 1 | Todo | Mark superseded by ADMIN-0-01/ADMIN-0-02 in Epic 10.0; fix SP totals |
+| DOC-03 | Resolve US-15 top-customers search gap | DOCS | 1 | Todo | AC says "search/filter" but no ticket or API param exists; descope or ticket it |
+| DOC-04 | PRD cleanup + Epic 10.0 dependency note | DOCS | 1 | Todo | Fix cashier interface wording, resolve open questions, add dependency note |
+| DOC-05 | PATCH /users/:id/status explicit in B-31 | DOCS | 1 | Todo | Endpoint in api-contract.md but missing from B-31 AC |
+| DOC-06 | Confirm GET /businesses/me in B-03 | DOCS | 1 | Todo | Endpoint in api-contract.md with no implementation status annotation |
+
+**Epic 12 Total: BE 3 SP | BOT 5 SP | DOCS 6 SP | Total 14 SP**
+
+---
+
 ## Grand Total
 
 | # | Epic | FE | BE/BOT | ADMIN | Total |
@@ -273,4 +294,5 @@ Story point scale: 1 = trivial, 2 = small, 3 = medium, 5 = large, 8 = very large
 | 9 | Notifications | 2 | 8 | — | 10 |
 | 10 | Super Admin Panel | — | 5 | 14 | 19 |
 | 11 | Translation Infrastructure | 2 | 8 | — | 10 |
-| | **Total** | **107** | **161** | **14** | **282** |
+| 12 | Finalizing Gaps | — | 8 | 6 DOCS | 14 |
+| | **Total** | **107** | **169** | **14** | **296** |

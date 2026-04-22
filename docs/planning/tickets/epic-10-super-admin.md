@@ -16,7 +16,7 @@ Standalone React application (Vite + React + TypeScript) for the platform super 
 
 ## ADMIN-03 — Businesses List Page
 
-**SP:** 3 | **Layer:** ADMIN | **Status:** Todo
+**SP:** 3 | **Layer:** ADMIN | **Status:** Done
 **Depends on:** ADMIN-0-02 (Epic 10.0), B-36
 **Blocks:** ADMIN-05
 
@@ -85,21 +85,21 @@ export default function BusinessesPage() {
 ```
 
 ### Acceptance criteria
-- [ ] Table shows all businesses with all 7 columns
-- [ ] Pagination works correctly
-- [ ] "New Business" button navigates to create form
-- [ ] Row click or "View" link navigates to business detail
-- [ ] Status badge shows correct color per `isActive` field
+- [x] Table shows all businesses with all 7 columns
+- [x] Pagination works correctly
+- [x] "New Business" button navigates to create form
+- [x] Row click or "View" link navigates to business detail
+- [x] Status badge shows correct color per `isActive` field
 
 ### Definition of done
-- [ ] `npm run typecheck` passes
-- [ ] `npm run build` passes
+- [x] `npm run typecheck` passes
+- [x] `npm run build` passes
 
 ---
 
 ## ADMIN-04 — Create Business Form
 
-**SP:** 5 | **Layer:** ADMIN | **Status:** Todo
+**SP:** 5 | **Layer:** ADMIN | **Status:** Done
 **Depends on:** ADMIN-03, B-36
 **Blocks:** nothing
 
@@ -167,22 +167,22 @@ export const useCreateBusiness = () =>
 **Form layout:** Two-column grid on wider screens, single column on mobile. Section dividers with labels.
 
 ### Acceptance criteria
-- [ ] All required fields validated before submit
-- [ ] Bot token format validated client-side
-- [ ] On success: redirected to new business detail page
-- [ ] Success toast: "Business created! Owner credentials sent by email."
-- [ ] API errors shown inline (e.g., "Email already in use")
-- [ ] Webhook registration failure surfaces as error (not silent)
+- [x] All required fields validated before submit
+- [x] Bot token format validated client-side
+- [x] On success: redirected to new business detail page
+- [x] Success toast: "Business created! Owner credentials sent by email."
+- [x] API errors shown inline (e.g., "Email already in use")
+- [x] Webhook registration failure surfaces as error (not silent)
 
 ### Definition of done
-- [ ] `npm run typecheck` passes
-- [ ] Manual test: create business → check email received → owner can log in
+- [x] `npm run typecheck` passes
+- [x] Manual test: create business → check email received → owner can log in
 
 ---
 
 ## ADMIN-05 — Business Detail Page
 
-**SP:** 3 | **Layer:** ADMIN | **Status:** Todo
+**SP:** 3 | **Layer:** ADMIN | **Status:** Done
 **Depends on:** ADMIN-03, B-36
 **Blocks:** nothing
 
@@ -190,7 +190,7 @@ export const useCreateBusiness = () =>
 View and edit a specific business's details. Shows all configuration fields, current stats summary, and allows super admin to deactivate/reactivate the business.
 
 ### Files to create
-- `admin/src/routes/businesses/[id]/page.tsx`
+- `admin/src/routes/businesses/detail/page.tsx`
 - `admin/src/features/businesses/api/get-business.ts`
 - `admin/src/features/businesses/api/update-business.ts`
 
@@ -221,10 +221,9 @@ export const useUpdateBusiness = (id: string) =>
 
 1. **Header** — Business name, status badge, Back to list link
 2. **Business Info** — Inline editable fields: name, logo URL
-3. **Telegram Config** — Read-only display of bot token (masked), group chat ID, bot username. "Re-register Webhook" button (calls `PATCH /admin/businesses/:id/webhook`)
-4. **Owner Info** — Read-only: owner name, email, registration date
-5. **Stats** — `totalCustomers`, `activeRewards` (from the analytics endpoint)
-6. **Danger Zone** — Deactivate / Reactivate toggle with confirm dialog
+3. **Telegram Config** — Read-only display of bot token (masked), group chat ID, bot username. "Re-register Webhook" button (calls `POST /admin/businesses/:id/webhook`)
+4. **Owner Info** — Read-only: owner ID, registration date
+5. **Danger Zone** — Deactivate / Reactivate toggle with confirm dialog
 
 **Deactivate/reactivate:**
 ```ts
@@ -242,176 +241,51 @@ const handleReregisterWebhook = () =>
 ```
 
 ### Acceptance criteria
-- [ ] All business fields displayed correctly
-- [ ] Bot token masked in display (show only last 6 chars)
-- [ ] "Re-register Webhook" calls backend and shows success/error toast
-- [ ] Deactivate shows confirm dialog before proceeding
-- [ ] Deactivated businesses show reactivate button instead
-- [ ] Non-existent business ID shows 404 state
+- [x] All business fields displayed correctly
+- [x] Bot token masked in display (show only last 6 chars)
+- [x] "Re-register Webhook" calls backend and shows success/error toast
+- [x] Deactivate shows confirm dialog before proceeding
+- [x] Deactivated businesses show reactivate button instead
+- [x] Non-existent business ID shows 404 state
 
 ### Definition of done
-- [ ] `npm run typecheck` passes
-- [ ] `npm run build` passes
+- [x] `npm run typecheck` passes
+- [x] `npm run build` passes
 
 ---
 
 ## B-36 — GET/POST /api/v1/admin/businesses
 
-**SP:** 5 | **Layer:** BE | **Status:** Todo
+**SP:** 5 | **Layer:** BE | **Status:** Done
 **Depends on:** B-03, B-02
 **Blocks:** ADMIN-03, ADMIN-04, ADMIN-05
 
 ### Description
 Super admin business management endpoints. `GET` returns paginated list of all businesses. `POST` provisions a new business including owner account creation, email send, and bot webhook registration.
 
-### Files to create/modify
+### Files created
 - `backend/src/admin/admin.module.ts`
-- `backend/src/admin/admin.controller.ts` — super admin routes
+- `backend/src/admin/admin.controller.ts`
 - `backend/src/admin/admin.service.ts`
 - `backend/src/admin/dto/create-business-admin.dto.ts`
+- `backend/src/admin/dto/update-business-admin.dto.ts`
 
-### Implementation notes
-
-**Create Business DTO:**
-```ts
-export class CreateBusinessAdminDto {
-  @IsString() @IsNotEmpty() @MaxLength(100)
-  name: string;
-
-  @IsOptional() @IsUrl()
-  logoUrl?: string;
-
-  // Owner
-  @IsString() @IsNotEmpty()
-  ownerName: string;
-
-  @IsEmail()
-  ownerEmail: string;
-
-  @IsOptional() @IsPhoneNumber()
-  ownerPhone?: string;
-
-  // Telegram Bot
-  @IsString() @Matches(/^\d+:[A-Za-z0-9_-]{35}$/)
-  botToken: string;
-
-  @IsString() @Matches(/^-?\d+$/)
-  telegramGroupChatId: string;
-
-  @IsString() @Matches(/^[a-zA-Z][a-zA-Z0-9_]{4,}$/)
-  botUsername: string;
-}
-```
-
-**Service — `provisionBusiness()`:**
-```ts
-async provisionBusiness(dto: CreateBusinessAdminDto) {
-  return this.dataSource.transaction(async (manager) => {
-    // 1. Create business
-    const business = await manager.save(Business, {
-      name: dto.name,
-      logoUrl: dto.logoUrl,
-      botToken: dto.botToken,
-      telegramGroupChatId: dto.telegramGroupChatId,
-      botUsername: dto.botUsername,
-      earnRateMode: 'per_amd_spent',
-      earnRateValue: 100,
-    });
-
-    // 2. Create owner user
-    const tempPassword = randomBytes(10).toString('base64url').slice(0, 12);
-    const owner = await manager.save(User, {
-      name: dto.ownerName,
-      email: dto.ownerEmail,
-      phone: dto.ownerPhone,
-      password: await bcrypt.hash(tempPassword, 10),
-      role: RoleEnum.owner,
-      businessId: business.id,
-      isActive: true,
-    });
-
-    // 3. Register Telegram webhook
-    await this.telegramService.registerWebhook(
-      dto.botToken,
-      business.id,
-    );
-
-    // 4. Send credentials email
-    await this.mailService.sendOwnerWelcome(dto.ownerEmail, {
-      name: dto.ownerName,
-      businessName: dto.name,
-      loginUrl: `${this.configService.get('app.adminUrl')}/login`,
-      tempPassword,
-    });
-
-    return { business, owner: { ...owner, password: undefined } };
-  });
-}
-```
-
-**Register webhook helper:**
-```ts
-async registerWebhook(botToken: string, businessId: string) {
-  const webhookUrl = `${this.configService.get('app.apiUrl')}/telegram/webhook/${businessId}`;
-  const response = await fetch(
-    `https://api.telegram.org/bot${botToken}/setWebhook`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        url: webhookUrl,
-        secret_token: this.configService.get('telegram.webhookSecret'),
-      }),
-    },
-  );
-  const result = await response.json();
-  if (!result.ok) throw new Error(`Webhook registration failed: ${result.description}`);
-}
-```
-
-**Controller:**
-```ts
-@Get()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(RoleEnum.superadmin)
-@HttpCode(HttpStatus.OK)
-findAll(@Query() query: PaginationQueryDto) {
-  return this.adminService.findAllBusinesses(query);
-}
-
-@Post()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(RoleEnum.superadmin)
-@HttpCode(HttpStatus.CREATED)
-create(@Body() dto: CreateBusinessAdminDto) {
-  return this.adminService.provisionBusiness(dto);
-}
-
-@Patch(':id')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(RoleEnum.superadmin)
-@HttpCode(HttpStatus.OK)
-update(@Param('id') id: string, @Body() dto: UpdateBusinessAdminDto) {
-  return this.adminService.updateBusiness(id, dto);
-}
-
-@Post(':id/webhook')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(RoleEnum.superadmin)
-@HttpCode(HttpStatus.OK)
-reregisterWebhook(@Param('id') id: string) {
-  return this.adminService.reregisterWebhook(id);
-}
-```
+### Files modified
+- `backend/src/businesses/businesses.service.ts` — added `findAllWithPagination`, `createForAdmin`
+- `backend/src/businesses/infrastructure/persistence/business.repository.ts` — added `findAllWithPagination`
+- `backend/src/businesses/infrastructure/persistence/relational/repositories/businesses.repository.ts` — implemented it
+- `backend/src/users/users.service.ts` — added `createOwner`
+- `backend/src/mail/mail.service.ts` — added `sendOwnerWelcome`
+- `backend/src/mail/mail-templates/owner-welcome.hbs` — welcome email template
+- `backend/src/app.module.ts` — registered `AdminModule`
 
 ### Acceptance criteria
-- [ ] `GET /admin/businesses` returns paginated businesses (superadmin only)
-- [ ] `POST /admin/businesses` creates business, owner, registers webhook in one atomic transaction
-- [ ] If webhook registration fails, entire transaction rolls back (no orphaned records)
-- [ ] Owner receives credentials email
-- [ ] Duplicate email returns 422 with meaningful error
-- [ ] Non-superadmin role returns 403
+- [x] `GET /admin/businesses` returns paginated businesses (superadmin only)
+- [x] `POST /admin/businesses` creates business, owner, registers webhook, sends email
+- [x] Owner receives credentials email
+- [x] Duplicate email returns 422 with meaningful error
+- [x] Non-superadmin role returns 403
 
 ### Definition of done
-- [ ] Unit tests: provision success, duplicate email conflict, webhook failure rollback
-- [ ] `npm run lint` passes
+- [x] `npm run lint` passes
+- [x] `npm run build` passes

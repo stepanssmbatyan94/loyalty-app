@@ -326,6 +326,37 @@ export class UsersService {
     });
   }
 
+  async createOwner(dto: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    tempPassword: string;
+    businessId: string;
+  }): Promise<User> {
+    const existing = await this.usersRepository.findByEmail(dto.email);
+    if (existing) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { email: 'emailAlreadyExists' },
+      });
+    }
+
+    const salt = await bcrypt.genSalt();
+    const password = await bcrypt.hash(dto.tempPassword, salt);
+
+    return this.usersRepository.create({
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      email: dto.email,
+      password,
+      provider: AuthProvidersEnum.email,
+      role: { id: RoleEnum.owner },
+      status: { id: StatusEnum.active },
+      businessId: dto.businessId,
+      socialId: null,
+    });
+  }
+
   async deactivateCashier(
     id: User['id'],
     businessId: string,

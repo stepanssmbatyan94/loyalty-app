@@ -32,6 +32,8 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { RedemptionsModule } from './redemptions/redemptions.module';
 import { ScanTokensModule } from './scan-tokens/scan-tokens.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AdminModule } from './admin/admin.module';
+import { TranslationModule } from './translation/translation.module';
 
 const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
   useClass: TypeOrmConfigService,
@@ -98,6 +100,8 @@ const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
     RedemptionsModule,
     ScanTokensModule,
     AnalyticsModule,
+    AdminModule,
+    TranslationModule,
   ],
 })
 export class AppModule {}

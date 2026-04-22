@@ -68,6 +68,21 @@ export class BusinessesService {
     return this.businessesRepository.findAllActive();
   }
 
+  findAllWithPagination(
+    paginationOptions: { page: number; limit: number },
+  ): Promise<{ data: Business[]; total: number }> {
+    return this.businessesRepository.findAllWithPagination(paginationOptions);
+  }
+
+  async createForAdmin(
+    data: Omit<Business, 'id' | 'createdAt' | 'ownerId'>,
+  ): Promise<Business> {
+    return this.businessesRepository.create({
+      ...data,
+      ownerId: 0,
+    });
+  }
+
   async update(id: Business['id'], dto: UpdateBusinessDto): Promise<Business> {
     return this.businessesRepository.update(id, dto);
   }

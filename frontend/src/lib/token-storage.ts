@@ -4,6 +4,7 @@ type StoredSession = {
   token: string;
   refreshToken: string;
   tokenExpires: number;
+  language?: string;
 };
 
 export const tokenStorage = {
