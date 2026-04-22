@@ -9,9 +9,14 @@ import { RewardTranslation } from './domain/reward-translation';
 import { RewardRepository } from './infrastructure/persistence/reward.repository';
 import { RewardTranslationRepository } from './infrastructure/persistence/reward-translation.repository';
 
+export type ResolvedRewardTranslation = RewardTranslation & {
+  isFallback: boolean;
+};
+
 export type RewardWithEligibility = Reward & {
   canRedeem: boolean;
   ptsNeeded: number;
+  translations: ResolvedRewardTranslation[];
 };
 
 @Injectable()
@@ -38,15 +43,73 @@ export class RewardsService {
   async findActiveWithEligibility(
     businessId: string,
     customerPoints: number,
+    locale?: string,
+    defaultLocale?: string,
   ): Promise<RewardWithEligibility[]> {
     const rewards =
       await this.rewardRepository.findAllActiveByBusinessId(businessId);
 
-    return rewards.map((reward) => ({
-      ...reward,
-      canRedeem: customerPoints >= reward.pointsCost,
-      ptsNeeded: Math.max(0, reward.pointsCost - customerPoints),
-    }));
+    const allTranslations =
+      await this.rewardTranslationRepository.findByRewardIds(
+        rewards.map((r) => r.id),
+      );
+
+    // Group by rewardId → locale → translations
+    const byReward = new Map<string, Map<string, RewardTranslation[]>>();
+    for (const t of allTranslations) {
+      if (!byReward.has(t.rewardId)) byReward.set(t.rewardId, new Map());
+      const localeMap = byReward.get(t.rewardId)!;
+      const list = localeMap.get(t.locale) ?? [];
+      list.push(t);
+      localeMap.set(t.locale, list);
+    }
+
+    return rewards.map((reward) => {
+      const localeMap =
+        byReward.get(reward.id) ?? new Map<string, RewardTranslation[]>();
+      const translations = this.resolveTranslations(
+        localeMap,
+        locale,
+        defaultLocale,
+      );
+      return {
+        ...reward,
+        translations,
+        canRedeem: customerPoints >= reward.pointsCost,
+        ptsNeeded: Math.max(0, reward.pointsCost - customerPoints),
+      };
+    });
+  }
+
+  /**
+   * Resolves translations per-field: for each field ('name', 'description'),
+   * tries the requested locale first, then falls back to defaultLocale.
+   * A ru locale with only 'name' + en defaultLocale with 'name'+'description'
+   * → returns ru 'name' + en 'description'.
+   */
+  private resolveTranslations(
+    localeMap: Map<string, RewardTranslation[]>,
+    locale?: string,
+    defaultLocale?: string,
+  ): ResolvedRewardTranslation[] {
+    const fields: Array<RewardTranslation['field']> = ['name', 'description'];
+    const result: ResolvedRewardTranslation[] = [];
+
+    for (const field of fields) {
+      const fromLocale = locale
+        ? localeMap.get(locale)?.find((t) => t.field === field)
+        : undefined;
+      if (fromLocale) {
+        result.push({ ...fromLocale, isFallback: false });
+        continue;
+      }
+      const fromDefault = defaultLocale
+        ? localeMap.get(defaultLocale)?.find((t) => t.field === field)
+        : undefined;
+      if (fromDefault) result.push({ ...fromDefault, isFallback: true });
+    }
+
+    return result;
   }
 
   async update(

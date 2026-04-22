@@ -8,6 +8,8 @@ export abstract class RewardTranslationRepository {
 
   abstract findByReward(rewardId: string): Promise<RewardTranslation[]>;
 
+  abstract findByRewardIds(rewardIds: string[]): Promise<RewardTranslation[]>;
+
   abstract findByRewardAndLocale(
     rewardId: string,
     locale: string,

@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { RewardTranslation } from './reward-translation';
 
 export class Reward {
   @ApiProperty({ type: String, format: 'uuid' })
@@ -30,4 +31,7 @@ export class Reward {
 
   @ApiProperty()
   createdAt: Date;
+
+  @ApiPropertyOptional({ type: [RewardTranslation] })
+  translations?: RewardTranslation[];
 }

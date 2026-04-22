@@ -55,12 +55,19 @@ export class RewardsController {
   ): ReturnType<RewardsService['findActiveWithEligibility']> {
     const businessId: string = request.user.businessId;
     const cardId: string | undefined = request.user.cardId;
+    const locale: string | undefined = request.locale;
+    const defaultLocale: string | undefined = request.defaultLocale;
     let points = 0;
     if (cardId) {
       const card = await this.loyaltyCardsService.findById(cardId);
       points = card?.points ?? 0;
     }
-    return this.rewardsService.findActiveWithEligibility(businessId, points);
+    return this.rewardsService.findActiveWithEligibility(
+      businessId,
+      points,
+      locale,
+      defaultLocale,
+    );
   }
 
   // Owner: list all rewards (including inactive) for their business
@@ -102,6 +109,9 @@ export class RewardsController {
     @Body() dto: UpdateRewardDto,
   ): Promise<Reward> {
     const businessId: string = request.user.businessId;
+    console.log('id :>> ', id);
+    console.log('businessId :>> ', businessId);
+    console.log('businessId :>> ', request.user);
     return this.rewardsService.update(id, businessId, dto);
   }
 

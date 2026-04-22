@@ -32,55 +32,59 @@ export function CashierList() {
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-surface-container-low" />
+            <div key={i} className="h-16 animate-pulse rounded-[8px] bg-surface-container-low" />
           ))}
         </div>
       ) : !cashiers.length ? (
-        <p className="rounded-xl border bg-surface-container-lowest p-8 text-center text-sm text-on-surface-variant">
+        <p className="rounded-[8px] border border-outline-variant bg-surface-container-lowest p-8 text-center text-sm text-on-surface-variant">
           No cashiers yet.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-xl border bg-surface-container-lowest shadow-sm">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-on-surface-variant">
-                <th className="px-6 py-3 font-label">Name</th>
-                <th className="px-6 py-3 font-label">Email</th>
-                <th className="px-6 py-3 font-label">Status</th>
-                <th className="px-6 py-3" />
+        <div className="relative overflow-x-auto bg-surface-container-lowest shadow-sm rounded-[8px] border border-outline-variant">
+          <table className="w-full text-sm text-left text-on-surface-variant">
+            <thead className="text-sm text-on-surface-variant bg-surface-container-low border-b border-outline-variant">
+              <tr>
+                <th scope="col" className="px-6 py-3 font-medium">Name</th>
+                <th scope="col" className="px-6 py-3 font-medium">Email</th>
+                <th scope="col" className="px-6 py-3 font-medium">Status</th>
+                <th scope="col" className="px-6 py-3">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {cashiers.map((cashier) => {
                 const isActive = cashier.status?.name === 'active';
                 return (
-                  <tr key={cashier.id} className="border-b last:border-0">
-                    <td className="px-6 py-3 font-medium text-on-background">
+                  <tr
+                    key={cashier.id}
+                    className="bg-surface-container-lowest border-b border-outline-variant last:border-0"
+                  >
+                    <th scope="row" className="px-6 py-4 font-medium text-on-background whitespace-nowrap">
                       {cashier.firstName} {cashier.lastName}
-                    </td>
-                    <td className="px-6 py-3 text-on-surface-variant">{cashier.email}</td>
-                    <td className="px-6 py-3">
+                    </th>
+                    <td className="px-6 py-4">{cashier.email}</td>
+                    <td className="px-6 py-4">
                       <span
                         className={cn(
-                          'rounded-full px-2 py-0.5 text-xs font-label',
+                          'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                           isActive
-                            ? 'bg-tertiary-container/20 text-tertiary-container'
-                            : 'bg-surface-container-high text-on-surface-variant',
+                            ? 'bg-tertiary/10 text-tertiary'
+                            : 'bg-surface-container text-on-surface-variant',
                         )}
                       >
                         {isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-6 py-3">
+                    <td className="px-6 py-4">
                       {isActive && (
                         <div className="flex justify-end">
-                          <Button
-                            size="sm"
-                            variant="destructive"
+                          <button
                             onClick={() => setConfirmDeactivate(cashier)}
+                            className="text-xs font-medium text-error hover:underline"
                           >
                             Deactivate
-                          </Button>
+                          </button>
                         </div>
                       )}
                     </td>

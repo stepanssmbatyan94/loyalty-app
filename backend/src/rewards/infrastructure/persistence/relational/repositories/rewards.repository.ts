@@ -24,7 +24,7 @@ export class RewardsRelationalRepository implements RewardRepository {
   }
 
   async findById(id: Reward['id']): Promise<NullableType<Reward>> {
-    const entity = await this.repo.findOne({ where: { id } });
+    const entity = await this.repo.findOne({ where: { id }, withDeleted: true });
     return entity ? RewardMapper.toDomain(entity) : null;
   }
 

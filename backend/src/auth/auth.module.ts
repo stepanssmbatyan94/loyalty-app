@@ -10,6 +10,7 @@ import { MailModule } from '../mail/mail.module';
 import { SessionModule } from '../session/session.module';
 import { UsersModule } from '../users/users.module';
 import { LoyaltyCardsModule } from '../loyalty-cards/loyalty-cards.module';
+import { BusinessesModule } from '../businesses/businesses.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { LoyaltyCardsModule } from '../loyalty-cards/loyalty-cards.module';
     MailModule,
     JwtModule.register({}),
     LoyaltyCardsModule,
+    BusinessesModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshStrategy, AnonymousStrategy],

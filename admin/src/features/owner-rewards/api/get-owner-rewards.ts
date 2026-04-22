@@ -3,7 +3,7 @@ import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
 import { OwnerReward } from '../types';
 
-export const getOwnerRewards = (): Promise<{ data: OwnerReward[] }> =>
+export const getOwnerRewards = (): Promise<OwnerReward[]> =>
   api.get('/rewards/owner');
 
 export const getOwnerRewardsQueryOptions = () =>

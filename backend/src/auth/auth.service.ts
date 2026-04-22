@@ -23,6 +23,7 @@ import { JwtPayloadType } from './strategies/types/jwt-payload.type';
 import { UsersService } from '../users/users.service';
 import { AllConfigType } from '../config/config.type';
 import { LoyaltyCardsService } from '../loyalty-cards/loyalty-cards.service';
+import { BusinessesService } from '../businesses/businesses.service';
 import { MailService } from '../mail/mail.service';
 import { RoleEnum } from '../roles/roles.enum';
 import { Session } from '../session/domain/session';
@@ -46,6 +47,7 @@ export class AuthService {
     private mailService: MailService,
     private configService: ConfigService<AllConfigType>,
     private loyaltyCardsService: LoyaltyCardsService,
+    private businessesService: BusinessesService,
   ) {}
 
   async validateLogin(loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
@@ -102,11 +104,20 @@ export class AuthService {
       hash,
     });
 
+    let businessId: string | undefined;
+    if (user.role?.id === RoleEnum.owner) {
+      const business = await this.businessesService.findByOwnerId(
+        user.id as number,
+      );
+      businessId = business?.id;
+    }
+
     const { token, refreshToken, tokenExpires } = await this.getTokensData({
       id: user.id,
       role: user.role,
       sessionId: session.id,
       hash,
+      ...(businessId !== undefined && { businessId }),
     });
 
     return {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { NullableType } from '../../../../../utils/types/nullable.type';
 import { RewardTranslation } from '../../../../domain/reward-translation';
@@ -39,6 +39,14 @@ export class RewardTranslationsRelationalRepository implements RewardTranslation
 
   async findByReward(rewardId: string): Promise<RewardTranslation[]> {
     const entities = await this.repo.find({ where: { rewardId } });
+    return entities.map((e) => RewardTranslationMapper.toDomain(e));
+  }
+
+  async findByRewardIds(rewardIds: string[]): Promise<RewardTranslation[]> {
+    if (rewardIds.length === 0) return [];
+    const entities = await this.repo.find({
+      where: { rewardId: In(rewardIds) },
+    });
     return entities.map((e) => RewardTranslationMapper.toDomain(e));
   }
 

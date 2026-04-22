@@ -20,14 +20,12 @@ type DialogMode = 'create' | 'edit' | 'translations' | 'delete' | null;
 interface ActiveDialog { mode: DialogMode; reward?: OwnerReward; }
 
 export function RewardManagementList() {
-  const { data, isLoading } = useOwnerRewards();
+  const { data = [], isLoading } = useOwnerRewards();
   const [dialog, setDialog] = useState<ActiveDialog>({ mode: null });
 
   const createMutation = useCreateReward({ mutationConfig: { onSuccess: () => setDialog({ mode: null }) } });
   const updateMutation = useUpdateReward({ mutationConfig: { onSuccess: () => setDialog({ mode: null }) } });
   const deleteMutation = useDeleteReward({ mutationConfig: { onSuccess: () => setDialog({ mode: null }) } });
-
-  const rewards = data?.data ?? [];
 
   return (
     <div className="space-y-4">
@@ -38,56 +36,74 @@ export function RewardManagementList() {
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-surface-container-low" />
+            <div key={i} className="h-16 animate-pulse rounded-[8px] bg-surface-container-low" />
           ))}
         </div>
-      ) : !rewards.length ? (
-        <p className="rounded-xl border bg-surface-container-lowest p-8 text-center text-sm text-on-surface-variant">
+      ) : !data.length ? (
+        <p className="rounded-[8px] border border-outline-variant bg-surface-container-lowest p-8 text-center text-sm text-on-surface-variant">
           No rewards yet.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-xl border bg-surface-container-lowest shadow-sm">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-on-surface-variant">
-                <th className="px-6 py-3 font-label">Name</th>
-                <th className="px-6 py-3 font-label">Points Cost</th>
-                <th className="px-6 py-3 font-label">Stock</th>
-                <th className="px-6 py-3 font-label">Status</th>
-                <th className="px-6 py-3" />
+        <div className="relative overflow-x-auto bg-surface-container-lowest shadow-sm rounded-[8px] border border-outline-variant">
+          <table className="w-full text-sm text-left text-on-surface-variant">
+            <thead className="text-sm text-on-surface-variant bg-surface-container-low border-b border-outline-variant">
+              <tr>
+                <th scope="col" className="px-6 py-3 font-medium">Name</th>
+                <th scope="col" className="px-6 py-3 font-medium">Points Cost</th>
+                <th scope="col" className="px-6 py-3 font-medium">Stock</th>
+                <th scope="col" className="px-6 py-3 font-medium">Status</th>
+                <th scope="col" className="px-6 py-3">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {rewards.map((reward) => (
-                <tr key={reward.id} className="border-b last:border-0">
-                  <td className="px-6 py-3 font-medium text-on-background">{reward.name}</td>
-                  <td className="px-6 py-3 text-primary">{reward.pointsCost.toLocaleString()}</td>
-                  <td className="px-6 py-3 text-on-surface-variant">
+              {data.map((reward) => (
+                <tr
+                  key={reward.id}
+                  className="bg-surface-container-lowest border-b border-outline-variant last:border-0"
+                >
+                  <th scope="row" className="px-6 py-4 font-medium text-on-background whitespace-nowrap">
+                    {reward.name}
+                  </th>
+                  <td className="px-6 py-4 font-medium text-primary">
+                    {reward.pointsCost.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4">
                     {reward.stock == null ? 'Unlimited' : reward.stock}
                   </td>
-                  <td className="px-6 py-3">
+                  <td className="px-6 py-4">
                     <span
                       className={cn(
-                        'rounded-full px-2 py-0.5 font-label text-xs',
+                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                         reward.isActive
-                          ? 'bg-tertiary-container/20 text-tertiary-container'
-                          : 'bg-surface-container-high text-on-surface-variant',
+                          ? 'bg-tertiary/10 text-tertiary'
+                          : 'bg-surface-container text-on-surface-variant',
                       )}
                     >
                       {reward.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="px-6 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setDialog({ mode: 'translations', reward })}>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-end gap-4">
+                      <button
+                        onClick={() => setDialog({ mode: 'translations', reward })}
+                        className="text-xs font-medium text-on-surface-variant hover:text-primary hover:underline"
+                      >
                         Translations
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => setDialog({ mode: 'edit', reward })}>
+                      </button>
+                      <button
+                        onClick={() => setDialog({ mode: 'edit', reward })}
+                        className="text-xs font-medium text-primary hover:underline"
+                      >
                         Edit
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => setDialog({ mode: 'delete', reward })}>
+                      </button>
+                      <button
+                        onClick={() => setDialog({ mode: 'delete', reward })}
+                        className="text-xs font-medium text-error hover:underline"
+                      >
                         Delete
-                      </Button>
+                      </button>
                     </div>
                   </td>
                 </tr>

@@ -9,13 +9,17 @@ export class LocaleMiddleware implements NestMiddleware {
   constructor(private readonly businessesService: BusinessesService) {}
 
   async use(
-    req: Request & { locale?: string },
+    req: Request & { locale?: string; defaultLocale?: string },
     _res: Response,
     next: NextFunction,
   ): Promise<void> {
+    // x-custom-lang takes priority over Accept-Language
+    const customLang = req.headers['x-custom-lang'];
     const acceptLanguage = req.headers['accept-language'];
     const requestedLocale =
-      acceptLanguage?.split(',')[0]?.split(';')[0]?.trim() ?? 'en';
+      (typeof customLang === 'string' ? customLang.trim() : null) ??
+      acceptLanguage?.split(',')[0]?.split(';')[0]?.trim() ??
+      'en';
 
     // Decode JWT payload (without full verification) to read businessId.
     // Security decisions remain with AuthGuard — this only reads locale config.
@@ -48,6 +52,7 @@ export class LocaleMiddleware implements NestMiddleware {
           business.supportedLocales,
           business.defaultLocale,
         );
+        req.defaultLocale = business.defaultLocale;
         next();
         return;
       }

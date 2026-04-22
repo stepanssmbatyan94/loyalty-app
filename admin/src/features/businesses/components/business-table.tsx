@@ -9,33 +9,35 @@ type Props = {
 };
 
 export const BusinessTable = ({ businesses, onDeactivate }: Props) => (
-  <div className="overflow-x-auto rounded-xl border border-outline-variant">
-    <table className="w-full text-sm">
-      <thead className="bg-surface-container text-on-surface-variant">
+  <div className="relative overflow-x-auto bg-surface-container-lowest shadow-sm rounded-[8px] border border-outline-variant">
+    <table className="w-full text-sm text-left text-on-surface-variant">
+      <thead className="text-sm text-on-surface-variant bg-surface-container-low border-b border-outline-variant">
         <tr>
           {['Name', 'Owner ID', 'Earn Rate', 'Status', 'Bot Connected', 'Created', 'Actions'].map(
             (h) => (
-              <th key={h} className="px-4 py-3 text-left font-semibold whitespace-nowrap">
+              <th key={h} scope="col" className="px-6 py-3 font-medium whitespace-nowrap">
                 {h}
               </th>
             ),
           )}
         </tr>
       </thead>
-      <tbody className="divide-y divide-outline-variant">
+      <tbody>
         {businesses.map((b) => (
-          <tr key={b.id} className="hover:bg-surface-container-lowest transition-colors">
-            <td className="px-4 py-3 font-medium text-on-surface">{b.name}</td>
-            <td className="px-4 py-3 text-on-surface-variant">{b.ownerId ?? '—'}</td>
-            <td className="px-4 py-3 text-on-surface-variant">
+          <tr key={b.id} className="bg-surface-container-lowest border-b border-outline-variant last:border-0">
+            <th scope="row" className="px-6 py-4 font-medium text-on-background whitespace-nowrap">
+              {b.name}
+            </th>
+            <td className="px-6 py-4">{b.ownerId ?? '—'}</td>
+            <td className="px-6 py-4 whitespace-nowrap">
               {b.earnRateMode === 'per_amd_spent'
                 ? `${b.earnRateValue} AMD / pt`
                 : `${b.earnRateValue} pt / visit`}
             </td>
-            <td className="px-4 py-3">
+            <td className="px-6 py-4">
               <span
                 className={cn(
-                  'px-2 py-1 rounded-full text-xs font-bold',
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                   b.isActive
                     ? 'bg-tertiary/10 text-tertiary'
                     : 'bg-error/10 text-error',
@@ -44,21 +46,21 @@ export const BusinessTable = ({ businesses, onDeactivate }: Props) => (
                 {b.isActive ? 'Active' : 'Inactive'}
               </span>
             </td>
-            <td className="px-4 py-3">
+            <td className="px-6 py-4">
               {b.botToken ? (
                 <CheckCircle size={16} className="text-tertiary" />
               ) : (
                 <AlertTriangle size={16} className="text-secondary" />
               )}
             </td>
-            <td className="px-4 py-3 text-on-surface-variant whitespace-nowrap">
+            <td className="px-6 py-4 whitespace-nowrap">
               {new Date(b.createdAt).toLocaleDateString()}
             </td>
-            <td className="px-4 py-3">
-              <div className="flex items-center gap-3">
+            <td className="px-6 py-4">
+              <div className="flex items-center gap-4">
                 <Link
                   to={`/businesses/${b.id}`}
-                  className="text-primary text-xs font-semibold hover:underline"
+                  className="font-medium text-primary hover:underline text-xs"
                 >
                   View
                 </Link>
@@ -75,8 +77,8 @@ export const BusinessTable = ({ businesses, onDeactivate }: Props) => (
                     }
                   }}
                   className={cn(
-                    'text-xs font-semibold',
-                    b.isActive ? 'text-error hover:underline' : 'text-tertiary hover:underline',
+                    'text-xs font-medium hover:underline',
+                    b.isActive ? 'text-error' : 'text-tertiary',
                   )}
                 >
                   {b.isActive ? 'Deactivate' : 'Reactivate'}

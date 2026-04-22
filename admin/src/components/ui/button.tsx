@@ -6,22 +6,22 @@ import { cn } from '@/utils/cn';
 import { Spinner } from './spinner';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[8px] text-sm font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'text-primary-foreground bg-primary shadow hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
-        outline: 'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
-        secondary: 'text-secondary-foreground bg-secondary shadow-sm hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        default: 'bg-primary text-on-primary shadow hover:bg-primary-container',
+        destructive: 'bg-error text-on-error shadow-sm hover:bg-error/90',
+        outline: 'border border-outline-variant bg-surface-container-lowest shadow-sm hover:bg-surface-container-low hover:text-primary',
+        secondary: 'bg-secondary text-on-secondary shadow-sm hover:bg-secondary/80',
+        ghost: 'hover:bg-surface-container-low hover:text-on-surface',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-9 px-4 py-2',
-        sm: 'h-8 rounded-md px-3 text-xs',
-        lg: 'h-10 rounded-md px-8',
-        icon: 'size-9',
+        default: 'h-10 px-5 py-2.5',
+        sm: 'h-8 px-3 text-xs',
+        lg: 'h-11 px-8',
+        icon: 'size-10',
       },
     },
     defaultVariants: {
@@ -44,8 +44,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
         {isLoading && <Spinner size="sm" className="text-current" />}
-        {!isLoading && icon && <span className="mr-2">{icon}</span>}
-        <span className="mx-2">{children}</span>
+        {!isLoading && icon}
+        {children}
       </Comp>
     );
   },
